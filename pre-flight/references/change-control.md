@@ -4,11 +4,11 @@
 
 ## 变更顺序
 
-人的目标变更 → 更新Intent并记录确定与未决 → 新Spec版本与差异 → Plan调整 → 候选实现 → 验证 → 适用交付批准/执行/回读 → 更新当前有效版本 → 关闭对应改善事项。
+人的目标变更 → 新候选Intent → AI复述变更与影响 → 人确认该版本 → 正式纳入并记录未决 → 新Spec版本与差异 → Plan调整 → 候选实现 → 验证 → 适用交付批准/执行/回读 → 更新当前有效版本 → 关闭对应改善事项。
 
-Spec可用draft/frozen/superseded；有效版本由STATUS/发布记录指明。实现证据另列planned/implemented/isolated-verified/packaged/installed/business-verified；这组示例按项目裁剪。Intent可用draft/accepted/in-progress/closed/cancelled，取消不等于目标达成。
+Spec可用draft/frozen/superseded；有效版本由STATUS/发布记录指明。实现证据另列planned/implemented/isolated-verified/packaged/installed/business-verified；这组示例按项目裁剪。Intent可用draft/awaiting-confirmation/accepted/in-progress/closed/cancelled，取消不等于目标达成。
 
-“接受意图”“冻结设计”“接受实现”“许可部署”是不同决定；同一次明确授权可覆盖多项，记录范围，不制造重复确认。代码变更后旧测试只能证明旧身份，按影响补验证。
+“接受意图”必须是人对AI复述的确认；它与“冻结设计”“接受实现”“许可部署”是不同决定；同一次明确授权可覆盖多项，记录范围，不制造重复确认。代码变更后旧测试只能证明旧身份，按影响补验证。
 
 ## 中断与未知效果
 

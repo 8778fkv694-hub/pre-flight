@@ -1,91 +1,95 @@
 # 起飞 · Pre-flight
 
-**从人的意图出发，让 AI 把项目推进到可验证的交付。**
+**简体中文** | [English](README.en.md)
 
-**Start with human intent. Let AI carry the project toward verifiable delivery.**
+**从人的意图出发，建立项目基础，让 AI 持续推进到可验证的交付。**
 
-面向新项目及后续迭代的通用 Skill，借鉴 Anthropic《The AI-Native SDLC Playbook》，以 `AGENT.md` 为项目规则的统一正文，贯穿 Plan → Design → Build → Test → Deploy → Maintain。
+“起飞”是一套可以交给开发 Agent 使用的通用 Skill。你先用自己的话说想做什么，它帮助你建立项目的基础宪法、写清做好标准，再规划、开发、验证和交接。适用于全新项目，也支持已有项目逐步采用。
 
-A portable skill for new projects and continued iteration, inspired by Anthropic’s *The AI-Native SDLC Playbook*. It uses `AGENT.md` as the shared project guide across the six lifecycle stages.
+## 第一次创建项目，从这里开始
 
-## 我的观点 / My perspective
+你需要一个能够读取文件和执行开发工作的 AI 工具。先准备两个位置：
 
-以下是根据发起人在本次设计讨论中表达的要求整理的项目主张，由 AI 协助编写；是观点归纳，不是逐字引述，也不代表对 AI 未来能力的承诺。
+- **技能目录**：存放“起飞”这套方法，可以被多个项目复用。
+- **项目目录**：存放你要做的产品，每个新项目用自己的空文件夹。
 
-The following principles summarize the originator’s requirements in the design discussion, with AI-assisted writing. They are paraphrases, not verbatim quotations or promises about future AI capabilities.
+### 1. 下载技能
 
-### 1. 人的意图是项目的起点 / Human intent comes first
+在本仓库页面点击 **Code → Download ZIP** 并解压。保留完整的 `pre-flight/` 文件夹，里面的 `SKILL.md` 是入口，其他文件也需要一起保留。
 
-我希望 AI 先理解我要什么、为什么要做、怎样算做好，再规划如何实现。人的原话、Agent的理解和仍待确认的假设应当能区分。Spec应当让人读得懂，让开发者据此施工。
+可以将它放进工具支持的技能目录，按该工具的实际说明安装；也可以先放在你容易找到的位置，直接把路径告诉 Agent。无需先配置自动发现。
 
-I want AI to understand what I want, why it matters, and what success means before planning implementation. My words, the agent’s interpretation, and unresolved assumptions should remain distinguishable. A spec should be readable by people and actionable for builders.
+### 2. 选定新项目位置
 
-### 2. AI 要能承担连续的工作 / AI should carry work forward
+例如，将技能放在 `/你的目录/技能/pre-flight`，将新项目放在 `/你的目录/项目/我的新项目`。请换成你电脑上的真实路径。项目目录应当尚不存在或为空，避免覆盖已有文件。
 
-我对AI的期待是能规划、执行、验证并接续工作。换一个Agent，也应能从共同资料看懂项目、知道已做和未做，减少重复解释与返工。
+### 3. 复制这段话给 Agent
 
-I expect AI to plan, execute, verify, and continue work. Another agent should be able to understand the project from shared records, see what is complete and what remains, and reduce repeated explanations and rework.
-
-### 3. 做好标准和实际证据要一致 / Success criteria must meet evidence
-
-写了方案、生成代码、保存成功，都不足以说明项目做好了。要求确定、实现验收和正式生效需要分别记录。我们应能看到结果依据，也能看到失败、未知和未验的部分。
-
-A plan, generated code, or a successful save does not establish that a project is done. Agreed requirements, implementation acceptance, and activation need separate records. Evidence should support the result while failures, unknowns, and untested areas remain visible.
-
-### 4. 方法应当跨 Agent 复用 / The method should travel across agents
-
-我希望这套工作流能用于全新项目，并让不同开发Agent沿同一依据合作。以AGENT.md维护共同规则，按客户端需要加薄入口；共同资料应当延续，不应依赖某一段聊天历史。
-
-I want this workflow to serve new projects and let different coding agents work from the same foundation. Shared rules live in AGENT.md, with thin client entry files where needed. Project continuity should live in durable records rather than one chat’s history.
-
-### 5. 工程严谨也要对人友好 / Engineering discipline should be human-friendly
-
-用户应当先看到自己的意图、做好标准、当前进展和要决定的事。技术字段按需展开。流程随项目规模裁剪，已有授权不反复确认；人在目标、关键取舍与必要权限处作决定。
-
-People should first see their intent, success criteria, progress, and decisions that need attention. Technical details can unfold when needed. The process should scale with the project and respect existing authorization, while people direct goals, key tradeoffs, and necessary permissions.
-
-## 包含什么 / Contents
-
-- [SKILL.md](pre-flight/SKILL.md)：工作流入口 / workflow instructions.
-- [references](pre-flight/references/)：六阶段、版本恢复、初始化与方法来源 / focused references.
-- [项目模板](pre-flight/assets/project-template/)：AGENT、STATUS及六阶段资料 / shared guide, state, and stage artifacts.
-- [初始化脚本](pre-flight/scripts/init_project.py)：默认预览，只在新空目录创建文件 / dry-run first; creates documents only in a new empty directory.
-
-## 使用 / Usage
-
-将整个 `pre-flight/` 文件夹放入所用工具支持的技能目录；具体安装位置按该工具当前说明核实。也可直接要求Agent读取本仓库的 `pre-flight/SKILL.md`，再执行工作。支持该调用方式的宿主可使用：
-
-Place the whole `pre-flight/` folder in a skill directory supported by your tool; verify its current installation conventions. Alternatively, ask the agent to read `pre-flight/SKILL.md` directly. In hosts supporting named skills:
-
-> 使用 $pre-flight 启动我的新项目。先理解我的意图，形成可读Spec和可执行Plan，再在授权范围内实施和验证。
-
-> Use $pre-flight to start my project. Understand my intent, create a readable spec and actionable plan, then implement and verify within the authorized scope.
-
-在仓库根目录运行以下命令。将目标换成你自己的新目录；第一次只预览：
-
-Run from the repository root, replacing the target with your own new directory. The first command previews changes:
-
-```sh
-python3 pre-flight/scripts/init_project.py --target ./my-new-project --project-name "My Project"
-python3 pre-flight/scripts/init_project.py --target ./my-new-project --project-name "My Project" --apply
+```text
+请先读取 /你的目录/技能/pre-flight/SKILL.md。
+我要在 /你的目录/项目/我的新项目 创建一个新项目。
+我的想法是：[用自己的话描述想为谁解决什么问题]。
+请先帮助我理解和整理意图，用通俗语言协助建立项目基础宪法，
+先复述候选意图，等我确认这份复述后才纳入正式 Intent。
+把共同规则写入 AGENT.md，再形成可读的 Spec 和可执行的 Plan。
+关键缺口请问我，能独立调查的继续调查；沿用我已经给出的授权。
+当前先完成项目基础和规划，向我说明待决定事项，再按后续授权开发。
 ```
 
-默认生成AGENTS.md入口；可添加 `--adapters agents,claude,gemini`。脚本不初始化Git、不选技术栈、不安装依赖、不发布；文档中的待定项须由后续工作落实。
+如果你已经明确要求它持续开发，可以把最后一句改为：“完成基础与规划后，在我已授权的范围内继续实施、验证和交付。”支持技能名称调用的工具，也可以使用 `$pre-flight`。
 
-AGENTS.md is generated by default; add `--adapters agents,claude,gemini` for other thin entry files. The script does not initialize Git, select a stack, install dependencies, or deploy. Draft fields must be resolved during actual project work.
+### 4. 看懂它给你的项目基础
 
-## 兼容性与边界 / Compatibility and limits
+| 你关心的事 | 项目里放在哪里 |
+|---|---|
+| 项目的基础宪法：目的、原则、边界、AI 工作规则、如何修改规则 | `AGENT.md` |
+| 我到底想做什么，为什么做 | `docs/sdlc/plan/intent.md` |
+| 产品应当怎样工作，怎样算做好 | `docs/sdlc/design/spec.md` |
+| 分几步做，每步怎么验证和恢复 | `docs/sdlc/build/plan.md` |
+| 现在做到哪里，接下来做什么 | `STATUS.md` |
+| 实测、交付与后续问题 | `docs/sdlc/test/`、`deploy/`、`maintain/` |
 
-`AGENT.md` 是本项目选择的共同正文，并非所有工具都会自动读取它。薄入口仅引用正文；自动加载、Skill发现及工具权限仍取决于宿主。首次使用应核对Agent确实读取文件。本包未宣称已在所有客户端完成端到端验证。
+你不必先掌握这些文件名。Agent 应先用你能理解的语言说明目的、做好标准、进度和需要你决定的事，技术细节按需展开。文件会随着讨论和验证逐步完善，初始化只建立草稿。
 
-`AGENT.md` is this project’s chosen shared guide, not a universally auto-loaded filename. Thin entry files point to it; discovery and permissions depend on the host. Verify that the agent actually reads it. End-to-end compatibility across all clients is not claimed.
+## 我的观点与对 AI 的理解
 
-Skill是指导；确定性门禁需要真实脚本、CI或宿主配置。发布、生产变更和外部动作仍按实际授权执行。小修复可轻量记录，不必填满全部模板。
+以下根据发起人在设计讨论中的要求整理，由 AI 协助撰写，是观点归纳。
 
-A skill provides guidance; enforced controls need actual scripts, CI, or host configuration. Deployment, production changes, and external actions follow applicable authorization. Small changes can use lightweight records instead of every template.
+1. **人的意图需要共同确定。** 人随口说的话是输入。AI 必须引导梳理并复述，由人确认这份复述后，才纳入正式 Intent；实质修改也须重新复述和确认。同一已确认版本无需在每个步骤重复确认。AI 应先理解我要什么、为什么做、怎样算做好。人的原话、Agent 的理解和待确认假设应当能区分，Spec 要让人读得懂，也能指导开发。
+2. **AI 应承担连续工作。** 我期待它能规划、执行、验证并接续任务。换一个 Agent，也应从共同资料理解已做和未做，减少重复解释与返工。
+3. **完成要有证据。** 方案、代码或保存成功不足以证明做好。要求确定、实现验收、正式生效分别记录，失败、未知和未验也要看得见。
+4. **方法应跨 Agent 延续。** 以 `AGENT.md` 维护共同规则，各工具按需要设置薄入口；项目依据要留在可交接的资料中。
+5. **严谨也应对人友好。** 用户先看到意图、做好标准、进展和待决定事项。流程按规模裁剪，已有授权不反复确认，人在目标、关键取舍与必要权限处作决定。
 
-## 来源、验证与许可 / Basis, validation and license
+## 两份参考资料怎样结合
 
-方法来源与本包适配的区别见[方法说明](pre-flight/references/method-basis.md)。不捆绑原书PDF，不隶属于Anthropic或任何客户端厂商。验证范围见[VALIDATION.md](VALIDATION.md)。本包原创内容采用[MIT](LICENSE)许可；原书及所提产品名称的权利归其权利人。
+本项目结合 Louis Claxton / Anthropic 的 *The AI-Native SDLC Playbook*，以及 Addy Osmani、Shubham Saboo、Sokratis Kartakis 的 *The New SDLC With Vibe Coding: From ad-hoc prompting to Agentic Engineering*（2026 年 5 月，用户提供的 Google AI SDLC 资料）。
 
-See the [method notes](pre-flight/references/method-basis.md) for the source and this package’s adaptations. The source PDF is not bundled. This project is not affiliated with Anthropic or any client vendor. See [validation scope](VALIDATION.md). Original package content is [MIT licensed](LICENSE); referenced publications and product names retain their owners’ rights.
+- Playbook 提供 **Plan → Design → Build → Test → Deploy → Maintain** 的六阶段、工件和反馈闭环。
+- *The New SDLC* 补充**上下文工程、围绕模型的执行机制（Harness）、tests 与 evals、原型到生产的分级，以及长期成本视角**。
+- “起飞”把它们转成宿主无关的方法。项目宪法、人的可读视角、版本与生效语义是本包的适配；不会将参考作者的观点直接归为发起人的观点。
+
+详细出处、页码、取舍及适配见[方法依据](pre-flight/references/method-basis.md)。
+
+## 使用边界
+
+`AGENT.md` 是本方案的共同正文。默认生成的 `AGENTS.md` 以及可选的 `CLAUDE.md`、`GEMINI.md` 引用正文；自动读取仍取决于工具，首次使用需核对 Agent 确实读取。
+
+Skill 提供指导，真正的检查与权限限制需要实际脚本、CI 和宿主设置。原型与生产项目按风险采用不同验证强度；只在产品含模型行为或要评估开发 Agent 时建立相应 eval。小修复可轻量记录。
+
+## 手动初始化（可选）
+
+一般让 Agent 处理即可。需要手动创建资料时，在本仓库根目录运行，先预览，再创建：
+
+```sh
+python3 pre-flight/scripts/init_project.py --target ./my-new-project --project-name "我的项目"
+python3 pre-flight/scripts/init_project.py --target ./my-new-project --project-name "我的项目" --apply
+```
+
+默认创建 `AGENTS.md` 入口；可用 `--adapters agents,claude,gemini` 或 `--adapters none`。脚本只向新空目录创建资料，不会完成应用开发。已有项目由 Agent 先检查再增量采用。
+
+## 内容与许可
+
+[技能入口](pre-flight/SKILL.md) · [流程与参考](pre-flight/references/) · [项目模板](pre-flight/assets/project-template/) · [验证范围](VALIDATION.md)
+
+原创内容采用 [MIT 许可](LICENSE)。原书 PDF 不随包发布；本项目与参考资料作者及各厂商无隶属关系。跨客户端真实 Agent 行为与自动发现尚未完成端到端验证。
