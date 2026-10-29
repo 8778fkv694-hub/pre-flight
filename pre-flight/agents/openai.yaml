@@ -1,0 +1,4 @@
+interface:
+  display_name: "起飞 · Pre-flight"
+  short_description: "从人的意图到规格、计划、验证、交付和维护，启动与接续通用软件项目"
+  default_prompt: "使用 $pre-flight 启动我的新项目，先澄清人的意图，再形成规格和实施计划。"
