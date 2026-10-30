@@ -95,7 +95,7 @@ def amendment(project, amend_id, old, new, version):
         if not isinstance(record.get(field), str) or not record[field].strip():
             fail("amendment missing " + field)
     changes = record.get("changes")
-    if not isinstance(changes, dict) or not changes:
+    if not isinstance(changes, dict):
         fail("amendment changes missing")
     actual = {}
     for key in sorted(set(old) | set(new)):
