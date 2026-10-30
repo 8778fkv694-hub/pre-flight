@@ -1,0 +1,43 @@
+{
+  "routing": {
+    "complexity": "Lite",
+    "impact": "Standard",
+    "tier": "Standard",
+    "unknown_impact": false,
+    "downgraded": false
+  },
+  "handoff": {
+    "handoff_id": "HO-001",
+    "created_at": "2026-10-30T12:00:00+08:00",
+    "from_agent": "agent-A",
+    "to_agent": "agent-B",
+    "task_id": "TASK-001",
+    "intent_ref": "INTENT-001 v1",
+    "spec_ref": "SPEC-001 v1",
+    "plan_wp_id": "WP-001",
+    "scope": "仅处理 WP-001",
+    "allowed_actions": [
+      "只读检查"
+    ],
+    "forbidden_actions": [
+      "发布",
+      "生产写入"
+    ],
+    "write_set": [],
+    "shared_resources": [],
+    "implementation_ref": "unbuilt",
+    "environment": "local",
+    "verification": {
+      "status": "NOT_RUN",
+      "evidence_level": "E3",
+      "test_id": "V-001",
+      "implementation_ref": "unbuilt",
+      "environment": "local",
+      "evidence_ref": "none"
+    },
+    "pending_decisions": [],
+    "next_action": "review_scope",
+    "resume_point": "WP-001",
+    "side_effect_state": "none"
+  }
+}
