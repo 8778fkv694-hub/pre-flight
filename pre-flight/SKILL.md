@@ -42,6 +42,20 @@ description: 以 AI Native SDLC 方法启动全新软件项目或接续其迭代
 - 验证与交付收据：对应实际源码/包/配置、命令与退出码、样本和未验边界。
 - 各客户端入口仅引用AGENT.md；不得产生平行规则副本。现有入口含独立规则时先合并语义，不能直接覆盖。
 
+## V2 批次 A：可选确定性核对
+
+- 基本法新锁覆盖多行受保护条款，旧锁须显式迁移；修正后的重新冻结需要结构化修正记录且差异集合匹配。详情见[基本法修正](references/basic-law-change.md)。
+- 项目可运行 `python3 scripts/check_project_contract.py --project . --mode audit` 只读检查 Intent/Spec/Plan 引用和可选测试收据；已有项目默认 audit，不自动改写、不阻断。经项目明确启用后用 `--mode check` 阻断确定性错误。
+- 每个工作包最小关联 Spec 版本/条款、Case、实现身份、环境与状态；版本变化后不能沿用旧测试作为新版本已验的证据。
+
+## V2 批次 B：执行路由与跨 Agent 交接
+
+按[风险路由、意图差异、交接与证据契约](references/v2-batch-b-routing-and-handoff.md)选择 Lite/Standard/Strict，档位只调整文档与验证深度，不改变基本法、授权或人对 Intent 的确认要求。外部 Agent 交接必须注明权限、写集合、当前版本、原始证据和副作用状态；本机制不替换内部 Agent 通讯。检查器仅验证结构化输入，不是权限凭证；需项目主动选择门禁。
+
+## V2 批次 C：渐进采用与行为验证
+
+先按[渐进采用、CI 档位、按需加载与行为基准](references/v2-batch-c-adoption-and-benchmark.md)选择 Observe/Assist/Enforce。存量项目默认只读 Observe，不覆盖原结构；只有明确批准才启用 Enforce。可选 `scripts/check_adoption.py` 在现有项目上报告差异，`--contract-check` 仅在标准四文件齐全时检查契约。六个[行为基准场景](benchmarks/v2-batch-c-scenarios.json)目前标记 NOT_RUN，不得宣称真实 Agent 通过。
+
 ## 执行与证据边界
 
 工件提交是可追溯依据；自动触发下一阶段要有真实配置与验收。没有Git/CI时，用带版本的文件和人工交接明确标注，不能声称有自动门禁。Skill和Markdown是指导，不是权限强制器。
