@@ -52,17 +52,30 @@ def inspect(root):
         if kind not in docs or dependency not in docs:
             continue
         body = docs[kind]["text"][:1600]
-        refs = [(m.group(1).upper() + "-001", int(m.group(2))) for m in REF.finditer(body)]
-        # Also accept references with IDs other than -001.
         refs = [(m.group(0).split()[0].upper(), int(m.group(2))) for m in REF.finditer(body)]
         expected = (docs[dependency]["id"], docs[dependency]["version"])
-        if expected[0] and expected[1] and expected not in refs:
-            issues.append(("ERROR", kind, "dependency reference differs from %s %s v%s" %
-                           (dependency, expected[0], expected[1])))
-        if docs[kind]["state"] in ({"frozen", "ready", "in-progress", "completed"}):
-            if docs[dependency]["state"] not in ({"accepted", "in-progress", "closed"} if dependency == "intent" else {"frozen"}):
-                issues.append(("ERROR", kind, "active artifact depends on non-accepted " + dependency))
-    # Structured receipts are optional for drafts, required when claiming verified work.
+        pinned = [r for r in refs if r[0].startswith(dependency.upper() + "-")]
+        active = docs[kind]["state"] in {"frozen", "ready", "in-progress", "completed"}
+        if not pinned:
+            issues.append(("ERROR" if active else "WARN", kind,
+                           "no explicit %s version reference" % dependency))
+        elif expected[0] and expected[1]:
+            for ref_id, ref_version in pinned:
+                if ref_id == expected[0] and ref_version > expected[1]:
+                    issues.append(("ERROR", kind, "references future %s v%s" %
+                                   (ref_id, ref_version)))
+                elif (ref_id, ref_version) != expected:
+                    # Historical accepted versions may be valid. Inspect immutable history.
+                    issues.append(("WARN", kind,
+                                   "pinned %s v%s differs from current %s v%s; verify history" %
+                                   (ref_id, ref_version, expected[0], expected[1])))
+        if active and expected in pinned:
+            permitted = ({"accepted", "in-progress", "closed"} if dependency == "intent"
+                         else {"frozen"})
+            if docs[dependency]["state"] not in permitted:
+                issues.append(("ERROR", kind,
+                               "active artifact depends on non-accepted current " + dependency))
+    # Structured receipts are optional; validation checks the claim's shape, not its truth.
     receipt = root / "docs/sdlc/test/receipts.json"
     if receipt.exists():
         try:
@@ -87,7 +100,8 @@ def inspect(root):
         # Optional strict machine-readable single-line marker; old STATUS is not broken by its absence.
         marker = re.search(r"^Current-Spec:\s*(SPEC-\d{3})\s+v(\d+)\s*$", status.read_text(encoding="utf-8"), re.M | re.I)
         if marker and (marker.group(1).upper(), int(marker.group(2))) != (docs["spec"]["id"], docs["spec"]["version"]):
-            issues.append(("ERROR", "status", "Current-Spec differs from Spec document"))
+            level = "WARN" if docs["spec"]["state"] == "draft" else "ERROR"
+            issues.append((level, "status", "Current-Spec differs from Spec document; inspect active baseline"))
     return issues
 
 
