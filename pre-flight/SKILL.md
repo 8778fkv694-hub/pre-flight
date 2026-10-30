@@ -48,6 +48,10 @@ description: 以 AI Native SDLC 方法启动全新软件项目或接续其迭代
 - 项目可运行 `python3 scripts/check_project_contract.py --project . --mode audit` 只读检查 Intent/Spec/Plan 引用和可选测试收据；已有项目默认 audit，不自动改写、不阻断。经项目明确启用后用 `--mode check` 阻断确定性错误。
 - 每个工作包最小关联 Spec 版本/条款、Case、实现身份、环境与状态；版本变化后不能沿用旧测试作为新版本已验的证据。
 
+## V2 批次 B：执行路由与跨 Agent 交接（候选）
+
+按[风险路由、意图差异、交接与证据契约](references/v2-batch-b-routing-and-handoff.md)选择 Lite/Standard/Strict，档位只调整文档与验证深度，不改变基本法、授权或人对 Intent 的确认要求。外部 Agent 交接必须注明权限、写集合、当前版本、原始证据和副作用状态；本机制不替换内部 Agent 通讯。批次 B 仍处于评审阶段，不作为强制门禁。
+
 ## 执行与证据边界
 
 工件提交是可追溯依据；自动触发下一阶段要有真实配置与验收。没有Git/CI时，用带版本的文件和人工交接明确标注，不能声称有自动门禁。Skill和Markdown是指导，不是权限强制器。
