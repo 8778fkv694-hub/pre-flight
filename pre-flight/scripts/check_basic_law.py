@@ -39,6 +39,19 @@ def read_json(path):
 def parse(text, schema):
     if "## 项目基本法" not in text or "受保护条款" not in text:
         fail("missing basic-law heading or protected-clause marker")
+    if schema == 1:
+        # Exact V1 extraction: strip the line, match flexible whitespace, hash only the first line.
+        # V1 deliberately did not protect continuation lines; migrating closes that gap.
+        clauses = {}
+        for line in text.splitlines():
+            match = LEGACY_CLAUSE.match(line.strip())
+            if match:
+                if match.group(1) in clauses:
+                    fail("duplicate clause " + match.group(1))
+                clauses[match.group(1)] = digest(match.group(2).strip())
+        if not clauses:
+            fail("no protected clauses")
+        return clauses
     result = {}
     active = None
     for line in text.splitlines():
@@ -51,8 +64,6 @@ def parse(text, schema):
             active = key
         elif active is not None:
             if line.startswith(("  ", "\t")) and line.strip():
-                if schema == 1:
-                    fail("legacy schema 1 does not protect continuation lines; migrate explicitly")
                 result[active].append(line.strip())
             elif not line.strip():
                 active = None
@@ -111,6 +122,7 @@ def main():
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument("--freeze", action="store_true")
     mode.add_argument("--migrate", action="store_true")
+    mode.add_argument("--check", action="store_true", help="explicit check alias (also the default)")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--amend")
     ap.add_argument("--note")
