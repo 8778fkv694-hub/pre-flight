@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>构建高效智能体 (Building Effective Agents) - Anthropic 官方白皮书精译</title>
+    <style>
+        :root {
+            --primary: #d97706;
+            --primary-dark: #b45309;
+            --primary-light: #fef3c7;
+            --claude-accent: #cc785c;
+            --text-main: #1f2937;
+            --text-secondary: #4b5563;
+            --bg-body: #fafaf9;
+            --bg-card: #ffffff;
+            --border-color: #e7e5e4;
+            --sidebar-width: 290px;
+            --max-content-width: 920px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.75;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .anthropic-badge {
+            background: linear-gradient(135deg, #d97706, #cc785c, #ea580c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .series-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #fde68a;
+        }
+
+        .nav-links a {
+            color: #b45309;
+            text-decoration: none;
+            font-size: 14px;
+            margin-left: 16px;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Layout */
+        .page-wrapper {
+            display: flex;
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            gap: 32px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+
+        .toc-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 4px;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .toc-link:hover {
+            background-color: #f5f5f4;
+            color: var(--primary-dark);
+        }
+
+        .toc-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .toc-sublist {
+            list-style: none;
+            padding-left: 16px;
+            margin-top: 2px;
+        }
+
+        .toc-sublist .toc-link {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+        }
+
+        .article-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 48px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            margin-bottom: 32px;
+        }
+
+        .doc-header {
+            margin-bottom: 40px;
+            padding-bottom: 28px;
+            border-bottom: 2px solid #f5f5f4;
+        }
+
+        .doc-title {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #1c1917;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        .doc-subtitle {
+            font-size: 19px;
+            color: #57534e;
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .meta-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: #fafaf9;
+            border-radius: 8px;
+            padding: 18px 24px;
+            border: 1px solid #e7e5e4;
+            font-size: 14px;
+        }
+
+        .meta-item strong {
+            display: block;
+            color: #78716c;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        /* Headings */
+        h1, h2, h3, h4 {
+            color: #1c1917;
+            font-weight: 700;
+            scroll-margin-top: 85px;
+        }
+
+        h2 {
+            font-size: 25px;
+            margin-top: 48px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e7e5e4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background-color: var(--claude-accent);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 19px;
+            margin-top: 32px;
+            margin-bottom: 14px;
+            color: #292524;
+        }
+
+        h4 {
+            font-size: 16.5px;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            color: #44403c;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #292524;
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #292524;
+            line-height: 1.7;
+        }
+
+        strong {
+            color: #1c1917;
+        }
+
+        /* Quotes & Tips */
+        .quote-banner {
+            border-left: 5px solid var(--claude-accent);
+            background: linear-gradient(to right, #fbf0ea, #ffffff);
+            padding: 22px 26px;
+            margin: 28px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 18.5px;
+            font-weight: 500;
+            color: #7c2d12;
+            line-height: 1.6;
+        }
+
+        .callout-box {
+            background-color: #fefce8;
+            border: 1px solid #fef08a;
+            border-left: 4px solid #ca8a04;
+            border-radius: 6px;
+            padding: 18px 20px;
+            margin: 26px 0;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            color: #854d0e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .callout-box p {
+            color: #713f12;
+            margin-bottom: 0;
+            font-size: 14.5px;
+        }
+
+        /* SVG Diagram Box */
+        .diagram-container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 36px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .svg-canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .diagram-caption {
+            margin-top: 14px;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #1c1917;
+        }
+
+        .diagram-analysis {
+            margin-top: 18px;
+            text-align: left;
+            background: #fafaf9;
+            border: 1px solid #e7e5e4;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 14px;
+        }
+
+        .breakdown-header {
+            font-weight: 700;
+            color: #1c1917;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .breakdown-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .breakdown-list li {
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            color: #44403c;
+            line-height: 1.6;
+        }
+
+        .breakdown-list li strong {
+            color: #1c1917;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 28px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px;
+            text-align: left;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f5f5f4;
+            color: #1c1917;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e7e5e4;
+            color: #292524;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafaf9;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 14px;
+            color: #78716c;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+            .page-wrapper {
+                padding: 16px;
+            }
+            .article-card {
+                padding: 24px;
+            }
+            .doc-title {
+                font-size: 28px;
+            }
+        }
+    
+        /* Collapsible Sidebar Styles */
+        .page-wrapper {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc-header-bar .toc-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .toc-collapse-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f3f4;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toc-collapse-btn:hover {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+        .header-toc-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-left: 12px;
+        }
+
+        .header-toc-toggle-btn:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+        }
+
+        .toc-expand-floating-btn {
+            position: fixed;
+            top: 85px;
+            left: 16px;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: #1a73e8;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-expand-floating-btn:hover {
+            background: #1557b0;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.45);
+        }
+
+        .sidebar {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Collapsed State */
+        .page-wrapper.sidebar-collapsed .sidebar {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+
+        .page-wrapper.sidebar-collapsed .toc-expand-floating-btn {
+            display: inline-flex !important;
+            animation: fadeInPill 0.3s ease;
+        }
+
+        .page-wrapper.sidebar-collapsed .main-content {
+            max-width: 1080px;
+            transition: max-width 0.3s ease;
+        }
+
+        @keyframes fadeInPill {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    
+</style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="top-navbar">
+        <a href="index.html" class="brand-logo">
+            <span class="anthropic-badge">Anthropic</span> 官方研究精译
+            <span class="series-tag">智能体设计模式篇</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">← 返回总览目录</a>
+            <a href="anthropic_ai_native_sdlc_playbook_zh.html" style="color: #b45309; font-weight:700;">AI 原生 SDLC 手册 →</a>
+            <a href="introduction_to_agents_zh.html">Google 智能体引论 →</a>
+            <a href="new_sdlc_with_vibe_coding_zh.html">新一代 SDLC →</a>
+        <button class="header-toc-toggle-btn" onclick="toggleSidebar()" title="切换目录折叠/展开">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                <span>目录</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+
+        <!-- Floating Expand Button for Collapsed TOC -->
+        <button class="toc-expand-floating-btn" id="tocExpandFloatingBtn" onclick="toggleSidebar()" title="展开目录导航" aria-label="展开目录导航">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span>展开目录</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
+        </button>
+    
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="toc-header-bar">
+                <span class="toc-title">目录导航</span>
+                <button class="toc-collapse-btn" onclick="toggleSidebar()" title="折叠收纳目录" aria-label="折叠收纳目录">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
+                    <span>收起</span>
+                </button>
+            </div>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#sec-intro" class="toc-link">1. 引言：智能体究竟是什么？</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#sec-workflow-vs-agent" class="toc-link">工作流 vs 自主智能体</a></li>
+                        <li><a href="#sec-augmented-llm" class="toc-link">增强型 LLM 架构基石</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-when-to-use" class="toc-link">2. 何时（以及何时不应）使用智能体</a></li>
+                <li class="toc-item"><a href="#sec-patterns" class="toc-link">3. 智能体的五大核心工作流模式</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#pattern-chaining" class="toc-link">模式一：提示词链 (Chaining)</a></li>
+                        <li><a href="#pattern-routing" class="toc-link">模式二：分类路由 (Routing)</a></li>
+                        <li><a href="#pattern-parallel" class="toc-link">模式三：并行化 (Parallelization)</a></li>
+                        <li><a href="#pattern-orchestrator" class="toc-link">模式四：编排者-工作者模式</a></li>
+                        <li><a href="#pattern-eval-opt" class="toc-link">模式五：评估者-优化者模式</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-autonomous-agents" class="toc-link">4. 全自主智能体 (Autonomous Agents)</a></li>
+                <li class="toc-item"><a href="#sec-combining" class="toc-link">5. 混合模式与定制化架构</a></li>
+                <li class="toc-item"><a href="#sec-principles" class="toc-link">6. 智能体工程落地三大黄金法则</a></li>
+                <li class="toc-item"><a href="#sec-evals" class="toc-link">7. 评测、测试与可观测性</a></li>
+                <li class="toc-item"><a href="#sec-conclusion" class="toc-link">8. 结语：大道至简的架构艺术</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <article class="article-card">
+                <header class="doc-header">
+                    <h1 class="doc-title">构建高效智能体<br><span style="font-size:22px; color:#78716c; font-weight:500;">Building Effective Agents</span></h1>
+                    <div class="doc-subtitle">Anthropic 官方智能体工作流与设计模式指南 · 业界被引用最多的奠基白皮书</div>
+                    
+                    <div class="meta-box">
+                        <div class="meta-item">
+                            <strong>原著作者</strong>
+                            Erik Schluntz, Barry Zhang (Anthropic)
+                        </div>
+                        <div class="meta-item">
+                            <strong>出品机构</strong>
+                            Anthropic · Research & Applied AI
+                        </div>
+                        <div class="meta-item">
+                            <strong>定位与影响</strong>
+                            全球首个提出 5 种基础工作流模式与智能体渐进演进体系的权威架构指南
+                        </div>
+                        <div class="meta-item">
+                            <strong>中文翻译</strong>
+                            完整专业精译 · 自带高清矢量架构图与中文详解
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Section 1 -->
+                <section id="sec-intro">
+                    <h2>1. 引言：智能体究竟是什么？ (What are agents?)</h2>
+
+                    <div class="quote-banner">
+                        “在过去一年中，我们与数十支构建 AI 应用的工程团队进行了深入交流。最成功的团队往往并不盲目使用繁琐的通用智能体框架，而是从极简的设计模式出发，根据实际业务需求逐步演进。”<br>
+                        <span style="font-size:13.5px; color:#57534e; font-style:normal;">— Erik Schluntz & Barry Zhang, Anthropic</span>
+                    </div>
+
+                    <p>在人工智能领域，“智能体（Agent）”一词已经被广泛赋予了从完全自治的科幻实体到简单脚本的各种含义。在 Anthropic 的工程语境中，我们对<strong>“智能体系统”</strong>有着非常清晰、实用的界定：</p>
+
+                    <h3 id="sec-workflow-vs-agent">工作流 (Workflows) 与 自主智能体 (Autonomous Agents) 的本质区分</h3>
+                    <p>我们将基于大语言模型的系统划分为两大阵营：</p>
+                    <ul>
+                        <li><strong>工作流 (Workflows)：</strong>通过预先编写好的代码逻辑编排大语言模型（LLMs）和工具的系统。系统中的执行路径是<strong>确定性规划</strong>好的（例如顺序执行、固定分支判断）。</li>
+                        <li><strong>自主智能体 (Agents)：</strong>大语言模型在其中<strong>动态主导自身的执行流程与工具使用</strong>。模型自主决定下一步是继续思考、调用某个工具，还是向用户交付结果。</li>
+                    </ul>
+
+                    <h3 id="sec-augmented-llm">增强型 LLM 架构基石 (The Augmented LLM)</h3>
+                    <p>一切智能体与工作流的基础，都是<strong>增强型大语言模型（Augmented LLM）</strong>。基础模型通过接入检索（Retrieval）、外部工具（Tools）以及持久状态与记忆（Memory），完成了从孤立文本生成器向现代应用核心的蜕变。</p>
+
+                    <!-- SVG 1: Augmented LLM -->
+                    <div class="diagram-container">
+                        <svg class="svg-canvas" viewBox="0 0 760 220" width="100%" height="220" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Background card -->
+                            <rect x="10" y="10" width="740" height="200" rx="12" fill="#fafaf9" stroke="#e7e5e4" stroke-width="1.5"/>
+                            
+                            <!-- Retrieval Box -->
+                            <rect x="40" y="40" width="160" height="60" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+                            <text x="120" y="66" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#78350f" text-anchor="middle">Retrieval (检索)</text>
+                            <text x="120" y="85" font-family="-apple-system, sans-serif" font-size="11" fill="#92400e" text-anchor="middle">RAG 向量库 / 知识图谱</text>
+
+                            <!-- Tools Box -->
+                            <rect x="40" y="120" width="160" height="60" rx="8" fill="#ffffff" stroke="#cc785c" stroke-width="2"/>
+                            <text x="120" y="146" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#7c2d12" text-anchor="middle">Tools (工具)</text>
+                            <text x="120" y="165" font-family="-apple-system, sans-serif" font-size="11" fill="#9a3412" text-anchor="middle">API 接口 / 代码沙箱</text>
+
+                            <!-- Arrows to Center -->
+                            <path d="M 200 70 L 290 100" stroke="#b45309" stroke-width="2" fill="none" marker-end="url(#arrow-amber)"/>
+                            <path d="M 200 150 L 290 120" stroke="#b45309" stroke-width="2" fill="none" marker-end="url(#arrow-amber)"/>
+
+                            <!-- Center LLM -->
+                            <rect x="300" y="55" width="180" height="110" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+                            <text x="390" y="100" font-family="-apple-system, sans-serif" font-size="18" font-weight="bold" fill="#78350f" text-anchor="middle">LLM 推理核心</text>
+                            <text x="390" y="125" font-family="-apple-system, sans-serif" font-size="12" fill="#92400e" text-anchor="middle">Claude 3.5 Sonnet</text>
+                            <text x="390" y="145" font-family="-apple-system, sans-serif" font-size="11" fill="#b45309" text-anchor="middle">上下文管理与决策</text>
+
+                            <!-- Arrow to Memory -->
+                            <path d="M 480 110 L 550 110" stroke="#b45309" stroke-width="2" fill="none"/>
+                            
+                            <!-- Memory Box -->
+                            <rect x="560" y="70" width="160" height="80" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+                            <text x="640" y="102" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#065f46" text-anchor="middle">Memory (记忆与状态)</text>
+                            <text x="640" y="122" font-family="-apple-system, sans-serif" font-size="11" fill="#047857" text-anchor="middle">短期会话 / 长期偏好</text>
+                        </svg>
+                        <div class="diagram-caption">图 1：增强型大语言模型架构 (The Augmented LLM)</div>
+                        <div class="diagram-analysis">
+                            <div class="breakdown-header">📊 增强型 LLM 核心组成要素</div>
+                            <ul class="breakdown-list">
+                                <li><strong>Retrieval (检索)：</strong>通过语义搜索或向量 RAG 获取新鲜领域知识，杜绝模型幻觉。</li>
+                                <li><strong>Tools (工具)：</strong>赋予模型操作物理世界的能力（执行数据库写入、调用 SaaS API、运行 Python）。</li>
+                                <li><strong>Memory (记忆)：</strong>维护状态机与上下文记录，使交互具备长程一致性。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2 -->
+                <section id="sec-when-to-use">
+                    <h2>2. 何时（以及何时不应）使用智能体 (When to use agents)</h2>
+                    <p>在构建 AI 应用时，最大的设计陷阱是<strong>“过早引入过度复杂的自主智能体架构”</strong>。许多团队误以为必须使用复杂的 Agent 框架才能交付高价值应用。然而实践证明：</p>
+
+                    <div class="callout-box">
+                        <div class="callout-title">💡 架构极简演进法则</div>
+                        <p><strong>从最简单的单个 Prompt 开始：</strong>如果单次提示词能解决，绝不引入多步调用；如果需要外部数据，优先接入 RAG；如果逻辑涉及清晰的分步环节，优先编写<strong>确定性工作流 (Workflows)</strong>；唯有在任务充满高度动态不确定性、解题步骤无法提前穷举时，才引入<strong>自主智能体 (Autonomous Agents)</strong>。</p>
+                    </div>
+
+                    <p><strong>智能体的引入是一场工程权衡：</strong>自主智能体带来了处理开放性未知问题的惊人灵活性，但其代价是<strong>延迟更高、Token 成本成倍增加，以及系统可预测性与可复现性大幅下降</strong>。因此，绝大多数高可用商业系统，其骨架是由确定性工作流构成的，仅在局部最具挑战的节点挂载特化智能体。</p>
+                </section>
+
+                <!-- Section 3 -->
+                <section id="sec-patterns">
+                    <h2>3. 智能体的五大核心工作流模式 (Common Workflow Patterns)</h2>
+                    <p>Anthropic 总结提炼出了业界最通用、最经过实战验证的<strong>五大核心基础模式</strong>：</p>
+
+                    <!-- Pattern 1 -->
+                    <h3 id="pattern-chaining">模式一：提示词链 (Prompt Chaining)</h3>
+                    <p>将一个复杂庞大的任务，按顺序拆解为若干个线性排列的子步骤。每一个 LLM 调用处理前一步的输出，并在关键节点设置“质量门禁关卡（Gates）”进行有效性核验。</p>
+
+                    <div class="diagram-container">
+                        <svg class="svg-canvas" viewBox="0 0 760 140" width="100%" height="140" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="45" width="120" height="50" rx="8" fill="#f5f5f4" stroke="#a8a29e" stroke-width="1.5"/>
+                            <text x="80" y="75" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#1c1917" text-anchor="middle">输入任务</text>
+
+                            <path d="M 140 70 L 190 70" stroke="#78716c" stroke-width="2" fill="none"/>
+
+                            <rect x="190" y="40" width="130" height="60" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                            <text x="255" y="65" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#78350f" text-anchor="middle">步骤 1: LLM</text>
+                            <text x="255" y="85" font-family="-apple-system, sans-serif" font-size="11" fill="#b45309" text-anchor="middle">大纲或初稿提取</text>
+
+                            <path d="M 320 70 L 370 70" stroke="#78716c" stroke-width="2" fill="none"/>
+
+                            <polygon points="410,40 450,70 410,100 370,70" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+                            <text x="410" y="74" font-family="-apple-system, sans-serif" font-size="11" font-weight="bold" fill="#991b1b" text-anchor="middle">门禁质检</text>
+
+                            <path d="M 450 70 L 500 70" stroke="#78716c" stroke-width="2" fill="none"/>
+
+                            <rect x="500" y="40" width="130" height="60" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                            <text x="565" y="65" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#78350f" text-anchor="middle">步骤 2: LLM</text>
+                            <text x="565" y="85" font-family="-apple-system, sans-serif" font-size="11" fill="#b45309" text-anchor="middle">润色与格式化</text>
+
+                            <path d="M 630 70 L 670 70" stroke="#78716c" stroke-width="2" fill="none"/>
+
+                            <rect x="670" y="45" width="70" height="50" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+                            <text x="705" y="75" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#065f46" text-anchor="middle">交付</text>
+                        </svg>
+                        <div class="diagram-caption">图 2：提示词链工作流 (Prompt Chaining Workflow)</div>
+                    </div>
+
+                    <!-- Pattern 2 -->
+                    <h3 id="pattern-routing">模式二：分类路由 (Routing)</h3>
+                    <p>由一个专职的分类器（轻量 LLM 或嵌入模型）判断用户意图，并将请求精准分流到专门针对该任务定制的特定工作流或专家模型中。</p>
+
+                    <div class="diagram-container">
+                        <svg class="svg-canvas" viewBox="0 0 760 180" width="100%" height="180" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="30" y="65" width="110" height="50" rx="8" fill="#f5f5f4" stroke="#a8a29e" stroke-width="1.5"/>
+                            <text x="85" y="95" font-family="-apple-system, sans-serif" font-size="13" font-weight="bold" fill="#1c1917" text-anchor="middle">用户输入</text>
+
+                            <path d="M 140 90 L 190 90" stroke="#78716c" stroke-width="2" fill="none"/>
+
+                            <polygon points="260,50 310,90 260,130 210,90" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+                            <text x="260" y="94" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#312e81" text-anchor="middle">意图路由</text>
+
+                            <path d="M 310 90 L 370 40" stroke="#4f46e5" stroke-width="1.5" fill="none"/>
+                            <path d="M 310 90 L 370 90" stroke="#4f46e5" stroke-width="1.5" fill="none"/>
+                            <path d="M 310 90 L 370 140" stroke="#4f46e5" stroke-width="1.5" fill="none"/>
+
+                            <!-- Route 1 -->
+                            <rect x="380" y="15" width="220" height="45" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+                            <text x="490" y="42" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#78350f" text-anchor="middle">通用咨询流 (Claude 3.5 Haiku)</text>
+
+                            <!-- Route 2 -->
+                            <rect x="380" y="68" width="220" height="45" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+                            <text x="490" y="95" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#78350f" text-anchor="middle">代码生成流 (Sonnet + MCP)</text>
+
+                            <!-- Route 3 -->
+                            <rect x="380" y="120" width="220" height="45" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+                            <text x="490" y="147" font-family="-apple-system, sans-serif" font-size="12" font-weight="bold" fill="#78350f" text-anchor="middle">复杂退款流 (HITL 人工协同)</text>
+                        </svg>
+                        <div class="diagram-caption">图 3：分类路由工作流 (Routing Workflow)</div>
+                    </div>
+
+                    <!-- Pattern 3 -->
+                    <h3 id="pattern-parallel">模式三：并行化 (Parallelization)</h3>
+                    <p>当任务可以拆解为互不依赖的子任务时，同时并行触发多个 LLM 调用。主要分为两种典型子形式：</p>
+                    <ul>
+                        <li><strong>分块并行 (Sectioning)：</strong>例如同时并发分析十份独立的文档，最后聚合汇总。</li>
+                        <li><strong>多视角投票 (Voting)：</strong>对同一个高难度复杂逻辑，并发触发不同系统指令或温度系数的模型生成候选解，由裁决机制择优录取。</li>
+                    </ul>
+
+                    <!-- Pattern 4 -->
+                    <h3 id="pattern-orchestrator">模式四：编排者-工作者模式 (Orchestrator-Workers)</h3>
+                    <p>由一个顶层的“中央编排者 LLM”全面审视宏观目标，在运行时动态推演需要哪些子任务，并将子任务分派给多个“工作者 LLM（Worker LLMs）”执行，最后对工作者的返回结果进行归纳合成。非常适合于<strong>任务无法提前预知固定步骤的复杂研究与工程落地场景</strong>。</p>
+
+                    <!-- Pattern 5 -->
+                    <h3 id="pattern-eval-opt">模式五：评估者-优化者模式 (Evaluator-Optimizer)</h3>
+                    <p>构建严格的闭环自我迭代回路：由一个“生成者 LLM”起草方案，而独立的“评估者 LLM”对照评分规则进行苛刻核验。如果未通过，评估者给出详细缺陷反馈，驱动生成者持续重构修改，直至达标。</p>
+                </section>
+
+                <!-- Section 4 -->
+                <section id="sec-autonomous-agents">
+                    <h2>4. 全自主智能体 (Autonomous Agents)</h2>
+                    <p>当我们在主循环中将环境观察结果（Observations）与可用工具完整交给模型自主调度时，系统就迈入了<strong>全自主智能体</strong>阶段。典型标志是类似 <strong>Claude Code</strong> 或 <strong>SWE-bench 求解器</strong>：智能体面对一个开源 GitHub 仓库的 Issue 报障，能够自主执行：</p>
+                    <ol>
+                        <li>使用 <code>grep</code> 和 <code>file_search</code> 工具浏览代码库；</li>
+                        <li>推断潜在 Bug 根因并定位出出错的若干文件；</li>
+                        <li>自主编辑修改文件；</li>
+                        <li>在命令行沙箱中运行项目的自动化测试用例；</li>
+                        <li>捕获单测报错，反思并重新修改代码，直至测试完全通过；</li>
+                        <li>最后自动创建 Pull Request 并交付人类审查。</li>
+                    </ol>
+                </section>
+
+                <!-- Section 5 -->
+                <section id="sec-principles">
+                    <h2>5. 智能体工程落地三大黄金法则 (Engineering Principles)</h2>
+                    <p>Anthropic 总结了构建高可靠工业级智能体的三大基石守则：</p>
+                    <ol>
+                        <li><strong>极致追求架构极简 (Simplicity First)：</strong>永远不要为了使用炫酷的多智能体概念而复杂化系统。多引入一层智能体，就多增加了一层不确定性与潜在故障点。</li>
+                        <li><strong>严守接口透明度 (Transparency & MCP)：</strong>清晰定义工具的输入输出契约。采用类似 <strong>Model Context Protocol (MCP)</strong> 这样的开放标准，确保工具对模型可解释、易发现。</li>
+                        <li><strong>严密的人在回路安全底线 (Human Oversight)：</strong>在涉及资金、删除数据或对外部产生永久物理影响的边界上，必须设置强制断点，由人类工程师把关确认。</li>
+                    </ol>
+                </section>
+
+                <!-- Section 6 -->
+                <section id="sec-conclusion">
+                    <h2>6. 结语：大道至简的架构艺术 (Conclusion)</h2>
+                    <p>在 AI 智能体的大航海时代，最优秀的架构师从来不是那些堆砌最多智能体概念的人，而是那些<strong>深刻理解大模型能力边界、用最少的不确定性解决实际商业问题</strong>的工程大师。掌握提示词链、路由、并行化、编排者以及评估反馈回路，你便拥有了打造现代生产级智能系统的最坚固武器库。</p>
+                </section>
+
+                <footer class="footer">
+                    <p>《构建高效智能体 (Building Effective Agents)》· Anthropic 官方旗舰白皮书权威精译本</p>
+                    <p style="font-size:12px; margin-top:4px;">原著作者：Erik Schluntz, Barry Zhang · Anthropic 官方版权所有</p>
+                </footer>
+            </article>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.toc-link');
+            const sections = [];
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    const el = document.querySelector(href);
+                    if (el) sections.push({ el, link });
+                }
+            });
+            window.addEventListener('scroll', () => {
+                let current = '';
+                const scrollPos = window.scrollY + 120;
+                sections.forEach(({ el, link }) => {
+                    if (el.offsetTop <= scrollPos) current = link;
+                });
+                links.forEach(l => l.classList.remove('active'));
+                if (current) current.classList.add('active');
+            });
+        });
+    </script>
+
+    <script>
+    function toggleSidebar() {
+        const wrapper = document.querySelector('.page-wrapper');
+        if (!wrapper) return;
+        const isCollapsed = wrapper.classList.toggle('sidebar-collapsed');
+        try {
+            localStorage.setItem('doc_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            if (localStorage.getItem('doc_sidebar_collapsed') === 'true') {
+                const wrapper = document.querySelector('.page-wrapper');
+                if (wrapper) wrapper.classList.add('sidebar-collapsed');
+            }
+        } catch(e) {}
+    });
+    </script>
+    
+</body>
+</html>

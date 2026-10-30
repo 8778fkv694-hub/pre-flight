@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能体系统治理实践与多智能体架构指南 - OpenAI 官方白皮书精译</title>
+    <style>
+        :root {
+            --primary: #10a37f;
+            --primary-dark: #0e8065;
+            --primary-light: #f0fdf4;
+            --text-main: #111827;
+            --text-secondary: #4b5563;
+            --bg-body: #f9fafb;
+            --bg-card: #ffffff;
+            --border-color: #e5e7eb;
+            --sidebar-width: 290px;
+            --max-content-width: 920px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.75;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .openai-badge {
+            background: linear-gradient(135deg, #10a37f, #059669, #047857);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .series-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #bbf7d0;
+        }
+
+        .nav-links a {
+            color: #059669;
+            text-decoration: none;
+            font-size: 14px;
+            margin-left: 16px;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Layout */
+        .page-wrapper {
+            display: flex;
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            gap: 32px;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+
+        .toc-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 4px;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .toc-link:hover {
+            background-color: #f3f4f6;
+            color: var(--primary-dark);
+        }
+
+        .toc-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+        }
+
+        .article-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 48px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            margin-bottom: 32px;
+        }
+
+        .doc-header {
+            margin-bottom: 40px;
+            padding-bottom: 28px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .doc-title {
+            font-size: 35px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #111827;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        .doc-subtitle {
+            font-size: 19px;
+            color: #4b5563;
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .meta-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 18px 24px;
+            border: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .meta-item strong {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            font-size: 25px;
+            margin-top: 48px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #111827;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 19px;
+            margin-top: 32px;
+            margin-bottom: 14px;
+            color: #1f2937;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #374151;
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #374151;
+            line-height: 1.7;
+        }
+
+        .quote-banner {
+            border-left: 5px solid var(--primary);
+            background: linear-gradient(to right, #f0fdf4, #ffffff);
+            padding: 22px 26px;
+            margin: 28px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 18.5px;
+            font-weight: 500;
+            color: #065f46;
+            line-height: 1.6;
+        }
+
+        .diagram-container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 36px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .svg-canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .diagram-caption {
+            margin-top: 14px;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .diagram-analysis {
+            margin-top: 18px;
+            text-align: left;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 14px;
+        }
+
+        .breakdown-header {
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .breakdown-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .breakdown-list li {
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .breakdown-list li strong {
+            color: #111827;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    
+        /* Collapsible Sidebar Styles */
+        .page-wrapper {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc-header-bar .toc-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .toc-collapse-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f3f4;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toc-collapse-btn:hover {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+        .header-toc-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-left: 12px;
+        }
+
+        .header-toc-toggle-btn:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+        }
+
+        .toc-expand-floating-btn {
+            position: fixed;
+            top: 85px;
+            left: 16px;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: #1a73e8;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-expand-floating-btn:hover {
+            background: #1557b0;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.45);
+        }
+
+        .sidebar {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Collapsed State */
+        .page-wrapper.sidebar-collapsed .sidebar {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+
+        .page-wrapper.sidebar-collapsed .toc-expand-floating-btn {
+            display: inline-flex !important;
+            animation: fadeInPill 0.3s ease;
+        }
+
+        .page-wrapper.sidebar-collapsed .main-content {
+            max-width: 1080px;
+            transition: max-width 0.3s ease;
+        }
+
+        @keyframes fadeInPill {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    
+</style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <a href="index.html" class="brand-logo">
+            <span class="openai-badge">OpenAI</span> 官方研究精译
+            <span class="series-tag">安全治理与架构篇</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">← 返回总览目录</a>
+            <a href="anthropic_building_effective_agents_zh.html">Anthropic 白皮书 →</a>
+            <a href="introduction_to_agents_zh.html">Google 智能体引论 →</a>
+        <button class="header-toc-toggle-btn" onclick="toggleSidebar()" title="切换目录折叠/展开">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                <span>目录</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+
+        <!-- Floating Expand Button for Collapsed TOC -->
+        <button class="toc-expand-floating-btn" id="tocExpandFloatingBtn" onclick="toggleSidebar()" title="展开目录导航" aria-label="展开目录导航">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span>展开目录</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
+        </button>
+    
+        <aside class="sidebar">
+            <div class="toc-header-bar">
+                <span class="toc-title">目录导航</span>
+                <button class="toc-collapse-btn" onclick="toggleSidebar()" title="折叠收纳目录" aria-label="折叠收纳目录">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
+                    <span>收起</span>
+                </button>
+            </div>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#sec-intro" class="toc-link">1. 智能体时代的信任与安全挑战</a></li>
+                <li class="toc-item"><a href="#sec-four-layers" class="toc-link">2. 四层纵深防御治理体系</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#layer-model" class="toc-link">第一层：模型对齐基石</a></li>
+                        <li><a href="#layer-runtime" class="toc-link">第二层：运行时安全护栏</a></li>
+                        <li><a href="#layer-hitl" class="toc-link">第三层：人机回环监督</a></li>
+                        <li><a href="#layer-audit" class="toc-link">第四层：系统审计与身份</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-handoffs" class="toc-link">3. 多智能体架构：交接与 Swarm</a></li>
+                <li class="toc-item"><a href="#sec-redteaming" class="toc-link">4. 轨迹红队演练与全流程评测</a></li>
+                <li class="toc-item"><a href="#sec-case-studies" class="toc-link">5. 企业级工业落地案例</a></li>
+                <li class="toc-item"><a href="#sec-conclusion" class="toc-link">6. 结语与企业治理路线</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <article class="article-card">
+                <header class="doc-header">
+                    <h1 class="doc-title">智能体系统治理实践与多智能体架构指南<br><span style="font-size:20px; color:#6b7280; font-weight:500;">Practices for Governing Agentic AI Systems & Multi-Agent Architecture</span></h1>
+                    <div class="doc-subtitle">OpenAI 官方关于自主智能体行为对齐、权限边界与轻量级协同的权威白皮书</div>
+                    
+                    <div class="meta-box">
+                        <div class="meta-item">
+                            <strong>研究团队</strong>
+                            OpenAI Policy & Research Teams
+                        </div>
+                        <div class="meta-item">
+                            <strong>核心主题</strong>
+                            Agentic AI 治理体系、Handoffs 交接机制、Swarm 协同架构
+                        </div>
+                        <div class="meta-item">
+                            <strong>解决痛点</strong>
+                            越轨行为阻断、链式级联错误防范、敏感权限沙箱化
+                        </div>
+                        <div class="meta-item">
+                            <strong>中文翻译</strong>
+                            完整无删减专业精译 · 配备矢量架构图
+                        </div>
+                    </div>
+                </header>
+
+                <section id="sec-intro">
+                    <h2>1. 智能体时代的信任与安全挑战 (The Trust and Safety Challenge)</h2>
+                    
+                    <div class="quote-banner">
+                        “当 AI 系统从‘回答问题’迈向‘代表用户在物理和数字世界中采取行动’时，其潜在的错误不再仅仅是文本层面的不准确，而是会直接转化为具有真实世界后果的连锁反应。”<br>
+                        <span style="font-size:13.5px; color:#4b5563; font-style:normal;">— OpenAI Research</span>
+                    </div>
+
+                    <p>随着以 GPT-4o 等前沿模型为核心的智能体系统深入落地，系统展现出了三大自主特征：<strong>自主环境感知、长程多步规划，以及跨系统的工具调用能力</strong>。然而，这种自主性同时也带来了崭新的风险暴露面：</p>
+                    <ul>
+                        <li><strong>级联错误放大 (Cascading Errors)：</strong>在长程决策链中，初始步骤的细微偏差会在后续步骤中被指数级放大，最终导致偏离预期数十倍的严重后果。</li>
+                        <li><strong>间接提示词注入 (Indirect Prompt Injection)：</strong>攻击者可以在智能体读取的外部网页、邮件或数据库记录中植入恶意指令，劫持智能体的后续工具调用。</li>
+                        <li><strong>失控越轨行动 (Rogue Actions)：</strong>智能体在自主优化目标时可能“钻业务空子”，例如为达到某种指标而采取违反隐性商业道德的高危操作。</li>
+                    </ul>
+                </section>
+
+                <section id="sec-four-layers">
+                    <h2>2. 四层纵深防御治理体系 (The 4-Layer Governance Stack)</h2>
+                    <p>OpenAI 提出了面向企业级智能体系统的<strong>四层纵深防御治理模型</strong>：</p>
+
+                    <div class="diagram-container">
+                        <svg class="svg-canvas" viewBox="0 0 760 260" width="100%" height="260" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Layer 4: Audit & Identity -->
+                            <rect x="50" y="20" width="660" height="45" rx="8" fill="#ecfdf5" stroke="#10a37f" stroke-width="2"/>
+                            <text x="380" y="48" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#065f46" text-anchor="middle">第 4 层：系统级审计、不可篡改日志与智能体数字身份 (Identity & Auditing)</text>
+
+                            <!-- Layer 3: HITL -->
+                            <rect x="90" y="80" width="580" height="45" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="380" y="108" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#1e40af" text-anchor="middle">第 3 层：人在回路 (HITL)、双因子审批与强制干预机制 (Human Oversight)</text>
+
+                            <!-- Layer 2: Runtime Safeguards -->
+                            <rect x="130" y="140" width="500" height="45" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                            <text x="380" y="168" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#92400e" text-anchor="middle">第 2 层：确定性运行时沙箱、速率限制与执行前校验护栏 (Runtime Safeguards)</text>
+
+                            <!-- Layer 1: Model Alignment -->
+                            <rect x="170" y="200" width="420" height="45" rx="8" fill="#fdf2f8" stroke="#db2777" stroke-width="2"/>
+                            <text x="380" y="228" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#9d174d" text-anchor="middle">第 1 层：模型自身对齐、指令遵循与鲁棒性训练 (Model Alignment)</text>
+                        </svg>
+                        <div class="diagram-caption">图 1：OpenAI 四层纵深防御治理金字塔</div>
+                        <div class="diagram-analysis">
+                            <div class="breakdown-header">📊 治理防线分层说明</div>
+                            <ul class="breakdown-list">
+                                <li><strong>第 1 层 (模型对齐)：</strong>通过 RLHF、对抗微调让模型天生具备识别有害诱导的能力。</li>
+                                <li><strong>第 2 层 (运行时护栏)：</strong>不依赖模型的主观判断，用硬编码规则限制 API 调用频次、锁定代码执行于安全隔离沙箱。</li>
+                                <li><strong>第 3 层 (人在回路)：</strong>对超过金额上限的交易或核心数据修改，强制暂停并要求人类专家签字。</li>
+                                <li><strong>第 4 层 (审计与身份)：</strong>为每个智能体分配独立的微服务身份与密码学令牌，留存完整的轨迹日志以备合规倒查。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sec-handoffs">
+                    <h2>3. 多智能体架构：交接与 Swarm 理念 (The Handoffs Pattern)</h2>
+                    <p>在设计多智能体协作时，OpenAI 提倡<strong>“基于交接（Handoffs）的轻量级编排模式”</strong>。与很多重量级多智能体框架动辄需要复杂的中央消息总线不同，Handoffs 模式将智能体之间的切换抽象为原生的<strong>函数调用（Function Calling）</strong>：</p>
+
+                    <div class="diagram-container">
+                        <svg class="svg-canvas" viewBox="0 0 760 170" width="100%" height="170" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Agent A -->
+                            <rect x="50" y="35" width="200" height="90" rx="10" fill="#f0fdf4" stroke="#10a37f" stroke-width="2"/>
+                            <text x="150" y="65" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#065f46" text-anchor="middle">前台接待智能体 (Triage)</text>
+                            <text x="150" y="88" font-family="-apple-system, sans-serif" font-size="11" fill="#047857" text-anchor="middle">识别用户意图并分流</text>
+                            <text x="150" y="108" font-family="-apple-system, sans-serif" font-size="10" fill="#065f46" text-anchor="middle">调用: transfer_to_sales()</text>
+
+                            <!-- Handoff Arrow -->
+                            <path d="M 250 80 L 370 80" stroke="#059669" stroke-width="2.5" fill="none"/>
+                            <polygon points="370,75 385,80 370,85" fill="#059669"/>
+                            <text x="315" y="70" font-family="-apple-system, sans-serif" font-size="11" font-weight="bold" fill="#059669" text-anchor="middle">交接上下文与会话</text>
+
+                            <!-- Agent B -->
+                            <rect x="390" y="35" width="200" height="90" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                            <text x="490" y="65" font-family="-apple-system, sans-serif" font-size="14" font-weight="bold" fill="#78350f" text-anchor="middle">销售支持专家 (Sales)</text>
+                            <text x="490" y="88" font-family="-apple-system, sans-serif" font-size="11" fill="#92400e" text-anchor="middle">挂载 CRM 与优惠券工具</text>
+                            <text x="490" y="108" font-family="-apple-system, sans-serif" font-size="10" fill="#78350f" text-anchor="middle">完成跟进后可交回</text>
+                        </svg>
+                        <div class="diagram-caption">图 2：OpenAI Swarm 轻量级智能体交接 (Handoff) 机制</div>
+                    </div>
+
+                    <p>当 <code>Triage Agent</code> 发现用户需要退款或深度技术支持时，它只需返回一个特殊的 Tool Call（例如 <code>transfer_to_support(case_id)</code>）。系统外部宿主程序捕获该信号后，平滑将下一次调用的上下文切入 <code>Support Agent</code>。这种设计彻底摆脱了复杂的黑盒编排，让系统完全受控于清晰的普通代码控制流。</p>
+                </section>
+
+                <section id="sec-redteaming">
+                    <h2>4. 轨迹红队演练与全流程评测 (Red-Teaming Agent Trajectories)</h2>
+                    <p>传统的单一问答（Single-turn）评估方法对智能体彻底失效。智能体治理必须转向<strong>“执行轨迹评测 (Trajectory Evaluation)”</strong>：</p>
+                    <ul>
+                        <li>不仅考核智能体最终产出的答案是否正确；</li>
+                        <li>更必须穿透核查其在实现目标的整条链路中，是否调用了越权的工具？是否尝试读取了与当前任务无关的机密文件？</li>
+                    </ul>
+                    <p>通过在离线仿真环境中向智能体输入充满对抗性噪音、虚假钓鱼文档的合成数据，工程团队能够在智能体真正接入企业生产网络之前，全方位暴露其潜在安全盲区。</p>
+                </section>
+
+                <section id="sec-conclusion">
+                    <h2>5. 结语与企业治理路线 (Conclusion)</h2>
+                    <p>智能体绝非脱缰的野马，而是应当像企业中受过严格职业培训与合规管制的数字化雇员。通过在模型层、运行时层、人机协同层与系统审计层构筑起清晰的治理契约，企业能够最大化释放自主智能体的澎湃生产力，同时将系统风险牢牢锁定在安全阈值之内。</p>
+                </section>
+
+                <footer class="footer">
+                    <p>《智能体系统治理实践与多智能体架构指南》· OpenAI 官方权威精译本</p>
+                    <p style="font-size:12px; margin-top:4px;">OpenAI Research & Policy Teams 官方版权所有</p>
+                </footer>
+            </article>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.toc-link');
+            const sections = [];
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    const el = document.querySelector(href);
+                    if (el) sections.push({ el, link });
+                }
+            });
+            window.addEventListener('scroll', () => {
+                let current = '';
+                const scrollPos = window.scrollY + 120;
+                sections.forEach(({ el, link }) => {
+                    if (el.offsetTop <= scrollPos) current = link;
+                });
+                links.forEach(l => l.classList.remove('active'));
+                if (current) current.classList.add('active');
+            });
+        });
+    </script>
+
+    <script>
+    function toggleSidebar() {
+        const wrapper = document.querySelector('.page-wrapper');
+        if (!wrapper) return;
+        const isCollapsed = wrapper.classList.toggle('sidebar-collapsed');
+        try {
+            localStorage.setItem('doc_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            if (localStorage.getItem('doc_sidebar_collapsed') === 'true') {
+                const wrapper = document.querySelector('.page-wrapper');
+                if (wrapper) wrapper.classList.add('sidebar-collapsed');
+            }
+        } catch(e) {}
+    });
+    </script>
+    
+</body>
+</html>

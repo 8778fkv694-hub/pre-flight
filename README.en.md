@@ -6,6 +6,14 @@
 
 Pre-flight is a portable skill for coding agents. Describe what you want in your own words; the agent helps establish the project's basic law, define success, and then plan, build, verify, and hand over the work. It supports new projects and incremental adoption in existing ones.
 
+## Repository layout
+
+- `pre-flight/` — the action guide (Skill): the method is the main deliverable; entry point [SKILL.md](pre-flight/SKILL.md).
+- `background/whitepapers-zh/` — background reading: Chinese translations of a few public whitepapers; **not the method text**, read only when needed.
+- `VALIDATION.md` — current validation scope and records.
+
+Day-to-day use needs only `pre-flight/`; the background material does not affect how the method is executed.
+
 ## Start your first project
 
 Use an AI development tool that can read files and carry out development work. Prepare two locations:
@@ -166,8 +174,12 @@ python3 pre-flight/scripts/init_project.py --target ./my-new-project --project-n
 
 The default entry file is `AGENTS.md`; use `--adapters agents,claude,gemini` or `--adapters none` as needed. The script creates documents in a new empty directory; application development remains subsequent work. Existing projects require inspection and incremental adoption.
 
+## Background reading (not the method text)
+
+`background/whitepapers-zh/` holds Chinese translations and notes on a few public AI-agent whitepapers. It is background and source material only, not part of the action guide; enter via the [index](background/whitepapers-zh/README.md) when needed.
+
 ## Contents and license
 
 [Skill entry](pre-flight/SKILL.md) · [Workflow and references](pre-flight/references/) · [Project templates](pre-flight/assets/project-template/) · [Validation scope](VALIDATION.md)
 
-Original package content is [MIT licensed](LICENSE). Source PDFs are not distributed. This project is not affiliated with the reference authors or vendors. Cross-client agent behavior and automatic discovery have not been validated end to end.
+Original package content is [MIT licensed](LICENSE). The translations under `background/whitepapers-zh/` are unofficial study references; copyright in the source documents remains with their authors and publishers, and those translations are not covered by the MIT license. They will be removed if a rights holder requests it. Source PDFs are not distributed. This project is not affiliated with the reference authors or vendors. Cross-client agent behavior and automatic discovery have not been validated end to end.

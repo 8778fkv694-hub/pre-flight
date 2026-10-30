@@ -6,6 +6,14 @@
 
 “起飞”是一套可以交给开发 Agent 使用的通用 Skill。你先用自己的话说想做什么，它帮助你建立项目的基本法、写清做好标准，再规划、开发、验证和交接。适用于全新项目，也支持已有项目逐步采用。
 
+## 仓库结构
+
+- `pre-flight/` — 行动引导（Skill）：方法是主体，入口是 [SKILL.md](pre-flight/SKILL.md)。
+- `background/whitepapers-zh/` — 背景资料：几份公开白皮书的中文精译，**非方法正文**，需要时再读。
+- `VALIDATION.md` — 当前验证范围与记录。
+
+实际使用只需要 `pre-flight/`；背景资料不影响方法执行。
+
 ## 第一次创建项目，从这里开始
 
 你需要一个能够读取文件和执行开发工作的 AI 工具。先准备两个位置：
@@ -163,8 +171,12 @@ python3 pre-flight/scripts/init_project.py --target ./my-new-project --project-n
 
 默认创建 `AGENTS.md` 入口；可用 `--adapters agents,claude,gemini` 或 `--adapters none`。脚本只向新空目录创建资料，不会完成应用开发。已有项目由 Agent 先检查再增量采用。
 
+## 背景资料（非方法正文）
+
+`background/whitepapers-zh/` 收录几份公开 AI 智能体白皮书的中文精译与解读，只作为方法的背景与出处参考，不属于本包的行动引导；需要时再从[索引](background/whitepapers-zh/README.md)进入。
+
 ## 内容与许可
 
 [技能入口](pre-flight/SKILL.md) · [流程与参考](pre-flight/references/) · [项目模板](pre-flight/assets/project-template/) · [验证范围](VALIDATION.md)
 
-原创内容采用 [MIT 许可](LICENSE)。原书 PDF 不随包发布；本项目与参考资料作者及各厂商无隶属关系。跨客户端真实 Agent 行为与自动发现尚未完成端到端验证。
+原创内容采用 [MIT 许可](LICENSE)。`background/whitepapers-zh/` 中的译文为非官方学习参考，原文版权归原作者与发布方，不适用 MIT 许可；如权利人提出要求会移除。原书 PDF 不随包发布；本项目与参考资料作者及各厂商无隶属关系。跨客户端真实 Agent 行为与自动发现尚未完成端到端验证。

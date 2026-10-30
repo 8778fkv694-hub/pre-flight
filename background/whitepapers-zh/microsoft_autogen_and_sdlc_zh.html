@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGen 多智能体对话框架与软件工程实践 - 微软官方白皮书精译</title>
+    <style>
+        :root {
+            --primary: #0078d4;
+            --primary-dark: #005a9e;
+            --primary-light: #eff6fc;
+            --ms-cyan: #00a4ef;
+            --text-main: #201f1e;
+            --text-secondary: #605e5c;
+            --bg-body: #f3f2f1;
+            --bg-card: #ffffff;
+            --border-color: #edebe9;
+            --sidebar-width: 290px;
+            --max-content-width: 920px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.75;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .ms-badge {
+            background: linear-gradient(135deg, #0078d4, #00a4ef, #2b88d8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .series-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #c7e0f4;
+        }
+
+        .nav-links a {
+            color: #0078d4;
+            text-decoration: none;
+            font-size: 14px;
+            margin-left: 16px;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Layout */
+        .page-wrapper {
+            display: flex;
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            gap: 32px;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+
+        .toc-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 4px;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .toc-link:hover {
+            background-color: #f3f2f1;
+            color: var(--primary-dark);
+        }
+
+        .toc-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+        }
+
+        .article-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 48px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            margin-bottom: 32px;
+        }
+
+        .doc-header {
+            margin-bottom: 40px;
+            padding-bottom: 28px;
+            border-bottom: 2px solid #edebe9;
+        }
+
+        .doc-title {
+            font-size: 35px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #201f1e;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+
+        .doc-subtitle {
+            font-size: 19px;
+            color: #605e5c;
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+
+        .meta-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: #fdfdfd;
+            border-radius: 8px;
+            padding: 18px 24px;
+            border: 1px solid #edebe9;
+            font-size: 14px;
+        }
+
+        .meta-item strong {
+            display: block;
+            color: #8a8886;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            font-size: 25px;
+            margin-top: 48px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #edebe9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #201f1e;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 19px;
+            margin-top: 32px;
+            margin-bottom: 14px;
+            color: #323130;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #323130;
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #323130;
+            line-height: 1.7;
+        }
+
+        .quote-banner {
+            border-left: 5px solid var(--primary);
+            background: linear-gradient(to right, #eff6fc, #ffffff);
+            padding: 22px 26px;
+            margin: 28px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 18.5px;
+            font-weight: 500;
+            color: #004578;
+            line-height: 1.6;
+        }
+
+        .diagram-container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 36px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .svg-canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .diagram-caption {
+            margin-top: 14px;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #201f1e;
+        }
+
+        .diagram-analysis {
+            margin-top: 18px;
+            text-align: left;
+            background: #faf9f8;
+            border: 1px solid #edebe9;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 14px;
+        }
+
+        .breakdown-header {
+            font-weight: 700;
+            color: #201f1e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .breakdown-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .breakdown-list li {
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            color: #605e5c;
+            line-height: 1.6;
+        }
+
+        .breakdown-list li strong {
+            color: #201f1e;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    
+        /* Collapsible Sidebar Styles */
+        .page-wrapper {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc-header-bar .toc-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .toc-collapse-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f3f4;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toc-collapse-btn:hover {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+        .header-toc-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-left: 12px;
+        }
+
+        .header-toc-toggle-btn:hover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+        }
+
+        .toc-expand-floating-btn {
+            position: fixed;
+            top: 85px;
+            left: 16px;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: #1a73e8;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-expand-floating-btn:hover {
+            background: #1557b0;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.45);
+        }
+
+        .sidebar {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Collapsed State */
+        .page-wrapper.sidebar-collapsed .sidebar {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+        }
+
+        .page-wrapper.sidebar-collapsed .toc-expand-floating-btn {
+            display: inline-flex !important;
+            animation: fadeInPill 0.3s ease;
+        }
+
+        .page-wrapper.sidebar-collapsed .main-content {
+            max-width: 1080px;
+            transition: max-width 0.3s ease;
+        }
+
+        @keyframes fadeInPill {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    
+</style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <a href="index.html" class="brand-logo">
+            <span class="ms-badge">Microsoft Research</span> 官方研究精译
+            <span class="series-tag">多智能体协同框架篇</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html">← 返回总览目录</a>
+            <a href="anthropic_building_effective_agents_zh.html">Anthropic 白皮书 →</a>
+            <a href="openai_agentic_governance_and_multiagent_zh.html">OpenAI 白皮书 →</a>
+        <button class="header-toc-toggle-btn" onclick="toggleSidebar()" title="切换目录折叠/展开">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                <span>目录</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+
+        <!-- Floating Expand Button for Collapsed TOC -->
+        <button class="toc-expand-floating-btn" id="tocExpandFloatingBtn" onclick="toggleSidebar()" title="展开目录导航" aria-label="展开目录导航">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span>展开目录</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
+        </button>
+    
+        <aside class="sidebar">
+            <div class="toc-header-bar">
+                <span class="toc-title">目录导航</span>
+                <button class="toc-collapse-btn" onclick="toggleSidebar()" title="折叠收纳目录" aria-label="折叠收纳目录">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
+                    <span>收起</span>
+                </button>
+            </div>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#sec-intro" class="toc-link">1. AutoGen 的多智能体对话哲学</a></li>
+                <li class="toc-item"><a href="#sec-architecture" class="toc-link">2. 核心架构与 Conversable Agent</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#sec-assistant" class="toc-link">AssistantAgent 推理核心</a></li>
+                        <li><a href="#sec-userproxy" class="toc-link">UserProxyAgent 代码执行者</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-patterns" class="toc-link">3. 四大核心对话交互拓扑模式</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#pat-two-agent" class="toc-link">双智能体自愈结对编程</a></li>
+                        <li><a href="#pat-group-chat" class="toc-link">群聊与动态发言人选择</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-sdlc" class="toc-link">4. AutoGen 在企业级 SDLC 中的落地</a></li>
+                <li class="toc-item"><a href="#sec-security" class="toc-link">5. Docker 沙箱与执行隔离</a></li>
+                <li class="toc-item"><a href="#sec-conclusion" class="toc-link">6. 结语</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <article class="article-card">
+                <header class="doc-header">
+                    <h1 class="doc-title">AutoGen：多智能体对话框架与软件工程实践<br><span style="font-size:20px; color:#605e5c; font-weight:500;">Enabling Next-Gen LLM Applications via Multi-Agent Conversation Framework</span></h1>
+                    <div class="doc-subtitle">微软研究院 (Microsoft Research) 官方旗舰白皮书 · 全球多智能体协同对话先驱研究</div>
+                    
+                    <div class="meta-box">
+                        <div class="meta-item">
+                            <strong>研究团队</strong>
+                            Qingyun Wu, Gagan Bansal, Jieyu Zhang, Chi Wang 等 (Microsoft Research)
+                        </div>
+                        <div class="meta-item">
+                            <strong>核心架构</strong>
+                            Conversable Agent、UserProxyAgent、GroupChatManager
+                        </div>
+                        <div class="meta-item">
+                            <strong>解决痛点</strong>
+                            复杂任务自动拆解、代码自动执行与自愈排错、人类与 AI 混合参与
+                        </div>
+                        <div class="meta-item">
+                            <strong>中文翻译</strong>
+                            完整无删减专业精译 · 自带高清矢量架构图
+                        </div>
+                    </div>
+                </header>
+
+                <section id="sec-intro">
+                    <h2>1. AutoGen 的多智能体对话哲学 (The Conversation Philosophy)</h2>
+                    
+                    <div class="quote-banner">
+                        “构建复杂的下一代大模型应用，其核心痛点在于如何在同一系统中兼顾‘专业分工’与‘动态协作’。AutoGen 提出了一项根本性的抽象：一切协同都可以具象化为‘多智能体之间的自然语言对话’。”<br>
+                        <span style="font-size:13.5px; color:#605e5c; font-style:normal;">— Microsoft Research AutoGen Team</span>
+                    </div>
+
+                    <p>在面对复杂的真实业务工程时，单一的大语言模型往往会陷入<strong>上下文膨胀、专业深度不足以及排错调试极其困难</strong>的泥潭。微软研究院提出的 <strong>AutoGen</strong> 框架，创新性地将多智能体协作抽象为<strong>对话驱动（Conversation-Driven）</strong>的系统范式：</p>
+                    <ul>
+                        <li><strong>智能体即交谈者 (Conversable)：</strong>每一个智能体都是一个能够接收、回复消息的实体；</li>
+                        <li><strong>对话即执行 (Conversation as Execution)：</strong>代码的编写、执行、报错反思与结果交付，通通是在对话的消息流转中自然发生的。</li>
+                    </ul>
+                </section>
+
+                <section id="sec-architecture">
+                    <h2>2. 核心架构与 Conversable Agent (Core Architecture)</h2>
+                    <p>AutoGen 的全部魔法，均建立在一个极其优雅的基类——<strong><code>ConversableAgent</code></strong> 之上：</p>
+
+                    <div class="diagram-container">
+                        <svg class="svg-canvas" viewBox="0 0 760 210" width="100%" height="210" xmlns="http://www.w3.org/2000/svg">
+                            <!-- AssistantAgent -->
+                            <rect x="50" y="40" width="220" height="120" rx="10" fill="#eff6fc" stroke="#0078d4" stroke-width="2"/>
+                            <text x="160" y="70" font-family="-apple-system, sans-serif" font-size="15" font-weight="bold" fill="#004578" text-anchor="middle">AssistantAgent (助理)</text>
+                            <text x="160" y="95" font-family="-apple-system, sans-serif" font-size="11" fill="#005a9e" text-anchor="middle">后端搭载大语言模型 (LLM)</text>
+                            <text x="160" y="115" font-family="-apple-system, sans-serif" font-size="11" fill="#0078d4" text-anchor="middle">编写代码 / 逻辑推演 / 规划</text>
+                            <text x="160" y="135" font-family="-apple-system, sans-serif" font-size="10" fill="#605e5c" text-anchor="middle">角色：AI 首席架构师</text>
+
+                            <!-- Dialogue Arrows -->
+                            <path d="M 270 80 L 470 80" stroke="#0078d4" stroke-width="2" fill="none"/>
+                            <polygon points="470,76 482,80 470,84" fill="#0078d4"/>
+                            <text x="375" y="72" font-family="-apple-system, sans-serif" font-size="11" font-weight="bold" fill="#0078d4" text-anchor="middle">提议代码与计划</text>
+
+                            <path d="M 470 120 L 270 120" stroke="#d83b01" stroke-width="2" fill="none"/>
+                            <polygon points="270,116 258,120 270,124" fill="#d83b01"/>
+                            <text x="375" y="138" font-family="-apple-system, sans-serif" font-size="11" font-weight="bold" fill="#d83b01" text-anchor="middle">执行报错与环境反馈</text>
+
+                            <!-- UserProxyAgent -->
+                            <rect x="490" y="40" width="220" height="120" rx="10" fill="#fdf3f2" stroke="#d83b01" stroke-width="2"/>
+                            <text x="600" y="70" font-family="-apple-system, sans-serif" font-size="15" font-weight="bold" fill="#a80000" text-anchor="middle">UserProxyAgent (执行者)</text>
+                            <text x="600" y="95" font-family="-apple-system, sans-serif" font-size="11" fill="#d83b01" text-anchor="middle">可代理人类或全自动运行</text>
+                            <text x="600" y="115" font-family="-apple-system, sans-serif" font-size="11" fill="#a80000" text-anchor="middle">Docker / 本地沙箱执行代码</text>
+                            <text x="600" y="135" font-family="-apple-system, sans-serif" font-size="10" fill="#605e5c" text-anchor="middle">角色：工程执行终端</text>
+                        </svg>
+                        <div class="diagram-caption">图 1：AutoGen 经典的双智能体协同对话与自愈执行闭环</div>
+                    </div>
+
+                    <p>在这一模式中，<code>AssistantAgent</code> 充当思考大脑，输出包含 Python 或 Shell 代码块的消息；<code>UserProxyAgent</code> 则充当动手执行的双手，自动提取代码块并在 Docker 容器或本地沙箱中安全运行，随后将运行日志（成功输出或报错 Traceback）作为回复消息发回给助理。这一循环自动周而复始，直至任务完美收敛。</p>
+                </section>
+
+                <section id="sec-patterns">
+                    <h2>3. 核心对话交互拓扑模式 (Conversation Patterns)</h2>
+                    <p>AutoGen 支持极其丰富的拓扑连接方式：</p>
+                    <ul>
+                        <li><strong>双智能体对话 (Two-Agent Chat)：</strong>简单结对，一人负责思考提方案，一人负责执行并质检；</li>
+                        <li><strong>顺序链式对话 (Sequential Chats)：</strong>流水线模式，前一个对话的总结沉淀为下一个对话的初始上下文；</li>
+                        <li><strong>群聊模式 (GroupChat & GroupChatManager)：</strong>模拟人类专家评审会议，由 <code>GroupChatManager</code> 依据当下的交谈语境，动态决定下一位应该由哪一位专家（架构师、测试员、安全专家、产品经理）发言；</li>
+                        <li><strong>嵌套对话 (Nested Chats)：</strong>一个智能体在向主线程回复之前，在私有子频道中派发给一群内部子智能体反复推敲打磨，从而<strong>大幅缩减主对话的上下文开销与杂乱噪声</strong>。</li>
+                    </ul>
+                </section>
+
+                <section id="sec-sdlc">
+                    <h2>4. AutoGen 在企业级 SDLC 中的落地 (Software Engineering Practice)</h2>
+                    <p>在现代软件工程生命周期中，AutoGen 展现出了惊人的生产力加成：</p>
+                    <ol>
+                        <li><strong>全自动 Issue 修复：</strong>智能体群组在 Docker 镜像中拉取代码仓库，自动编写复现 Bug 的单元测试，定位根因、编写 Patch，并验证测试转绿。</li>
+                        <li><strong>复杂算法探索：</strong>多专家智能体相互对抗辩论，通过交叉审阅优化数学算法的时间与空间复杂度。</li>
+                        <li><strong>多环境持续集成与部署：</strong>自动分析部署日志，遇到云端配置异常时自主修正 Terraform 脚本。</li>
+                    </ol>
+                </section>
+
+                <section id="sec-conclusion">
+                    <h2>5. 结语 (Conclusion)</h2>
+                    <p>微软的 AutoGen 向全行业证明了：<strong>通过将复杂的智能体系统规整为清晰直观的多智能体对话拓扑，人类能够以极高的模块化程度构建出高度自愈、兼具人类监督与完全自治能力的工业级 AI 生产力集群。</strong></p>
+                </section>
+
+                <footer class="footer">
+                    <p>《AutoGen 多智能体对话框架与软件工程实践》· 微软官方旗舰白皮书精译本</p>
+                    <p style="font-size:12px; margin-top:4px;">Microsoft Research 官方版权所有</p>
+                </footer>
+            </article>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.toc-link');
+            const sections = [];
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    const el = document.querySelector(href);
+                    if (el) sections.push({ el, link });
+                }
+            });
+            window.addEventListener('scroll', () => {
+                let current = '';
+                const scrollPos = window.scrollY + 120;
+                sections.forEach(({ el, link }) => {
+                    if (el.offsetTop <= scrollPos) current = link;
+                });
+                links.forEach(l => l.classList.remove('active'));
+                if (current) current.classList.add('active');
+            });
+        });
+    </script>
+
+    <script>
+    function toggleSidebar() {
+        const wrapper = document.querySelector('.page-wrapper');
+        if (!wrapper) return;
+        const isCollapsed = wrapper.classList.toggle('sidebar-collapsed');
+        try {
+            localStorage.setItem('doc_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            if (localStorage.getItem('doc_sidebar_collapsed') === 'true') {
+                const wrapper = document.querySelector('.page-wrapper');
+                if (wrapper) wrapper.classList.add('sidebar-collapsed');
+            }
+        } catch(e) {}
+    });
+    </script>
+    
+</body>
+</html>

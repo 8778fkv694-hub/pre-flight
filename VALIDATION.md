@@ -57,3 +57,12 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 - Added: a workflow diagram (Mermaid, with a plain-text fallback inside `<details>`) for intent confirmation → Spec → Plan → Build → Test → Deploy → Maintain, plus three tables redrawn for this project: six stages × artifacts × human decisions × evidence; token and cost basis; expected maintenance cost profile.
 - Reviewed: the tables are redrawn in this project's terms rather than copied from the supplied course deck; the deck is cited only as framing, and its experience numbers are labelled illustrative, not measured or promised.
 - PASS: package Markdown links resolve; code fences and tables are balanced; whitespace clean. Mermaid rendering was not verified on any specific host.
+
+## 2026-10-30 background reading added (de-emphasized)
+
+- Added: `background/whitepapers-zh/` with seven unofficial Chinese translations of publicly released AI-agent whitepapers plus their figures, an index, and a copyright/usage notice. Both READMEs now present the skill as the main deliverable and treat this folder as optional background.
+- Excluded on purpose: the unrelated consumer-oriented Google manual (mistakenly included), the manufacturing course decks (training material, not whitepaper translations), the zip archive, build scripts, extracted-text intermediates and `.DS_Store`.
+- PASS: personal-information scan of the included HTML files found no emails, phone numbers, ID numbers, local user paths or key patterns; "护照" in one document refers to the "Digital Passport" concept, not personal data. Images were not OCR-scanned.
+- PASS: all 28 image references inside the included HTML files resolve; package Markdown links resolve (54 links / 23 files); whitespace clean.
+- Not verified: whether each translation is authorized for redistribution by the original rights holders. The translations are included as unofficial study references, are not covered by the MIT license, and will be removed if a rights holder requests it.
+- Size: `background/whitepapers-zh/` is about 9.9 MB.

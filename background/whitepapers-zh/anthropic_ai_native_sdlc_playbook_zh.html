@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 原生软件开发生命周期实战手册 (The AI-Native SDLC Playbook) - Anthropic 官方旗舰指南权威全景精译</title>
+    <!-- Mermaid.js for interactive architecture diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });</script>
+    <style>
+        :root {
+            --primary: #cc785c; /* Anthropic Terracotta / Claude Brand */
+            --primary-dark: #b25e43;
+            --primary-light: #fdf5f2;
+            --primary-border: #f0cfc5;
+            --accent-amber: #d97706;
+            --accent-amber-light: #fef3c7;
+            --accent-blue: #2563eb;
+            --accent-blue-light: #eff6ff;
+            --accent-green: #059669;
+            --accent-green-light: #ecfdf5;
+            --text-main: #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --bg-body: #fafaf9;
+            --bg-card: #ffffff;
+            --border-color: #e7e5e4;
+            --code-bg: #1e1e2e;
+            --sidebar-width: 300px;
+            --max-content-width: 960px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.8;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .anthropic-badge {
+            background: linear-gradient(135deg, #cc785c, #d97706, #ea580c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+        }
+
+        .series-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--primary-border);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-links a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-amber);
+            text-decoration: underline;
+        }
+
+        .nav-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-body);
+            color: var(--text-main);
+            border-color: #d1d5db;
+        }
+
+        /* Page Layout */
+        .page-wrapper {
+            display: flex;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px 20px;
+            gap: 36px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Collapsible Sidebar Styles */
+        .toc-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc-header-bar .toc-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .toc-collapse-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f3f4;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toc-collapse-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: var(--primary);
+        }
+
+        .header-toc-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            color: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-left: 12px;
+        }
+
+        .header-toc-toggle-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .toc-expand-floating-btn {
+            position: fixed;
+            top: 85px;
+            left: 16px;
+            z-index: 99;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(204, 120, 92, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-expand-floating-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(204, 120, 92, 0.45);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 96px);
+            overflow-y: auto;
+            padding-right: 14px;
+            scrollbar-width: thin;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Collapsed State */
+        .page-wrapper.sidebar-collapsed .sidebar {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            overflow: hidden !important;
+            border: none !important;
+        }
+
+        .page-wrapper.sidebar-collapsed .toc-expand-floating-btn {
+            display: inline-flex !important;
+            animation: fadeInPill 0.3s ease;
+        }
+
+        .page-wrapper.sidebar-collapsed .main-content {
+            max-width: 1120px;
+            transition: max-width 0.3s ease;
+        }
+
+        @keyframes fadeInPill {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        .toc-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            margin-bottom: 4px;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .toc-link:hover {
+            background-color: #f5f5f4;
+            color: var(--primary-dark);
+        }
+
+        .toc-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-left: 3px solid var(--primary);
+        }
+
+        .toc-sublist {
+            list-style: none;
+            padding-left: 14px;
+            margin-top: 3px;
+            margin-bottom: 6px;
+            border-left: 1px dashed #e5e7eb;
+        }
+
+        .toc-sublist .toc-link {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+        }
+
+        .article-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            padding: 52px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            margin-bottom: 36px;
+        }
+
+        /* Doc Header */
+        .doc-header {
+            margin-bottom: 44px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid #f5f5f4;
+        }
+
+        .doc-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            border-radius: 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .doc-title {
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #0f172a;
+            letter-spacing: -0.6px;
+            margin-bottom: 16px;
+        }
+
+        .doc-subtitle {
+            font-size: 19px;
+            color: #475569;
+            font-weight: 400;
+            line-height: 1.5;
+            margin-bottom: 26px;
+        }
+
+        .meta-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            background: #fafaf9;
+            border-radius: 10px;
+            padding: 20px 24px;
+            border: 1px solid #e7e5e4;
+            font-size: 13.5px;
+        }
+
+        .meta-item strong {
+            display: block;
+            color: #64748b;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+        }
+
+        .cover-art-container {
+            margin: 36px 0;
+            text-align: center;
+            background: linear-gradient(180deg, #fdf5f2 0%, #fafaf9 100%);
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid var(--primary-border);
+        }
+
+        .cover-art-container img {
+            max-width: 380px;
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(204, 120, 92, 0.18);
+        }
+
+        .cover-caption {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 14px;
+            font-style: italic;
+        }
+
+        /* Headings & Text */
+        h1, h2, h3, h4 {
+            color: #0f172a;
+            font-weight: 700;
+            scroll-margin-top: 85px;
+        }
+
+        h2 {
+            font-size: 26px;
+            margin-top: 52px;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e7e5e4;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 20px;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        h4 {
+            font-size: 16.5px;
+            margin-top: 26px;
+            margin-bottom: 12px;
+            color: #334155;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #334155;
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-bottom: 22px;
+            padding-left: 26px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #334155;
+            line-height: 1.75;
+        }
+
+        strong {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* Callouts / Alerts */
+        .callout-box {
+            background-color: #fafaf9;
+            border: 1px solid #e7e5e4;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 20px 22px;
+            margin: 28px 0;
+        }
+
+        .callout-box.info {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            border-left-color: #10b981;
+        }
+
+        .callout-box.warning {
+            background-color: #fffbeb;
+            border-color: #fde68a;
+            border-left-color: #f59e0b;
+        }
+
+        .callout-box.danger {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            border-left-color: #ef4444;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .callout-box.info .callout-title { color: #047857; }
+        .callout-box.warning .callout-title { color: #b45309; }
+        .callout-box.danger .callout-title { color: #b91c1c; }
+
+        .callout-box p {
+            margin-bottom: 0;
+            font-size: 14.5px;
+            line-height: 1.7;
+        }
+
+        /* Banner Quote */
+        .quote-banner {
+            border-left: 5px solid var(--primary);
+            background: linear-gradient(to right, #fdf5f2, #ffffff);
+            padding: 22px 28px;
+            margin: 32px 0;
+            border-radius: 0 10px 10px 0;
+            font-size: 19px;
+            font-weight: 500;
+            color: #8c3f29;
+            line-height: 1.65;
+        }
+
+        /* Figures */
+        .figure-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 36px 0;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+        }
+
+        .figure-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .figure-caption {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 14px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .figure-caption strong {
+            color: var(--primary-dark);
+        }
+
+        /* Comparison Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 32px 0;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14.5px;
+            text-align: left;
+            background: #ffffff;
+        }
+
+        thead {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        th {
+            padding: 14px 18px;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 13.5px;
+            letter-spacing: 0.3px;
+        }
+
+        td {
+            padding: 16px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: top;
+            line-height: 1.65;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #fafaf9;
+        }
+
+        .td-badge {
+            display: inline-block;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .badge-trad { background: #f1f5f9; color: #475569; }
+        .badge-native { background: var(--primary-light); color: var(--primary-dark); border: 1px solid var(--primary-border); }
+
+        /* Code Blocks */
+        .code-container {
+            margin: 28px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        }
+
+        .code-header {
+            background-color: #1e293b;
+            padding: 9px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .code-title {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12.5px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            background: #334155;
+            border: none;
+            color: #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        pre {
+            padding: 18px 20px;
+            overflow-x: auto;
+            color: #f8fafc;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.65;
+        }
+
+        code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        p code, li code {
+            background: #f1f5f9;
+            color: #c2410c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13.5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Metrics Box */
+        .metrics-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .metrics-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-col h4 {
+            margin-top: 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #0f172a;
+        }
+
+        .metric-col.lead h4 { color: #0284c7; }
+        .metric-col.lag h4 { color: #7c3aed; }
+
+        .metric-col p {
+            font-size: 13.5px;
+            line-height: 1.6;
+            margin-bottom: 0;
+            color: #475569;
+        }
+
+        /* Worked Example Box */
+        .worked-example-card {
+            background: #ffffff;
+            border: 2px solid var(--primary-border);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 36px 0;
+            box-shadow: 0 4px 16px rgba(204, 120, 92, 0.06);
+        }
+
+        .worked-example-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--primary-border);
+        }
+
+        .worked-example-badge {
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .worked-example-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .breakdown-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 20px 0;
+        }
+
+        .breakdown-item {
+            margin-bottom: 16px;
+            padding-left: 20px;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .breakdown-item strong {
+            display: block;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: var(--primary-dark);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .breakdown-item p {
+            font-size: 14px;
+            margin-bottom: 0;
+            color: #475569;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13.5px;
+        }
+
+        .footer a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Back to top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 99;
+        }
+
+        .back-to-top:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 1080px) {
+            .sidebar {
+                display: none;
+            }
+            .page-wrapper {
+                padding: 16px;
+            }
+            .article-card {
+                padding: 28px 20px;
+            }
+            .doc-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <a href="index.html" class="brand-logo">
+            <span class="anthropic-badge">ANTHROPIC</span>
+            <span style="color:#d1d5db;">|</span>
+            <span>AI 原生软件工程官方白皮书</span>
+        </a>
+        <div class="nav-links">
+            <span class="series-tag">Louis Claxton 官方权威全量精译</span>
+            <a href="index.html">← 返回全景矩阵</a>
+            <a href="anthropic_building_effective_agents_zh.html">构建高效智能体 →</a>
+            <a href="new_sdlc_with_vibe_coding_zh.html">Google Vibe SDLC →</a>
+            <button class="header-toc-toggle-btn" onclick="toggleSidebar()" title="切换目录折叠/展开 (快捷键: M)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                <span>目录</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+        <!-- Floating Expand Button for Collapsed TOC -->
+        <button class="toc-expand-floating-btn" id="tocExpandFloatingBtn" onclick="toggleSidebar()" title="展开目录导航 (快捷键: M)" aria-label="展开目录导航">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span>展开目录 (M)</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
+        </button>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="toc-header-bar">
+                <span class="toc-title">目录导航</span>
+                <button class="toc-collapse-btn" onclick="toggleSidebar()" title="折叠收纳目录 (快捷键: M)" aria-label="折叠收纳目录">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
+                    <span>收起</span>
+                </button>
+            </div>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#sec-intro" class="toc-link active"><span>01 代码不再是交付瓶颈</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#bottleneck-moved" class="toc-link">瓶颈大转移 (Figure 1)</a></li>
+                        <li><a href="#what-is-native-sdlc" class="toc-link">什么是 AI 原生 SDLC (Figure 2)</a></li>
+                        <li><a href="#the-shifts" class="toc-link">传统模式 vs AI 原生全景对比</a></li>
+                        <li><a href="#committed-artifacts" class="toc-link">核心主线：版本受控工件</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-plays" class="toc-link"><span>02 实战策略与依赖拓扑</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#dependency-graph" class="toc-link">策略依赖拓扑图 (Figure 3)</a></li>
+                        <li><a href="#how-to-read-play" class="toc-link">实战策略五维模型</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#stage-1-plan" class="toc-link"><span>阶段 1 · 规划 (Plan)</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#stage-1-intent" class="toc-link">捕获意图为 intent.md</a></li>
+                        <li><a href="#stage-1-steps" class="toc-link">落地步骤与示例模板</a></li>
+                        <li><a href="#stage-1-governance" class="toc-link">治理考量与量化指标</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#stage-2-design" class="toc-link"><span>阶段 2 · 设计 (Design)</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#stage-2-session" class="toc-link">需求与架构设计单会话压缩</a></li>
+                        <li><a href="#stage-2-steps" class="toc-link">执行步骤与 Prompt 示范</a></li>
+                        <li><a href="#stage-2-governance" class="toc-link">治理考量与 spec.md 审计</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#stage-3-build" class="toc-link"><span>阶段 3 · 构建 (Build)</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#stage-3-plan-mode" class="toc-link">Claude Code 计划模式 (默认)</a></li>
+                        <li><a href="#stage-3-auto-mode" class="toc-link">自动执行模式 (Auto Mode)</a></li>
+                        <li><a href="#stage-3-sidebar" class="toc-link">边栏：遗留系统与工程真相源</a></li>
+                        <li><a href="#stage-3-claudemd" class="toc-link">CLAUDE.md 项目机构记忆</a></li>
+                        <li><a href="#stage-3-skills" class="toc-link">Skills 沉淀组织规约</a></li>
+                        <li><a href="#stage-3-hooks" class="toc-link">Hooks 构建时确定性护栏</a></li>
+                        <li><a href="#stage-3-parallel" class="toc-link">并发会话与子智能体</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#stage-4-test" class="toc-link"><span>阶段 4 · 测试 (Test)</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#stage-4-feedback-loop" class="toc-link">赋予 Claude 自愈反馈回路</a></li>
+                        <li><a href="#stage-4-verification" class="toc-link">CLAUDE.md 验证规范块</a></li>
+                        <li><a href="#stage-4-evals" class="toc-link">CI 流水线中的持续评估 (Evals)</a></li>
+                        <li><a href="#stage-4-incident-evals" class="toc-link">故障驱动的评估用例沉淀</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#stage-5-deploy" class="toc-link"><span>阶段 5 · 部署 (Deploy)</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#stage-5-pr-review" class="toc-link">PR 审查回路中的双向 AI</a></li>
+                        <li><a href="#stage-5-reviewmd" class="toc-link">REVIEW.md 审查规约</a></li>
+                        <li><a href="#stage-5-hooks-gates" class="toc-link">Hooks 作为强管控审批闸门</a></li>
+                        <li><a href="#stage-5-worked-example" class="toc-link">实战案例：金融强监管配置深度拆解</a></li>
+                        <li><a href="#stage-5-cicd" class="toc-link">CI/CD 集成、沙箱与常态化回滚</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#stage-6-maintain" class="toc-link"><span>阶段 6 · 运维 (Maintain)</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#stage-6-closing-loop" class="toc-link">指标越界自愈与生命周期闭环</a></li>
+                        <li><a href="#stage-6-bands" class="toc-link">bands.yaml 统计控制带分级</a></li>
+                        <li><a href="#stage-6-claude-tag" class="toc-link">Claude Tag 应急响应 (Figure 4)</a></li>
+                    </ul>
+                </li>
+                <li class="toc-item"><a href="#sec-closing" class="toc-link"><span>09 结语与官方参考</span></a>
+                    <ul class="toc-sublist">
+                        <li><a href="#sec-closing-thoughts" class="toc-link">总结思考：循环自愈，人在回路之上</a></li>
+                        <li><a href="#sec-resources" class="toc-link">参考资料矩阵与致谢</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <article class="article-card">
+                <!-- Header -->
+                <header class="doc-header">
+                    <div class="doc-pill">Anthropic 官方技术白皮书 · 权威全量精译</div>
+                    <h1 class="doc-title">AI 原生软件开发生命周期实战手册</h1>
+                    <div class="doc-subtitle">The AI-Native SDLC Playbook: Code is no longer the bottleneck · 代码编写不再是交付瓶颈，全面重构现代软件交付闭环回路</div>
+                    <div class="meta-box">
+                        <div class="meta-item">
+                            <strong>原著作者</strong>
+                            Louis Claxton (Anthropic)
+                        </div>
+                        <div class="meta-item">
+                            <strong>特别致谢 / 贡献者</strong>
+                            Jim Blackhurst, Will Steuk, Jamal Arif
+                        </div>
+                        <div class="meta-item">
+                            <strong>发布机构</strong>
+                            Anthropic Applied AI 团队
+                        </div>
+                        <div class="meta-item">
+                            <strong>译本状态</strong>
+                            中文完整典藏版 · 54页全量对照
+                        </div>
+                    </div>
+
+                    <!-- Cover Image Container -->
+                    <div class="cover-art-container">
+                        <img src="images_playbook/cover.png" alt="The AI-Native SDLC Playbook Cover">
+                        <div class="cover-caption">Anthropic 原版白皮书封面：《AI-Native SDLC Playbook》· 构建面向智能体时代的高效交付体系</div>
+                    </div>
+                </header>
+
+                <!-- Chapter 1 -->
+                <section id="sec-intro">
+                    <h2>01 代码不再是交付瓶颈 (Code is No Longer the Bottleneck)</h2>
+                    <p>
+                        各行各业的企业与工程团队已经开始使用人工智能以<strong>一年前难以想象的惊人速度</strong>编写代码。然而，围绕代码编写周边的工程流程、治理规范与组织协同机制，却完全没有跟上这种倍增的步伐。
+                    </p>
+                    <p>
+                        在许多工程团队内部，依然沿袭着与过去完全相同的人工审批闸门（Approval Gates）、冗长的代码评审会（Code Reviews）、跨角色交接（Handoffs）以及层层递进的管理政策。这些陈旧机制极大地延缓甚至扼杀了使用诸如 <strong>Claude Code</strong> 这类自主智能体编码解决方案所带来的生产力跃升。
+                    </p>
+
+                    <div class="quote-banner">
+                        传统 SDLC 的设计初衷是为了在“写代码最耗时、最昂贵”的旧时代最大化控制力。而今天，代码实现已压缩至数小时，交付瓶颈全面向左右两侧的“规划、评审与运维”大转移。
+                    </div>
+
+                    <p>
+                        <strong>软件开发生命周期 (Software Development Lifecycle, SDLC)</strong> 是将软件从原始构想推向生产环境运行的标准流程。绝大多数企业都在遵循该周期的某种六阶段变体：<strong>规划 (Plan)、设计 (Design)、构建 (Build)、测试 (Test)、部署 (Deploy) 与维护 (Maintain)</strong>。
+                    </p>
+                    <p>
+                        传统上，每个阶段都是由不同岗位角色独立负责的离散环节：产品经理编写 PRD 需求文档，技术架构师将其转化为架构设计，软件工程师依据设计手写实现代码，合规与 QA 团队进行繁复的质量验证，发布团队负责上线发行，而 SRE 与运维团队则在监控大屏前守护生产系统。工作任务通过一篇篇冗长文档、工单（Tickets）与审批签字在各个部门之间缓慢流转。
+                    </p>
+                    <p>
+                        为了在每一步确保责任明确与风险可控，传统的 SDLC 往往极度依赖重型流程（Process-heavy）。然而，这种体系是在一个<strong>“编写和实现代码是整个链条中最耗时、最昂贵环节”</strong>的时代奠定的。产品需求文档（PRD）、估算仪式（Scrum 估点、扑克牌推演）以及产品安全评审会的设立，都是为了在长达数周、数月甚至数个季度的漫长开发周期中强制拉齐共识。
+                    </p>
+                    <p>
+                        更关键的是，传统 SDLC 中的所有控制手段都<strong>默认假设每个环节完全由人类肉眼与双手执行</strong>。如今，能够从生成式 AI 中捕获最大商业价值的行业领军企业，已经在保留“人在回路 (Human-in-the-Loop)”安全底线的前提下，围绕<strong>自主智能体（Agentic AI）的当代能力边界</strong>彻底重构了系统全生命周期。
+                    </p>
+
+                    <!-- Figure 1 -->
+                    <div class="figure-card" id="bottleneck-moved">
+                        <img src="images_playbook/figure_1_bottleneck.png" alt="Figure 1: The bottleneck moved">
+                        <div class="figure-caption">
+                            <strong>图 1：业务交付瓶颈的大转移 (FIGURE 1: The Bottleneck Moved)</strong><br>
+                            <strong>引入 Agent 之前（传统时代）：</strong>所有阶段（Plan, Design, Build, Test, Deploy, Maintain）均以人类脑力与沟通速度推进，构建（Build）耗费最长周期。<br>
+                            <strong>引入 Agent 之后（AI 原生时代）：</strong>构建阶段急剧坍缩至数小时甚至数十分钟！然而，围绕其左右两侧的人工环节（规划需求、测试评审、发布审批）依然停留在人类速度，整体周期的吞吐量被这些未经重构的人工闸门牢牢卡死。
+                        </div>
+                    </div>
+
+                    <h3>当代码不再是瓶颈时，三条工程铁律随即显现</h3>
+                    <p>当构建（Build）阶段的流转速度彻底超越传统 SDLC 的承载极限时，工程团队必须正视三大客观事实：</p>
+                    <ol>
+                        <li>
+                            <strong>交付瓶颈向构建阶段的“左右两侧”全面转移：</strong>瓶颈主要转移至左侧的规划（Plan/Design）以及右侧的测试评审（Test/Review）和发布部署（Deploy/Maintain）。这些环节依然在以人类的速度缓慢前行。
+                        </li>
+                        <li>
+                            <strong>传统控制手段与现实严重脱节，演变为不可承受之重：</strong>当每一行代码都由工程师手工键入时，逐行人工审查（Line-by-line Code Review）是合乎情理的；但当智能体自主编写了 PR 中绝大多数代码 Diff 时，人类审查者根本无法跟上这种庞大的代码增量，要么审查队列严重堆积，要么审查流于形式导致未充分审查的代码直接溜进主干。
+                        </li>
+                        <li>
+                            <strong>组织治理成本急剧攀升：</strong>由于业务变更与架构例外情况依然需要通过每周或每月召开的技术委员会、架构评审会层层上报，决策会议的等待时间成为了最长延迟源。
+                        </li>
+                    </ol>
+
+                    <div class="callout-box warning">
+                        <div class="callout-title">⚠️ 以安全审查瓶颈为例</div>
+                        <p>
+                            企业的安全团队编制通常是根据传统人类工程师的代码产出量来匹配的。当智能体让整体代码产出倍增数倍甚至数十倍时，结果只有两种可能：<strong>要么安全审查队列无限拉长并彻底阻塞上线，要么代码在未经过严格审查的情况下仓促交付。</strong>对于任何金融、医疗等受强监管的企业而言，这两种结果都是绝对不可接受的。因此，企业的安全策略与合规校验机制，必须在执行层面上达到与智能体相同的响应速度。
+                        </p>
+                    </div>
+
+                    <h3 id="what-is-native-sdlc">什么是 AI 原生软件开发生命周期？(What is an AI-native SDLC?)</h3>
+                    <p>
+                        <strong>AI 原生 SDLC (AI-native SDLC)</strong> 是一套经过全面重构的工程流程体系：它<strong>继承了传统工程中既有的控制目标（Control Objectives），但采用了全新的确定性与智能体混合执行手段（New Enforcement）</strong>。流程不再是传统的单向线性管道，而是转变为一个<strong>高度闭环的自愈回路（Continuous Loop）</strong>，人工智能深度嵌入在每一个交互节点之中。
+                    </p>
+                    <p>
+                        AI 原生 SDLC 倡导<strong>跨阶段的自动化交接与下游实战策略的即时触发</strong>，彻底解决了传统 SDLC 各阶段之间由于繁复的人工交接所带来的笨重、摩擦与上下文损耗。
+                    </p>
+
+                    <!-- Figure 2 -->
+                    <div class="figure-card">
+                        <img src="images_playbook/figure_2_line_and_loop.png" alt="Figure 2: The line and the loop">
+                        <div class="figure-caption">
+                            <strong>图 2：线性流动 vs 闭环回路 (FIGURE 2: The Line and the Loop)</strong><br>
+                            <strong>左侧传统模式（单向线性管道）：</strong>从 Plan → Design → Build → Test → Deploy → Maintain，工作成果像接力棒一样跨团队单向交接，每一次缓慢的回滚反馈都意味着一轮漫长的新发布周期。<br>
+                            <strong>右侧 AI 原生模式（持续多重自愈回路）：</strong>以小时而非数周为单位高速流转。各个环节通过结构化工件实现自动化串联触发，<strong>人类工程师高悬于回路之上（Humans Above the Loop）</strong>，扮演发起意图、把握战略方向以及掌控关键合规闸门的最高仲裁者。
+                        </div>
+                    </div>
+
+                    <h3 id="the-shifts">范式大转移：传统 SDLC 与 AI 原生 SDLC 全景对照</h3>
+                    <p>下表全景展示了传统 SDLC 与由 Claude 驱动的 AI 原生 SDLC 在生命周期六大核心阶段的根本范式跃迁：</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;">生命周期阶段</th>
+                                    <th style="width: 42%;">传统 SDLC 模式 (Traditional SDLC)</th>
+                                    <th style="width: 43%;">AI 原生 SDLC 模式 (AI-Native SDLC)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>阶段 1<br>规划 (Plan)</strong></td>
+                                    <td>
+                                        <span class="td-badge badge-trad">委员会运作</span><br>
+                                        需求由跨职能委员会反复收集，经过多轮研讨会与签字确认层层提炼，最终由人工整理为冗长的文档与任务卡。
+                                    </td>
+                                    <td>
+                                        <span class="td-badge badge-native">意图即时沉淀</span><br>
+                                        Claude 直接从源头业务痛点进行深度推理与多轮对话，将其凝练为结构化 <code>intent.md</code>。兼具<strong>人类可读性</strong>与<strong>智能体可执行性</strong>。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 2<br>设计 (Design)</strong></td>
+                                    <td>
+                                        <span class="td-badge badge-trad">多团队割裂分析</span><br>
+                                        业务分析师撰写规格说明书，架构师与 UI 设计师再将其逐一反向解析为系统设计。流转周期漫长且信息折损严重。
+                                    </td>
+                                    <td>
+                                        <span class="td-badge badge-native">单会话极限压缩</span><br>
+                                        需求规约与架构设计极限压缩至<strong>与智能体单次交互的工作会话</strong>中。由企业级 <code>skills</code> 强制约束技术与合规标准，产物直接提交 Git。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 3<br>构建 (Build)</strong></td>
+                                    <td>
+                                        <span class="td-badge badge-trad">人工逐行编写</span><br>
+                                        业务代码与测试用例完全由工程师手工编写；工程文档通常在核心开发完成之后才事后补齐，且极易过时失效。
+                                    </td>
+                                    <td>
+                                        <span class="td-badge badge-native">智能体受控生成</span><br>
+                                        测试用例与生产代码由 AI 高速生成；项目上下文与工程规范固化为版本受控的 <code>CLAUDE.md</code> 与组织级 <code>skills</code>，机器随时可读。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 4<br>测试 (Test)</strong></td>
+                                    <td>
+                                        <span class="td-badge badge-trad">阶段边界重型门禁</span><br>
+                                        在流程阶段交界处设立繁琐的 QA 阶段门禁，测试反馈周期滞后（数天至数周），排障定位成本高昂。
+                                    </td>
+                                    <td>
+                                        <span class="td-badge badge-native">自愈回路与持续评测</span><br>
+                                        每个编码会话具备自我验证自愈反馈闭环；CI 流水线中深度编织<strong>持续评估体系 (Continuous Evals)</strong>，像测试代码一样测试智能体配置。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 5<br>部署 (Deploy)</strong></td>
+                                    <td>
+                                        <span class="td-badge badge-trad">人工逐行审查</span><br>
+                                        工程师逐行审阅庞大的代码 Diff；合规治理依赖零散、周期性的人工评审委员会，执行标准极易出现主观波动与遗漏。
+                                    </td>
+                                    <td>
+                                        <span class="td-badge badge-native">双向 AI 审查与强管控闸门</span><br>
+                                        多层智能体自动化执行缺陷、安全与合规审查；人类精力仅聚焦于核心战略意图与高危逻辑。通过确定性 <code>hooks</code> 充当不可跨越的发布闸门。
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>阶段 6<br>维护 (Maintain)</strong></td>
+                                    <td>
+                                        <span class="td-badge badge-trad">被动式人工值守</span><br>
+                                        运维人员时刻紧盯告警看板，被动响应生产 Bug 与突发事故，故障复盘与后续整改行动极易在下一场紧急救火中被搁置遗忘。
+                                    </td>
+                                    <td>
+                                        <span class="td-badge badge-native">智能体常态巡检与闭环自愈</span><br>
+                                        智能体无状态监控生产健康度；一旦指标越界（如突破 3σ 控制带），确定性触发智能体深度归因并自动生成新 <code>intent.md</code> 重新驱动流水线。
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 id="committed-artifacts">贯穿始终的唯一锚点：版本受控的工程工件 (Committed Artifacts)</h3>
+                    <p>
+                        贯穿上表右侧 AI 原生模式的核心纽带，是<strong>已提交至版本控制系统（Git）的标准化工程工件（Committed Artifact）</strong>。
+                    </p>
+                    <p>
+                        在 AI 原生 SDLC 中，<strong>每一个阶段的终点都是向版本库提交一份明确的工件，而下一个阶段的起点则是读取该工件</strong>：
+                    </p>
+                    <ul>
+                        <li><strong>阶段 1 (Plan) 结束：</strong>提交 <code>intent.md</code>（业务意图草案）；</li>
+                        <li><strong>阶段 2 (Design) 结束：</strong>读取 <code>intent.md</code>，提交 <code>spec.md</code>（需求与技术架构设计规约）；</li>
+                        <li><strong>阶段 3 (Build) 结束：</strong>读取 <code>spec.md</code>，提交 <code>plan.md</code>（工程实施计划）以及由代码 Diff 和自动化测试构成的 Pull Request；</li>
+                        <li><strong>阶段 4 (Test) 结束：</strong>运行自愈验证回路与 CI Evals，提交带有机器可读验证结论的测试报告；</li>
+                        <li><strong>阶段 5 (Deploy) 结束：</strong>完成智能体 PR 审查，记录评审结论与合规审批证据，打通发布沙箱；</li>
+                        <li><strong>阶段 6 (Maintain) 结束：</strong>监控触发生产告警，生成事故归因分析与事后复盘工件 <code>lessons/*.md</code>，并作为新的 <code>intent.md</code> 再次闭环注入阶段 1。</li>
+                    </ul>
+                    <p>
+                        在前序阶段，<code>.md</code> Markdown 文件是最主要的工件载体，因为<strong>业务负责人（Product Owner）与 AI 智能体都能够同时无缝理解、审阅并对同一份文件采取行动</strong>。从构建阶段开始，核心工件演进为代码及其测试执行记录。
+                    </p>
+
+                    <div class="callout-box info">
+                        <div class="callout-title">📌 这一整条 Git Commit 链路，就是企业不可篡改的法定审计追踪 (Audit Trail)</div>
+                        <p>
+                            每一次提交都精准记录了：<strong>谁提出了什么诉求（Who asked for what）、智能体生成了什么方案（What the agent produced）以及哪位人类专家做出了最终核准（Who approved it）</strong>。在 AI 时代，人类依然对所有需要主观价值判断的决策负绝对责任，只是人类的关注点从疲惫的“从零敲代码”升维至“对结构化工件的高效审定与把关”。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Chapter 2 -->
+                <section id="sec-plays">
+                    <h2>02 实战策略与依赖拓扑 (The Plays & Dependency Graph)</h2>
+                    <p>
+                        本手册的核心是精心设计的<strong>模块化实战策略（Plays）</strong>。这些策略被归纳至六个非线性的生命周期阶段中（Plan, Design, Build, Test, Deploy, Maintain），共同构成了对软件工程全生命周期的全景覆盖。
+                    </p>
+
+                    <h3 id="how-to-read-play">如何理解每一个实战策略：五维实操模型</h3>
+                    <p>手册中的每一个策略都遵循一套高度一致、严谨且便于工程落地的五维结构展开：</p>
+                    <ol>
+                        <li><strong>变革本质 (What Changes)：</strong>清晰界定该策略打破了哪些传统流程羁绊，带来了怎样的范式跃迁；</li>
+                        <li><strong>准备就绪 (Getting Started)：</strong>明确列出实施该策略的<strong>前置依赖（Prerequisites）</strong>与所需的基础设施资源；</li>
+                        <li><strong>落地步骤 (Concrete Steps for Implementation)：</strong>提供按序号编排的端到端、可执行工程落地实操指引；</li>
+                        <li><strong>治理考量 (Governance Considerations)：</strong>阐述该策略如何满足企业合规审计、权限隔离、变更追踪与风险防御要求；</li>
+                        <li><strong>量化指标 (How to Measure)：</strong>定义衡量该策略落地成效的<strong>先行指标 (Leading Indicator)</strong> 与 <strong>滞后指标 (Lagging Indicator)</strong>。</li>
+                    </ol>
+
+                    <p>
+                        这些步骤是高度<strong>模块化与可插拔</strong>的。企业可以根据自身当前最迫切的工程痛点，优先针对特定阶段推进智能化改造。每个策略都会在“前置条件”中清晰指明其依赖项，这些依赖关系在下方的<strong>策略依赖拓扑图</strong>中得到了完整呈现。
+                    </p>
+
+                    <!-- Figure 3 -->
+                    <div class="figure-card" id="dependency-graph">
+                        <img src="images_playbook/figure_3_dependency_graph.png" alt="Figure 3: The play dependency graph">
+                        <div class="figure-caption">
+                            <strong>图 3：实战策略依赖拓扑图 (FIGURE 3: The Play Dependency Graph)</strong><br>
+                            <strong>纵列按生命周期阶段划分；连接箭头代表渐进式采纳顺序。</strong>这两者并非完全一致。没有任何箭头指向的“泥土色（Clay）”策略为零前置依赖的<strong>立即可实施起点</strong>（如 <code>intent.md</code> 捕获、<code>CLAUDE.md</code> 规范编写、自愈反馈回路构建等）。对于其他策略，指向它的箭头即代表在采纳前必须先行落地的先决条件。
+                        </div>
+                    </div>
+
+                    <h3>交互式依赖拓扑架构 (Interactive Dependency Architecture)</h3>
+                    <p>下图以清晰的拓扑关系直观呈现了从无依赖基础策略向高度自主闭环演进的推荐落地路径：</p>
+
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin:24px 0;">
+                        <pre class="mermaid">
+flowchart LR
+    classDef stage fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,color:#0f172a;
+    classDef startPlay fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#92400e;
+    classDef chainedPlay fill:#eff6ff,stroke:#3b82f6,stroke-width:1.5px,color:#1e40af;
+    classDef closePlay fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46;
+
+    subgraph Stage1["阶段 1 · 规划 Plan"]
+        P1["捕获为 intent.md<br><b>(无前置依赖)</b>"]:::startPlay
+    end
+
+    subgraph Stage2["阶段 2 · 设计 Design"]
+        P2["需求与架构设计<br>压缩为单一会话"]:::chainedPlay
+    end
+
+    subgraph Stage3["阶段 3 · 构建 Build"]
+        B1["CLAUDE.md 机构记忆<br><b>(无前置依赖)</b>"]:::startPlay
+        B2["Skills 组织制度沉淀<br><b>(无前置依赖)</b>"]:::startPlay
+        B3["计划模式 Plan Mode<br>(依据 spec/intent)"]:::chainedPlay
+        B4["Hooks 构建时护栏"]:::chainedPlay
+        B5["并发会话与 Worktrees"]:::chainedPlay
+    end
+
+    subgraph Stage4["阶段 4 · 测试 Test"]
+        T1["自愈反馈回路<br><b>(无前置依赖)</b>"]:::startPlay
+        T2["CI 持续评测 Evals"]:::chainedPlay
+    end
+
+    subgraph Stage5["阶段 5 · 部署 Deploy"]
+        D1["AI PR 审查回路<br>(REVIEW.md)"]:::chainedPlay
+        D2["Hooks 审批闸门<br>(生产物理隔离)"]:::chainedPlay
+        D3["CI/CD 沙箱与受控发布"]:::chainedPlay
+    end
+
+    subgraph Stage6["阶段 6 · 运维 Maintain"]
+        M1["监控闭环自愈<br>(1σ/2σ/3σ bands)"]:::closePlay
+        M2["Claude Tag 即时应急排障"]:::closePlay
+    end
+
+    %% Dependencies
+    P1 --> P2
+    P2 --> B3
+    B1 --> B3
+    B1 --> B5
+    B2 --> B4
+    B3 --> B5
+    T1 --> B5
+    B1 --> T2
+    T1 --> T2
+    B1 --> D1
+    B2 --> D1
+    D1 --> D2
+    D2 --> D3
+    P1 --> M1
+    D1 --> M1
+    D2 --> M1
+    D3 --> M1
+    M1 -.->|"生成新 intent.md"| P1
+                        </pre>
+                    </div>
+
+                    <p>
+                        在最开始阶段，团队可以通过手工提示词逐步验证每个环节。而最终的理想演进终态，则是<strong>前一阶段被人类或系统接受的工件，自动触发下一个阶段的闸门启动</strong>。人类工程师的专注力全面收敛并聚焦于关键闸门（Gates）的裁决与风险评估，而非每次都从零开启新流程。
+                    </p>
+                </section>
+
+                <!-- Stage 1: Plan -->
+                <section id="stage-1-plan">
+                    <h2>阶段 1 · 规划：意图捕获与 intent.md (Stage 1 · Plan)</h2>
+                    <div class="quote-banner">
+                        “绝妙的想法再也不必苦苦等待别人抽空撰写。业务意图只需由提出者用自己的语言捕获一次，便转化为全流程版本受控、下游即刻可执行的标准工程工件。”
+                    </div>
+
+                    <h3 id="stage-1-intent">将业务诉求固化为 intent.md</h3>
+                    <p>
+                        作为拉开现代软件开发序幕的起点，<code>intent.md</code> 可以通过多种不同渠道涌现：某位员工突然冒出了一个新点子、业务系统提交了一张工单、或是监控系统触发了一条高危异常告警（参见阶段 6 运维闭环）。
+                    </p>
+                    <p>
+                        当一个人产生了业务想法时，在传统 SDLC 中，他必须先花费数周去说服产品经理，请求对方协助或者代表自己将想法整理成正式需求。而在 AI 原生模式下，<strong>业务提出者直接与 Claude 展开头脑风暴，共同起草一份 Markdown 格式的原始规格草案 (Proto-spec)</strong>。
+                    </p>
+                    <p>
+                        由 Claude 协助生成的原始草案既具备<strong>极高的人类自然语言可读性</strong>，又天然被纳入 Git 版本控制体系，能够<strong>立刻被下游阶段直接消费处理</strong>。这份草案被标准化命名并保存为 <code>intent.md</code>。
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">传统规划模式 (Traditional)</th>
+                                    <th style="width: 50%;">AI 原生规划模式 (AI-Native)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        一个构想必须历经需求池（Backlog）条目登记、用户故事（User Stories）拆分、Scrum 估点仪式以及多轮需求澄清会议，长达数周后工程团队才能着手处理。在每一次跨人交接中，责任发生转移，最终到达工程师手里的内容往往与业务发起者的原始初衷严重脱节。
+                                    </td>
+                                    <td>
+                                        发起人直接与 Claude 开展苏格拉底式对话，并将共识沉淀为 <code>intent.md</code>。工件使用发起者最熟悉的业务术语，清晰载明<strong>“想要什么”、“为什么想要”以及“受限于哪些业务与技术约束”</strong>。重复性分析流程通过 <code>skills</code> 固化。
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 id="stage-1-steps">落地实施指南 (Getting Started & Execution)</h3>
+                    <ul>
+                        <li><strong>前置先决条件：</strong>无（None）。</li>
+                        <li><strong>基础设施诉求：</strong>为非技术背景人员提供 Claude 访问权限（如 claude.ai 网页端或 Cowork 协同产品）；团队约定统一的 <code>intent.md</code> 结构模板；设立一个由产品负责人（Product Owner）持续关注的共享版本库目录。对于单一产品，最简方案是在主仓库中建立 <code>intent/</code> 目录，使意图工件链与代码库物理共存；在多仓库架构下可设立独立的 intent 仓库。</li>
+                    </ul>
+
+                    <h4>5 步落地执行指引：</h4>
+                    <ol>
+                        <li><strong>自然语言陈述痛点：</strong>发起人使用自己的原话向 Claude 描述问题。陈述当下做不到什么、影响了哪些群体、预期的理想状态是什么、哪些属于非目标。完全不需要使用任何刻板的技术术语。</li>
+                        <li><strong>深度苏格拉底式发问：</strong>持续头脑风暴直至构想高度具体化。Claude 会主动提出资深业务分析师才会问的关键问题：影响边界、目标受众、既有系统约束以及成功衡量的量化标准。</li>
+                        <li><strong>遵循模板自动生成：</strong>要求 Claude 按照企业既定模板（可封装为企业技能 Skill）输出 <code>intent.md</code>。内容涵盖：核心问题（Problem）、提议成果（Proposed outcome）、受影响用户与系统（Affected users and systems）、约束条件（Constraints）与待解决开放问题（Open questions）。</li>
+                        <li><strong>发起人校准反馈：</strong>业务提出者通读并修正任何 Claude 理解有偏差或过度发挥的地方。</li>
+                        <li><strong>提交版本库启动流转：</strong>将定稿提交至共享目录。发起人身份、时间戳与完整修改版本链被自动记录，产品负责人随即接棒进入下一环节。</li>
+                    </ol>
+
+                    <h4>标准工程范例：理赔状态自助查询意图规范 (intent.md)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">intent/claims-status-self-service.md</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code># 业务意图：理赔状态自助查询服务 (Intent: claims status self-service)
+Author: J. Ortiz (理赔运营中心). Status: draft. Timestamp: 2026-06-02
+
+## 核心痛点 (Problem)
+客户频繁致电呼叫中心询问自己的理赔进度。
+客服团队大约有三分之一的通话时长耗费在纯粹的“进度查询”类问题上。
+
+## 提议成果 (Proposed outcome)
+客户可以直接在自保用户门户中自主查看理赔当前状态、下一步流转节点以及预期的处理完成日期。
+
+## 涉及用户与系统 (Affected users and systems)
+理赔审核人员、门户前端团队、claims-core 核心理赔底层 API。
+
+## 约束条件 (Constraints)
+在本次门户会话改造中严禁引入任何新的个人敏感信息 (PII) 传输。
+严格复用现有的身份认证机制，不新增鉴权链路。
+
+## 待决策开放问题 (Open questions)
+第三方公估行 (Third-party loss adjusters) 是否也需要开通该界面的查询权限？</code></pre>
+                    </div>
+
+                    <h3 id="stage-1-governance">治理考量与成效量化指标 (Governance & Metrics)</h3>
+                    <p>
+                        <strong>治理与合规底据：</strong>已提交的 <code>intent.md</code> 本身就是法律与合规认可的原始工程底据。它清晰固化了作者、精确时间戳以及后续每一次演变的历史修订链，完整保存在 Git 历史中。产品负责人对该意图做出的“采纳进入阶段 2 设计”或“直接关闭”裁决，均被记录为 Git PR 的合并（Merge）或关闭（Close）操作。
+                    </p>
+
+                    <div class="metrics-card">
+                        <div class="metric-col lead">
+                            <h4>🎯 先行指标 (Leading Indicator)</h4>
+                            <p><strong>从业务发起首次对话到 <code>intent.md</code> 正式提交至代码库的流转耗时。</strong>从 Git 提交历史中直接提取。在实践中，这一周期通常由传统模式下的<strong>数周反复澄清研讨大幅压缩至数小时内完成</strong>。</p>
+                        </div>
+                        <div class="metric-col lag">
+                            <h4>📊 滞后指标 (Lagging Indicator)</h4>
+                            <p><strong>意图存活率 (Survival Rate)：</strong>即产品负责人最终裁决批准进入阶段 2 的 <code>intent.md</code> 所占比例；以及在针对该需求首次提交 <code>spec.md</code> 之后，<code>intent.md</code> 发生后续被动变更的修改频次。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stage 2: Design -->
+                <section id="stage-2-design">
+                    <h2>阶段 2 · 设计：需求与架构设计的极限压缩 (Stage 2 · Design)</h2>
+                    <div class="quote-banner">
+                        “需求分析与技术架构设计极限压缩至单一会话中。组织安全与合规策略在撰写方案的同时被实时读取与注入，绝不再等到数周后的评审会上才被意外挑出。”
+                    </div>
+
+                    <h3 id="stage-2-session">需求与架构设计合二为一</h3>
+                    <p>
+                        一旦 <code>intent.md</code> 获得产品负责人的审查批准，Claude 便以此为输入，迅速生成完整的<strong>需求与架构设计规格说明书 (Requirements and Design Spec)</strong>。
+                    </p>
+                    <p>
+                        在这一推演过程中，Claude 受到企业预先注入的<strong>组织级技能（Skills）</strong>的严格约束——包括品牌设计规范、API 安全基线、合规红线以及统一 UX 交互准则。
+                    </p>
+                    <p>
+                        产品负责人负责<strong>审阅这份规格说明书，但绝不需要亲自一行行手写它</strong>。该阶段的核心目标是产出一份工程技术团队能够直接进行排期实施（Plan against）、且已经提前标红了潜在合规冲突点的成熟技术方案。以 Web 前端开发为例，产品负责人借助 <strong>Claude Design</strong> 从 <code>intent.md</code> 直接生成高保真交互原型并快速迭代，确认无误后直接导出至 <strong>Claude Code</strong> 启动工程构建。
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">传统设计模式 (Traditional)</th>
+                                    <th style="width: 50%;">AI 原生设计模式 (AI-Native)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        需求分析与系统设计是两个完全割裂的阶段，由不同的组织团队按先后顺序接力运行。业务分析师先将点子形式化为 PRD，架构师与 UI 设计师再将其逆向翻译为技术规约。这种割裂虽有助于职责界定，但极其缓慢且充满沟通折损。
+                                    </td>
+                                    <td>
+                                        两个阶段在<strong>单次提示词驱动的交互工作会话中同时完成</strong>。Claude 消化 <code>intent.md</code>，在组织级 Skills 的约束下一次性输出完备的技术与体验设计规格书，并主动标红所有潜在的合规冲突与架构疑虑。
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 id="stage-2-steps">落地实施指南 (Getting Started & Execution)</h3>
+                    <ul>
+                        <li><strong>前置先决条件：</strong>已提交且被核准的 <code>intent.md</code>；企业已将品牌规范、安全基线、合规政策与 UX 准则编码为版本受控的 <code>skills</code>。</li>
+                        <li><strong>基础设施诉求：</strong>产品负责人拥有 Claude 访问权限（无需任何深度工程编码技能）。</li>
+                    </ul>
+
+                    <h4>6 步落地执行指引：</h4>
+                    <ol>
+                        <li><strong>加载企业技能并挂载意图：</strong>产品负责人开启一个 Claude 会话，确保企业全局 Skills 处于可用状态，并附加挂载已批准的 <code>intent.md</code>。</li>
+                        <li><strong>精确提示词引导生成：</strong>提示词明确指向 <code>intent.md</code>，指定系统约束并强制要求列出存疑区域（Flagged concerns）。初始阶段可由人工手动交互，随后可固化为组织级斜杠命令（Slash command），终态则是配置 CI 自动化任务，在 <code>intent.md</code> 合并时非交互式触发并自动提交包含 <code>spec.md</code> 的 Pull Request。</li>
+                        <li><strong>对照原始初衷核验：</strong>产品负责人对照业务目标审查生成的规约：该方案是否彻底解决了提议的痛点？<code>intent.md</code> 中遗留的开放问题是否已被合理解决或妥善推进？</li>
+                        <li><strong>优先解决标红合规冲突：</strong>优先处理方案中标记出的风险与冲突项——这些正是过去分析师在会议中反复上报扯皮的问题。产品负责人在方案进入工程团队视野前，与相关策略负责人（如合规官或安全架构师）提前对齐拍板。</li>
+                        <li><strong>双工件配对提交 Git：</strong>将 <code>spec.md</code> 提交至与 <code>intent.md</code> 相同的目录下。这对工件完整记录了<strong>“业务最初要什么”与“技术最终决定怎么做”</strong>。</li>
+                        <li><strong>裁决流转进入构建：</strong>产品负责人最终决定是否放行方案进入阶段 3 构建（对于高风险变更需联合技术主管共同决策）。人类团队始终保有最高决断权，而批准该规格书正是触发阶段 3 中 Claude Code 计划模式的钥匙。</li>
+                    </ol>
+
+                    <h4>核心提示词示范 (The Design Prompt)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">Prompt: Generate System & Architecture Spec</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制 Prompt</button>
+                        </div>
+                        <pre><code>请仔细阅读附加的 intent.md，并为将其集成至我们现有代码库生成一份详尽的需求与系统设计规格说明书 (Requirements and Design Spec)。
+
+请务必严格应用当前会话中加载的所有企业技能 (Skills)，确保方案完全符合我们的品牌规范指南、API 安全防御基线以及统一 UX 交互标准。
+
+将最终规约完整沉淀为 spec.md，使其具备直接交接给工程技术团队启动实施的严谨度。
+请格外清晰、突出地描述任何潜在的顾虑区域 (Areas of concern)，尤其是当不同业务诉求与企业合规政策发生不可调和的矛盾与冲突时，务必详细标红上报。</code></pre>
+                    </div>
+
+                    <h3 id="stage-2-governance">治理考量与成效量化指标 (Governance & Metrics)</h3>
+                    <p>
+                        <strong>治理与合规底据：</strong>企业的生产合规制度绝不再是数周后例会上才被抽查出的拦路虎，而是在<strong>规格书起草的第一秒就被实时读取并融入架构逻辑</strong>。规格书本身、生成它的 Prompt 文本以及生效的企业 Skill 版本全部固化在 Git 提交历史中。
+                    </p>
+
+                    <div class="metrics-card">
+                        <div class="metric-col lead">
+                            <h4>🎯 先行指标 (Leading Indicator)</h4>
+                            <p><strong>同一变更的 <code>intent.md</code> 提交时间戳与 <code>spec.md</code> 提交时间戳之间的流转时间差。</strong>与过去传统模式下“多轮需求分析研讨会 + 架构初审会”的周期间隔进行基线对比。</p>
+                        </div>
+                        <div class="metric-col lag">
+                            <h4>📊 滞后指标 (Lagging Indicator)</h4>
+                            <p><strong>构建启动后的需求返工频次 (Requirements Rework)：</strong>通过 Git Log 统计在该需求首次提交 <code>plan.md</code> 之后，<code>spec.md</code> 再次发生追加修改的 Commit 数量。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stage 3: Build -->
+                <section id="stage-3-build">
+                    <h2>阶段 3 · 构建：智能体工程与确定性护栏 (Stage 3 · Build)</h2>
+                    <div class="quote-banner">
+                        “在未经人类审查批准详细计划前，严禁智能体键入一行业务代码。组织沉淀演化为机器实时可读的基线文件，而工程防线则由可执行代码而非侥幸心理强力维系。”
+                    </div>
+
+                    <h3 id="stage-3-plan-mode">策略 3.1：Claude Code 计划模式作为默认工作起点 (Plan Mode as Default)</h3>
+                    <p>
+                        在传统工程习惯中，工程师看完设计图后便直接打开 IDE 开始敲代码。如何实现、修改哪些文件、补充哪些测试用例，全凭工程师在自己脑海中自行推演，或者最多在 Jira 工单下留下简短留言。这种做法导致其他团队成员根本无法提前审查，评审者第一次看到成果时已经是成百上千行的庞大 Diff，此时若发现方向偏航，返工成本极其惨烈。
+                    </p>
+                    <p>
+                        在 AI 原生时代，<strong>工程师开启 Claude Code 终端会话的默认模式必须是“计划模式 (Plan Mode)”</strong>。在该模式下，Claude 具备对整个代码库的深度只读探索权限，但<strong>被底层物理剥夺了任何文件写入与修改能力</strong>。
+                    </p>
+                    <p>
+                        工程师将阶段 2 批准的 <code>spec.md</code> 提供给 Claude，让智能体对其开展深度访谈，并在多轮交互博弈中不断迭代优化实施计划，直至工程师完全确信方案万无一失。
+                    </p>
+
+                    <h4>7 步计划推演与落地执行指引：</h4>
+                    <ol>
+                        <li><strong>进入只读计划模式：</strong>在命令行启动 Claude Code 并指定 Plan Mode（只读运行环境）。</li>
+                        <li><strong>注入意图与技术规约：</strong>将 <code>intent.md</code> 与 <code>spec.md</code> 交付给 Claude，要求其输出一份精确的实施计划，<strong>必须逐一指明将修改的所有文件路径、操作先后时序以及用以证明实现正确的测试用例清单</strong>。</li>
+                        <li><strong>深度审讯与压力测试计划 (Interrogate the plan)：</strong>向 Claude 提出苛刻的工程挑战：“这次修改可能会破坏现有系统的哪些下游组件？”、“哪一步的实施风险最高？”、“还有哪些你考虑过但主动放弃的替代方案？为什么放弃？”</li>
+                        <li><strong>持续迭代至自解释境界：</strong>反复迭代推演，直到<strong>任何一位从未参与过本次对话的新加入工程师，仅凭这份计划书就能独立完整地落地该特性</strong>。</li>
+                        <li><strong>固化审计工件 plan.md：</strong>将批准的计划作为 <code>plan.md</code> 提交到 Git。该计划成为后续阶段 5 PR 自动化审查时的对照标尺。</li>
+                        <li><strong>批准执行并单次通过：</strong>解除只读限制，让 Claude 开始自动编写实现代码。在拥有高可靠 <code>plan.md</code> 的前提下，智能体通常能在<strong>单次执行中无缝完成高质量实现</strong>。</li>
+                        <li><strong>计划与代码同步演进：</strong>如果在实现过程中发现必须偏离原定计划，必须在同一个 Git Commit 中同步更新 <code>plan.md</code>（可配置 Hook 进行硬性一致性校验）。</li>
+                    </ol>
+
+                    <h4>标准工程范例：理赔服务实施计划规范 (plan.md)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">plan.md (Based on intent.md 2026-06-02)</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code># 实施计划：理赔状态自助查询 (Plan: claims status self-service)
+关联来源：intent.md (2026-06-02), spec.md (2026-06-03)
+
+## 将变更的文件清单 (Files that change)
+- `portal/src/claims/StatusPanel.tsx` (全新创建：状态展示面板 UI)
+- `claims-api/routes/status.py` (修改：新增只读状态查询接口)
+- `claims-api/tests/test_status.py` (修改：补充接口级单测与集成测试用例)
+
+## 实施顺序 (Order of work)
+1. 在 claims-api 中新增状态查询 Endpoint，严格复用既有 JWT 鉴权；
+2. 基于 mock 数据构建前端 StatusPanel 组件，实现状态映射与异常处理；
+3. 将 StatusPanel 挂载接入门户主导航菜单路由。
+
+## 识别风险点 (Risks)
+底层 claims-core API 在生产环境存在 50 rps 的强限流保护；
+前端面板与 API 路由层必须实现双重短效缓存机制，严禁击穿核心。
+
+## 验收核验底据 (Proof)
+- `test_status.py` 必须 100% 覆盖理赔周期的四种状态（已报案、审核中、需补件、已结案）；
+- 前端组件截图通过自动化 diff 对比，完全符合 Stage 2 批准的高保真 UI 设计。</code></pre>
+                    </div>
+
+                    <h3 id="stage-3-auto-mode">策略 3.2：Claude Code 自动执行模式 (Auto Mode)</h3>
+                    <p>
+                        在工程师审阅并确认了 <code>plan.md</code> 之后，Claude Code 还可以切换至<strong>自动模式 (Auto Mode)</strong> 运行。在此模式下，Claude 可以在无需每一步都让人类敲击回车确认的前提下，连续自主完成一系列文件修改、命令编译与自测。
+                    </p>
+                    <p>
+                        随着后续策略中的安全护栏逐步成熟（高度完备的 <code>CLAUDE.md</code>、严密的 <code>skills</code> 制度规约、拦截危险指令的 <code>hooks</code> 以及可一键自检的单元测试套件），<strong>对于常规日常任务（严谨的 spec、较小的改动爆炸半径、已有充分测试覆盖的代码模块），自动接受模式（Auto-accept）应当成为工程团队的默认选项</strong>。
+                    </p>
+
+                    <div class="callout-box info">
+                        <div class="callout-title">💡 范式转变：从“盯梢模型编辑”到“审视完整产物”</div>
+                        <p>
+                            工程师的工作范式正在发生本质重塑：<strong>不再是坐在屏幕前像看监视器一样盯梢智能体敲击每一行字符，而是在长程自主会话结束后，集中精力审阅最终成型的结构化工件与验证底据。</strong>与 Git Worktrees 配合使用时，自动模式能够释放巨大的个人与团队并发产能，成为闭环自主 SDLC 的核心引擎。
+                        </p>
+                    </div>
+
+                    <!-- Sidebar: Legacy Systems -->
+                    <div class="worked-example-card" id="stage-3-sidebar">
+                        <div class="worked-example-header">
+                            <span class="worked-example-badge">核心工程边栏</span>
+                            <span class="worked-example-title">遗留系统与工程真相源的共存之道 (Legacy Systems and the Source of Truth)</span>
+                        </div>
+                        <p>
+                            在大型成熟企业中，既有的 SDLC 流程往往早已深度绑定了特定的企业级管理工具：任务待办事项在 Jira 或 ServiceNow 中，合规追溯需求躺在专用合规管理系统中，设计稿沉淀在 Figma 里，而发布变更审批则受制于变更管理委员会（CAB）。
+                        </p>
+                        <p>
+                            这些遗留系统在短期内<strong>极难被强行替代</strong>，因为外部审计机构与监管团队早已认可其流程有效性。因此，AI 原生 SDLC 必须灵活适配企业既有现状。在向 AI 原生演进时，对于流程产出的每一项工件，必须<strong>明确指定一个系统作为绝对的“单一事实来源 (Single Source of Truth)”，其他所有系统仅持有副本或指向原始来源的超链接</strong>：
+                        </p>
+                        <ul class="breakdown-list">
+                            <li class="breakdown-item">
+                                <strong>模式 1：代码仓库作为唯一真相源 (The Repo as the Source of Truth)</strong>
+                                <p>Git 中的 Markdown 工件是唯一具有法定效力的权威记录，Jira 等遗留系统仅通过链接引用特定 Commit 中的工件文件。这是技术导向型组织最优雅、最纯粹的架构，所有记录拥有统一的时间戳与版本权威。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong>模式 2：遗留系统作为唯一真相源 (The Legacy System as the Source of Truth)</strong>
+                                <p>Jira、ServiceNow 或专用需求工具持有权威记录，Git 中的 Markdown 工件仅充当工作草稿。Claude 在会话开始时通过 MCP 连接器从 Jira 拉取最新记录，并在生成 spec 或 plan 的同一会话中将结论自动写回 Jira 闭环。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong>模式 3：双向严格链接作为最低基线 (Linkage as the Minimum Bar)</strong>
+                                <p>作为向 AI 原生转型的过渡妥协方案，允许两个系统共存：所有 Markdown 工件必须在头部显式标明 Jira/工单编号，而所有遗留工单中必须强制登记对应 Markdown 文件的 Git Commit SHA 哈希值。</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h3 id="stage-3-claudemd">策略 3.3：CLAUDE.md 作为项目机构记忆与上下文基线</h3>
+                    <p>
+                        <code>CLAUDE.md</code> 的定位是<strong>为智能体提供如同“优秀新员工入职第一天”所需知晓的一切关键上下文</strong>——涵盖项目常用指令、代码规范、目录架构划分以及<strong>团队既往最常踩的典型坑点与历史教训</strong>。
+                    </p>
+                    <p>
+                        过去散落在老员工脑海中、甚至埋没在吃灰 Wiki 文档中的隐性知识，通过 <code>CLAUDE.md</code> 转化为智能体在<strong>每次开启会话时首屏必读的标准化基准文件</strong>。由全团队共同维护，一旦智能体犯了错误，立刻向该文件沉淀反思。
+                    </p>
+
+                    <h4>维护 <code>CLAUDE.md</code> 的四大黄金法则：</h4>
+                    <ol>
+                        <li><strong>通过 <code>/init</code> 快速冷启动：</strong>在仓库根目录下运行 <code>claude /init</code>，Claude 会自主扫描代码库并生成一份初始化框架草案。</li>
+                        <li><strong>大刀阔斧裁剪至精简纯粹：</strong>仅保留新员工入职第一天必须知晓的内容：构建、测试和代码检查（Lint）命令、不容践踏的核心约定、以及模型频繁出错的陷阱。</li>
+                        <li><strong>遵循“两次犯错必沉淀”法则 (Two-Strike Rule)：</strong>当智能体在同一个错误上连续跌倒两次，其纠正防范措施<strong>必须立刻作为强制规则写入 <code>CLAUDE.md</code></strong>。</li>
+                        <li><strong>控制在单页篇幅之内 (Under One Page)：</strong>由于 Claude 在每次会话启动时都会全量加载该文件，过长或陈旧的内容不仅毫无价值，更会白白浪费宝贵的模型上下文窗口。</li>
+                    </ol>
+
+                    <h4>标准工程范例：支付中台机构记忆基线 (CLAUDE.md)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">CLAUDE.md (Payments Service)</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code># 支付核心服务工程上下文 (Payments service)
+
+## 常用指令 (Commands)
+- Build: make build
+- Test: make test (单元测试), make itest (集成测试, 依赖 Docker 沙箱)
+- Lint: make lint (CI 强制门禁; 提交前必须本地通过)
+
+## 代码规范与约定 (Conventions)
+- 技术栈：Java 21, Spring Boot 3。严禁引入任何新的 Lombok 注解。
+- 金额处理：所有涉及金钱的字段必须使用 BigDecimal，严禁使用 double 或 float！
+- 每个暴露的 API Endpoint 必须在 src/itest 下编写配套集成测试。
+
+## 系统架构拓扑 (Architecture)
+- api/ 存放 REST 控制器层；core/ 封装纯领域核心业务逻辑；adapters/ 负责与外部三方系统交互。
+- Kafka 事件严格定义在 schemas/ 下；绝对不要手工编辑由 schema 生成的自动代码类！
+
+## Claude 历史高频犯错清单 (Things Claude gets wrong)
+- 严禁擅自升级 pom.xml 中的依赖包版本；依赖由平台工程基础架构团队集中管控。
+- 遗留的 legacy v1/ 包已被完全冻结保护；所有新增与变更逻辑必须编写在 v2/ 包中！</code></pre>
+                    </div>
+
+                    <h3 id="stage-3-skills">策略 3.4：Skills 作为组织制度与工程标准的制度沉淀</h3>
+                    <p>
+                        <strong>Skills（技能）是现代企业将机构知识转变为操作化生产力的核心工具。</strong>技能中的指令具有明确性、版本受控性、全局应用性以及集中可更新性。
+                    </p>
+                    <p>
+                        <strong>核心经验法则：</strong>当某项工程制度需要在全组织内<strong>高度一致、不折不扣地严格贯彻</strong>时（如安全规范、API 风格指南、品牌合规），请为其编写专属 Skill；切勿将属于 <code>CLAUDE.md</code>（单仓库基线）或临时 Prompt（单次意图）的内容滥写为 Skill。
+                    </p>
+                    <p>
+                        Skill 在物理形态上是一个独立文件夹，内部包含一份规范的 <code>SKILL.md</code>，其 YAML Frontmatter 元数据声明了触发条件，而主体 Markdown 则详细规定了应对要求。存放在项目 <code>.claude/skills/<name>/</code> 目录下，或通过组织私有插件中心（Plugin Marketplace）全公司集中分发。
+                    </p>
+
+                    <h4>标准工程范例：API 安全审计技能规范 (.claude/skills/secure-api-review/SKILL.md)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">.claude/skills/secure-api-review/SKILL.md</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code>---
+name: secure-api-review
+description: 强制执行企业级 API 安全基线标准。当创建或修改任何对外暴露的接口端点、审查 API 核心代码或重新生成 OpenAPI 规约时自动加载生效。
+---
+# 企业 API 安全合规审计规范 (Secure API Review)
+
+当你在创建、重构或审查任何 API 端点代码时，必须严格执行以下四项安全纪律：
+1. 身份认证与鉴权 (Authentication)：除 `/health` 探针外，所有对外暴露的路由端点必须强制挂载网关层 JWT 校验，严禁开放任何匿名路由。
+2. 输入合法性校验 (Input validation)：所有 HTTP 请求体必须基于 OpenAPI Schema 展开强类型合法性核验，直接拒绝并拦截任何未在 Schema 中声明的未知字段。
+3. 状态审计轨迹 (Audit logging)：任何会发生数据变更的操作端点（POST/PUT/DELETE），必须同步发出合规审计事件，记录操作者主体 (actor)、具体动作 (action)、目标实体 (entity) 及毫秒时间戳。
+4. 敏感数据脱敏分类 (Data classification)：在 Schema 中被打上 `pii`（个人敏感数据）标签的任何字段，绝对禁止出现在日志打印、监控监控指标或返回给客户端的错误堆栈中。
+
+代码编写完成后，必须执行 `scripts/check-endpoints.sh` 并将执行报告完整附加于摘要中。</code></pre>
+                    </div>
+
+                    <h3 id="stage-3-hooks">策略 3.5：Hooks 作为构建时确定性护栏 (Hooks as Build-Time Guardrails)</h3>
+                    <p>
+                        必须清醒认识到：<strong>Skill 本质上属于一种“建议型控制 (Advisory Control)”</strong>，它能够极大幅度提升模型遵从规范的概率，但无法在物理层面上 100% 杜绝模型偶尔的幻觉或失误。
+                    </p>
+                    <p>
+                        <strong>Hooks（生命周期钩子）则是立足于底层的“确定性控制层 (Deterministic Layer)”。</strong>在实施构建期间，智能体的绝大多数行为都表现为文件编辑（File edits）与 Shell 命令执行（Bash），因此构建阶段是 Hooks 最常触发的战场：
+                    </p>
+                    <ul>
+                        <li><strong>阻断对敏感只读路径的写操作：</strong>例如直接阻断对 <code>schemas/generated/</code> 自动生成类或已冻结遗留包的代码修改；</li>
+                        <li><strong>编辑后自动运行代码格式化与 Lint：</strong>在文件每次被修改后自动触发 <code>make lint-fix</code>，确保技术债务与代码异味永远不会在主干累积；</li>
+                        <li><strong>严防密钥凭据泄露进 Git Diff：</strong>在提交或暂存前扫描高危密钥正则，发现涉敏直接强制中断操作；</li>
+                        <li><strong>为强硬合规要求提供物理兜底：</strong>Skill 让越权和违规行为变得极其罕见，而 Hook 则让违规行为在物理逻辑上彻底不可能发生！</li>
+                    </ul>
+
+                    <h3 id="stage-3-parallel">策略 3.6：并发会话与专属子智能体 (Parallel Sessions and Subagents)</h3>
+                    <p>
+                        在 AI 原生模式下，<strong>一名工程师可以同时驱动多个并行的交付工作流</strong>。
+                    </p>
+                    <p>
+                        <strong>并发会话 (Parallel Session)：</strong>是指在不同的终端窗口中启动多个独立的 Claude Code 实例，每个实例在自己专属的 <strong>Git Worktree</strong>（独立的分支物理检出目录）中并行推进各自的任务。各个会话之间完全相互隔离、对彼此毫无感知，工程师的大脑是连接它们的唯一中枢。
+                    </p>
+                    <p>
+                        <strong>专属子智能体 (Subagent)：</strong>则是指在同一个会话内部运行的特定领域受限助手。子智能体拥有自己<strong>独立的上下文窗口与工具访问白名单</strong>，专为在多个任务中反复出现的重复性子工作而生（如独立验证系统可用性、代码精简优化、全局代码库调研等）。
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">传统工程师工作流</th>
+                                    <th style="width: 50%;">AI 原生并发编排流</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        一名工程师在同一时刻只能推进一项任务。一整天中有大量时间耗费在等待漫长的编译构建、运行本地单测、等待同事 Review 代码上。尽管等待时可以尝试切换任务，但频繁的大脑上下文切换代价过大，令人身心俱疲。
+                                    </td>
+                                    <td>
+                                        一名工程师同时驾驭多个独立的 Claude 并发会话，每个会话借助 <code>git worktree</code> 在隔离分支上飞速自主开发。重复性琐事交付给特定子智能体。工程师的角色由“苦力敲代码者”跃升为<strong>多智能体会话的调度总指挥（Orchestrator）与闭环巡检官</strong>。
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>标准工程范例：独立验证器子智能体 (.claude/agents/verifier.md)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">.claude/agents/verifier.md</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code>---
+name: verifier
+description: 在主会话宣告任务完成之前，启动全新独立上下文运行应用程序，实地验证变更是否真实生效。
+tools: Bash, Read
+---
+使用 `make run` 启动应用服务。
+充分遍历演练本次任务变更的核心行为流，并连带校验与其距离最近的两个邻近业务流程。
+向主会话如实客观汇报：你实际执行了哪些验证指令、捕获到了哪些实际系统输出、以及发现了哪些与 plan.md 规约不一致的异常偏差。
+
+【重要纪律】你只负责严格验证与客观汇报，绝对不要尝试擅自修复任何代码！</code></pre>
+                    </div>
+
+                    <div class="metrics-card">
+                        <div class="metric-col lead">
+                            <h4>🎯 先行指标 (Leading Indicator)</h4>
+                            <p><strong>单名工程师在维持审查质量前提下的并发会话数（从 OpenTelemetry 导出数据统计）；</strong>以及工程师在一整天中专注于“战略引导与审阅”而非“死等编译”的时间占比。</p>
+                        </div>
+                        <div class="metric-col lag">
+                            <h4>📊 滞后指标 (Lagging Indicator)</h4>
+                            <p><strong>单名工程师每周成功合并至主干的变更集总数 (Merged PRs per Engineer)；</strong>同时结合 PR 历史中的后续线上缺陷回滚率（Rework Rate）进行综合质量校准。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stage 4: Test -->
+                <section id="stage-4-test">
+                    <h2>阶段 4 · 测试：自愈测试与持续评测体系 (Stage 4 · Test)</h2>
+                    <div class="quote-banner">
+                        “每一个智能体会话在把成果呈现在人类眼前之前，必须拥有独立自检并自愈错误的能力；而用来操纵智能体的配置文件本身，也必须像生产代码一样接受严苛的回归测试。”
+                    </div>
+
+                    <h3 id="stage-4-feedback-loop">策略 4.1：为 Claude 构建自愈反馈回路 (Feedback Loop)</h3>
+                    <p>
+                        在传统软件开发中，验证代码是否正常工作的反馈信号往往极其滞后：CI 流水线报错需要等数十分钟，QA 团队反馈 Bug 需要等数天，而生产环境异常更是数周后才暴露。当智能体以惊人速度产出海量代码时，如果反馈信号依旧滞后，那么<strong>所有检查代码的巨大包袱将全部压在人类工程师一个人肩上，这个人瞬间就会沦为严重阻塞交付的系统瓶颈</strong>。
+                    </p>
+                    <p>
+                        因此，<strong>必须赋予 Claude 在其执行主循环中实时自我校验的自愈反馈闭环（Feedback Loop）</strong>。无论是单元测试、编译构建还是截图视觉比对，智能体在把结果呈报给工程师之前，必须主动运行验证、捕获报错、反思修正并循环重试，直至检查全部绿灯。
+                    </p>
+
+                    <div class="callout-box info">
+                        <div class="callout-title">🔍 厘清概念：反馈自愈回路 vs 验证器子智能体</div>
+                        <p>
+                            <strong>反馈回路 (Feedback Loop)：</strong>贯穿在整个开发任务的每一次微小代码修改之间，随任务进程持续运行数十次，智能体随写随改；<br>
+                            <strong>验证器子智能体 (Verifier Subagent)：</strong>则是在整个编码会话自认为彻底完工后，<strong>开启一个完全纯净的全新上下文窗口执行最终终审</strong>，从而彻底避免终审结论受到主会话编写代码时先入为主假设的偏见干扰。
+                        </p>
+                    </div>
+
+                    <h4>构建自愈反馈回路的 7 大执行步骤：</h4>
+                    <ol>
+                        <li><strong>将验证链路收敛为单条幂等指令：</strong>如果当下验证系统需要跑一长串环境配置与脚本，必须将其打包为诸如 <code>make test</code> 或 <code>npm test</code> 这样失败时返回非零退出码（Non-zero exit code）的单条简单命令。</li>
+                        <li><strong>在 CLAUDE.md 中给出健康输出样板：</strong>明确列出每个命令预期的成功控制台输出片段。</li>
+                        <li><strong>设定明确、可量化的绝对验证目标：</strong>例如：“<code>test_status.py</code> 中全部测试用例 100% 绿灯”、“渲染生成的截图必须与附带的高保真 UI 设计图完美吻合”、“新接口在携带新入参时必须返回 HTTP 200”。</li>
+                        <li><strong>Bug 修复严格恪守“测试先行 (Test-First)”：</strong>当修复生产 Bug 时，要求 Claude 首先将该 Bug 复现为一个必定失败的新测试用例；运行该测试并确认失败原因完全符合预期；将该测试用例单独提交 Git；<strong>唯有在此之后，才允许 Claude 编写修复代码，并通过 Hook 强制禁止修改该测试文件</strong>。一个在修复前就已存在且智能体无权篡改的失败单测，是证明 Bug 被真正根治的铁证！</li>
+                        <li><strong>UI 界面通过视觉对比闭环自愈：</strong>通过 MCP 赋予 Claude 浏览器或截图抓取能力，传入目标设计图。Claude 自主经历“编写样式 → 页面截屏 → 视觉比对 → 微调样式”的自主循环迭代（通常 2 至 3 轮即可达到像素级还原）。</li>
+                        <li><strong>将自主验证纳入“完工标准 (Definition of Done)”：</strong>在 <code>CLAUDE.md</code> 中明文规定：在宣布任务完成前，必须完整运行验证套件并粘贴实际运行日志输出。</li>
+                        <li><strong>部署护栏防止智能体“投机取巧”：</strong>严禁智能体在遇到测试报错时擅自修改或弱化断言条件！通过 Hook 在修复任务期间彻底锁定测试文件的编辑权限。</li>
+                    </ol>
+
+                    <h4 id="stage-4-verification">标准工程范例：CLAUDE.md 完工验证规范块</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">CLAUDE.md (Verification Block)</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code>## 完工验证规范 (Verifying your work)
+- 构建校验：`make build`（必须以 "Build succeeded" 正常退出）
+- 单测套件：`make test`（全量测试必须全部呈现绿色通过；绝对禁止跳过、注释或删除任何失败的测试用例！）
+- 代码合规：`make lint`（必须达到 0 警告、0 错误）
+
+在向工程师汇报任务完成前，必须在当前会话中完整执行上述三项验证，并将真实的控制台输出附加在汇报末尾。
+【核心纪律】如果测试失败，请反思并修改你的业务实现代码，绝对不允许修改测试用例本身！</code></pre>
+                    </div>
+
+                    <h3 id="stage-4-evals">策略 4.2：CI 流水线中的持续评估体系 (Continuous Evals in CI)</h3>
+                    <p>
+                        在传统软件工程中，系统依赖 QA 部门把守阶段门禁；而在 AI 原生时代，<strong>持续评估体系 (Continuous Evals) 则是与智能体输出速度相匹配的全新现代化质检门禁</strong>。
+                    </p>
+                    <p>
+                        在工程实践中，这意味着设立一个<strong>专门在智能体配置发生变更时自动触发的评测套件</strong>。当团队更换了底层大模型版本、重写了 Prompt 提示词、或者修改了 <code>CLAUDE.md</code> 与 Skills 时，Eval 评测套件能够立即给出确定性结论：<strong>当前的智能体配置是否依然能够稳定达成既往相同的工程水准？</strong>
+                    </p>
+
+                    <h4>5 步落地持续评估套件：</h4>
+                    <ol>
+                        <li><strong>沉淀真实工程用例库：</strong>平台工程团队从过往实际业务开发中精选 20 到 50 个具有代表性的典型工程任务及其被确认满意的标准代码产出。</li>
+                        <li><strong>将任务封装为标准 Eval 用例：</strong>用例包含原始用户 Prompt 以及判定结果是否合格的机器可执行检查脚本（测试全过、Lint 洁净、特定合规制度被遵从）。</li>
+                        <li><strong>在 CI 中非交互式定时与触发运行：</strong>当 <code>CLAUDE.md</code>、<code>.claude/**</code> 等配置目录发生 PR 变更时，CI 自动触发无头（Headless）无交互的 <code>claude -p</code> 批量执行所有评测，防范工程退化。</li>
+                        <li><strong>将 Eval 通过率作为硬性 Merge 门禁：</strong>任何会导致 Eval 通过率发生跌落的配置变更，直接在 PR 阶段予以阻断。</li>
+                        <li id="stage-4-incident-evals"><strong>事故驱动的评测用例反哺：</strong>生产环境发生的<strong>每一起故障（Production Incident），都必须由事故负责团队编写一道专属 Eval 用例</strong>，作为永久回归测试沉淀在用例库中。</li>
+                    </ol>
+
+                    <h4>标准工程范例：GitHub Actions 智能体持续评测流水线</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">.github/workflows/agent-evals.yml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制配置</button>
+                        </div>
+                        <pre><code>name: Agent Evals (智能体配置回归测试套件)
+on:
+  pull_request:
+    paths: ['CLAUDE.md', '.claude/**']
+  schedule:
+    - cron: '0 2 * * *' # 每晚凌晨定时全量回归
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g @anthropic-ai/claude-code
+      - name: 批量执行非交互式评估并校验
+        env:
+          ANTHROPIC_API_KEY: ${ secrets.ANTHROPIC_API_KEY }
+        run: |
+          for eval in evals/*.json; do
+            echo "正在运行评估用例: $eval ..."
+            claude -p "$(jq -r '.prompt' $eval)"               --allowedTools "Read,Edit,Bash(make test)"               --output-format json > result.json
+            ./evals/check.sh "$eval" result.json
+          done</code></pre>
+                    </div>
+
+                    <div class="metrics-card">
+                        <div class="metric-col lead">
+                            <h4>🎯 先行指标 (Leading Indicator)</h4>
+                            <p><strong>智能体编写的代码在 CI 流水线中的初次运行通过率 (First-pass CI success rate)；</strong>以及生产故障发生后，将其转化为永久自动化 Eval 用例的平均耗时。</p>
+                        </div>
+                        <div class="metric-col lag">
+                            <h4>📊 滞后指标 (Lagging Indicator)</h4>
+                            <p><strong>平均单 PR 人工审查耗时 (Review Time per PR)；</strong>以及在 CI 阶段被捕获的回归缺陷与实际逃逸至生产环境的故障数量比例对比。</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stage 5: Deploy -->
+                <section id="stage-5-deploy">
+                    <h2>阶段 5 · 部署：双向审查与强管控治理 (Stage 5 · Deploy)</h2>
+                    <div class="quote-banner">
+                        “审查在两个方向上同时运行，合规治理在智能体行动的瞬间被无缝执行。智能体有权完成通往生产大门前的一切工作，但绝不被赋予跨越发布大门的生杀大权。”
+                    </div>
+
+                    <h3 id="stage-5-pr-review">策略 5.1：PR 审查回路中的双向 AI (AI in the PR Review Loop)</h3>
+                    <p>
+                        在 AI 原生 SDLC 中，<strong>Claude 同时兼具“审查者 (Reviewer)”与“被审查者 (Reviewee)”的双重角色</strong>。
+                    </p>
+                    <p>
+                        一方面，Claude 依据企业的组织制度严格审阅所有新提交的 Pull Request；另一方面，当人类工程师对 Claude 创建的 PR 提出修改意见时，Claude 能够<strong>自动理解 Review 意见并自主推送修复 Commit</strong>。
+                    </p>
+                    <p>
+                        这使得人类工程师的精力得以彻底解脱：不再需要浪费在检查语法缩进、命名规范或低级逻辑缺陷上，而是<strong>升维至对业务系统宏观行为、战略意图与整体风险的终极审定</strong>。
+                    </p>
+
+                    <h4>双向审查闭环的 6 大落地指引：</h4>
+                    <ol>
+                        <li><strong>选择接入形态：</strong>最快捷的起点是开启托管的代码审查服务；而在需要强监管控制、或要求 API 请求必须经由企业 AWS Bedrock、Google Vertex 或 Azure Foundry 私有云协议传输的场景下，推荐在自建 CI 流水线中运行 <code>claude-code-action</code>。</li>
+                        <li><strong>编写组织级审查规约 REVIEW.md：</strong>由技术主管在仓库根目录下维护 <code>REVIEW.md</code>，清晰定义三层审查维度：<strong>Bug 缺陷、安全漏洞、以及是否偏离 <code>spec.md</code>、<code>plan.md</code> 和设计原则的合规性核验</strong>；并清晰界定哪些属于高危严重问题（Important），哪些属于次要微调（Nit）。</li>
+                        <li><strong>严格设立人类审批底线：</strong>智能体的审查结论本身<strong>不能单独作为合并或阻断 PR 的唯一决定项</strong>；分支保护策略（Branch Protection）必须强制要求代码所有者（Code Owner）的人类核准。</li>
+                        <li><strong>通过 @claude 实现实时修复交互：</strong>当审查者在 PR 代码行中留下 <code>@claude</code> 评论时，Claude 自动在后台根据反馈重写代码并提交 Push。团队甚至可以通过自定义斜杠命令让 Claude 全程托管盯梢 PR，直到所有审查反馈与 CI 检查全部绿灯，仅静候人类主管的最后一声放行。</li>
+                        <li><strong>审查发现闭环反哺 CLAUDE.md：</strong>当审查机制连续两次指出同类错误时，该纠正规则必须作为本次 Review 的一部分<strong>直接合并进 <code>CLAUDE.md</code></strong>，从而确保后续所有会话永不再犯。</li>
+                        <li><strong>每月定期微调审查噪音比：</strong>技术主管每月复盘审查质量评分，对微小琐碎问题（Nit）设定报告上限（如单次最多 5 条），屏蔽编译生成文件，持续消除警报疲劳。</li>
+                    </ol>
+
+                    <h4 id="stage-5-reviewmd">标准工程范例：代码审查指引规约 (REVIEW.md)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">REVIEW.md (Review Instructions)</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制规范</button>
+                        </div>
+                        <pre><code># 代码审查规约指南 (Review instructions)
+
+## 三层审查维度 (Passes)
+必须并行执行以下三个维度的独立审查，并在每条发现中标明对应分类：
+- 逻辑缺陷 (Bugs): 潜在并发隐患、被遗漏的边界边缘条件、细微的回归破坏；
+- 安全合规 (Security): SQL/指令注入风险、认证鉴权缺口、日志中是否存在未经脱敏的 PII；
+- 架构一致性 (Compliance): 变更实现是否严格与 spec.md、plan.md 以及企业设计原则保持一致。
+
+## 严重问题 (Important) 的明确判定标准
+仅对满足以下条件的缺陷打上【Important】标记：破坏业务既定行为、泄露敏感数据、或违背企业强制政策。单纯的代码风格偏好与变量命名微调仅属于【Nit】。
+
+## 琐碎建议上限控制 (Cap the nits)
+单次审查最多汇报 5 条琐碎优化建议 (Nits)；其余次要建议仅输出总数统计，避免造成审查疲劳。
+
+## 豁免审查目录 (Do not report)
+位于 `src/gen/` 下的自动生成代码，以及 CI 门禁已通过静态检查覆盖的规则。</code></pre>
+                    </div>
+
+                    <h3 id="stage-5-hooks-gates">策略 5.2：Hooks 作为强管控审批闸门 (Approval Gates)</h3>
+                    <p>
+                        在阶段 3 构建期间，Hooks 主要作为自动化护栏在幕后无声运行；而在阶段 5 部署阶段，<strong>Hook 可以主动发起“暂停询问 (Ask)”，阻断危险操作并原地等待特定人类主管的法定审批</strong>。
+                    </p>
+                    <p>
+                        最典型的场景是<strong>生产环境发布闸门</strong>：智能体可以全自动完成打包、打标签、推送测试镜像等全部前置工作，但当试图触发部署生产指令时，Hook 立即强制拦截，直至检测到合格的审批令牌。
+                    </p>
+
+                    <h4>标准工程范例：生产部署强审批门禁 Hook (.claude/hooks/production-gate.sh)</h4>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">.claude/hooks/production-gate.sh</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制脚本</button>
+                        </div>
+                        <pre><code>#!/bin/bash
+# 生产环境发布前置强制审批门禁 (Production Deploy Gate)
+
+# 从标准输入捕获智能体正试图调用的 Bash 指令
+cmd=$(jq -r '.tool_input.command' < /dev/stdin)
+
+# 匹配生产发布特征关键字
+if [[ "$cmd" == *"deploy"* && "$cmd" == *"production"* ]]; then
+  # 校验当前环境变量中是否存在合法的发布授权凭证
+  if [ -z "$RELEASE_APPROVAL" ]; then
+    echo "【发布拦截】向生产环境部署的操作已被安全门禁阻断！" >&2
+    echo "必须由指定的发布经理 (Release Manager) 签署 RELEASE_APPROVAL 凭证后方可放行。" >&2
+    exit 2 # 退出码 2 代表强制阻断操作；该提示信息将完整呈现在 Claude 会话中
+  fi
+fi
+
+exit 0 # 正常放行</code></pre>
+                    </div>
+
+                    <!-- Worked Example -->
+                    <div class="worked-example-card" id="stage-5-worked-example">
+                        <div class="worked-example-header">
+                            <span class="worked-example-badge">重磅实战范例</span>
+                            <span class="worked-example-title">金融与强监管企业受控配置深度拆解 (Managed Settings for Regulated Enterprise)</span>
+                        </div>
+                        <p>
+                            以下配置由企业平台工程团队通过移动设备管理系统 (MDM) 或 Claude 企业控制台集中下发；<strong>在终端工程师的本地电脑上处于强制只读状态，任何工程师都无法以任何手段修改、绕过或覆盖其中的任何一项控制</strong>。
+                        </p>
+
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-title">/Library/Application Support/Claude/managed-settings.json</span>
+                                <button class="copy-btn" onclick="copyCode(this)">复制配置</button>
+                            </div>
+                            <pre><code>{
+  "permissions": {
+    "deny": [
+      "Read(.env*)", "Read(./secrets/**)",
+      "WebFetch", "Bash(curl *)", "Bash(wget *)"
+    ],
+    "allow": [
+      "Bash(git *)", "Bash(make build)",
+      "Bash(make test)", "Bash(make lint)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "allowManagedPermissionRulesOnly": true,
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": [
+        "git.internal.example.com",
+        "registry.npmjs.org"
+      ]
+    },
+    "credentials": {
+      "files": [
+        { "path": "~/.ssh", "mode": "deny" },
+        { "path": "~/.aws/credentials", "mode": "deny" }
+      ],
+      "envVars": [
+        { "name": "GITHUB_TOKEN", "mode": "deny" }
+      ]
+    }
+  },
+  "allowManagedHooksOnly": true,
+  "disableSideloadFlags": true,
+  "allowManagedMcpServersOnly": true,
+  "strictKnownMarketplaces": [
+    { "source": "github", "repo": "example-corp/approved-plugins" }
+  ],
+  "requiredMinimumVersion": "2.1.193"
+}</code></pre>
+                        </div>
+
+                        <h4 style="margin-top:24px; color:#0f172a;">逐行深度拆解：每一行配置在合规风控层面换取了什么？(What Each Line Buys, In Control Terms)</h4>
+                        <ul class="breakdown-list">
+                            <li class="breakdown-item">
+                                <strong><code>permissions.deny</code> 与 <code>permissions.allow</code></strong>
+                                <p><code>deny</code> 列表在工具层面上坚决杜绝智能体触碰 <code>.env*</code> 和密钥目录，封死任意出站网络请求；<code>allow</code> 则预先批准了安全的构建开发内循环指令，避免频繁的权限确认弹窗让工程师产生“审批疲劳”。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>disableBypassPermissionsMode</code> + <code>allowManagedPermissionRulesOnly</code></strong>
+                                <p>彻底封死了任何本地逃逸通道：意味着没有任何工程师、本地项目配置文件或命令行启动参数（如 <code>--dangerously-skip-permissions</code>）能够放宽或越过上述安全限制。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>sandbox</code> (OS 级网络与文件系统物理隔离)</strong>
+                                <p>弥补了应用层权限的天然短板。单纯在工具层面禁用 WebFetch 无法阻止智能体在 Shell 中通过其他手段联网；沙箱通过操作系统底层命名空间实施网络拦截，只放行企业内网 Git 和受信任的官方 npm 源。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>failIfUnavailable</code> 与 <code>allowUnsandboxedCommands</code></strong>
+                                <p>构成了沙箱的绝对门禁哲学：如果沙箱环境因系统原因无法成功初始化，Claude Code 直接拒绝启动；任何在沙箱内执行失败的指令，绝不允许在无沙箱的宿主机环境中静默重试！</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>credentials</code> (凭据物理剥离)</strong>
+                                <p>堵住了最后的防守死角。尽管权限规则限制了读文件，但沙箱内的 Shell 子进程依然可能读取宿主机的 <code>~/.ssh</code> 或 <code>~/.aws/credentials</code>；该配置不仅在物理上禁止读取这些敏感路径，更在每次创建沙箱子环境时直接把 <code>GITHUB_TOKEN</code> 等关键密钥从环境变量中完全抹除。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>allowManagedHooksOnly</code></strong>
+                                <p>确保只有企业下发的法定 Hooks 才能被执行；本地工程中由个别工程师自制的恶意或不合规 Hook 无法追加或篡改已有规则。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>disableSideloadFlags</code> 与 <code>strictKnownMarketplaces</code></strong>
+                                <p>杜绝第三方恶意扩展侧载：工程师机器上的每一个 Skill、Agent、Hook 和 MCP 服务，必须全部来源于企业集中认证的官方插件仓库，严禁从个人主目录导入任何未经审查的散装插件。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>allowManagedMcpServersOnly</code></strong>
+                                <p>让智能体可调用的外部工具攻击面彻底收敛为一份由平台工程与企业安全团队集中掌控的绝对白名单。</p>
+                            </li>
+                            <li class="breakdown-item">
+                                <strong><code>requiredMinimumVersion</code></strong>
+                                <p>客户端版本强制准入基线：任何低于经过安全合规团队正式评估认证版本的旧版客户端，直接被拒绝运行，确保所有漏洞补丁与治理策略 100% 覆盖终端。</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h3 id="stage-5-cicd">策略 5.3：CI/CD 集成、沙箱与受控发布</h3>
+                    <p>
+                        在 CI/CD 流水线中，Claude Code 以无头无交互方式（<code>claude -p</code>）运行于容器沙箱中，处理诸如构建失败分析（Triage）、更新自动生成文档、以及对 <code>@claude</code> 评论即时修复等高阶判断任务。
+                    </p>
+
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">CI Step: 智能体自动归因构建失败</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制脚本</button>
+                        </div>
+                        <pre><code>- name: 构建失败深度智能体归因 (Triage failed build)
+  if: failure()
+  run: >
+    claude -p "请阅读 out/build.log 中的构建失败日志。
+    分析并指出最可能的直接诱因，客观判定此次失败是偶发的网络抖动（Flaky）还是真正的代码逻辑缺陷，
+    并在 PR 讨论区生成一段精炼的三行总结陈词。" >> triage.md</code></pre>
+                    </div>
+
+                    <div class="quote-banner">
+                        治理最高黄金定律：智能体可以被充分授权完成通往生产大门前的一切准备工作，但绝不允许越过生产大门！(The agent may act up to the production gate, and cannot pass it.)
+                    </div>
+                </section>
+
+                <!-- Stage 6: Maintain -->
+                <section id="stage-6-maintain">
+                    <h2>阶段 6 · 运维：指标越界自愈与全流程闭环 (Stage 6 · Maintain)</h2>
+                    <div class="quote-banner">
+                        “生命周期至此彻底闭环。一个无需人类值守的确定性触发器自主唤起 Claude；智能体排查出的一切隐患，以全新的 intent.md 形式再次注入流水线起点。”
+                    </div>
+
+                    <h3 id="stage-6-closing-loop">闭环自愈运维机制 (Closing the Loop)</h3>
+                    <p>
+                        在前五个阶段中，我们详细拆解了如何将 Claude 深度融入 SDLC 的各个环节，但通常都需要由人类工程师在初始阶段发起操作。而阶段 6 运维的核心飞跃，在于<strong>实现智能体的大规模常态化自主运行，从而让整个软件生命周期彻底形成闭环自我迭代回路</strong>。
+                    </p>
+                    <p>
+                        在生产环境中，<strong>完全由版本受控的确定性数学脚本（Deterministic Script）负责严密监视系统健康状态</strong>。脚本基于严格的统计过程控制理论（如西屋电气 Western Electric 规则）计算滚动窗口的均值与标准差（σ）。当监测到指标出现漂移或突破控制带时，依据版本库中的配置文件触发分级响应：
+                    </p>
+
+                    <h3 id="stage-6-bands">监控指标控制带分级响应规范 (bands.yaml)</h3>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">monitoring/bands.yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">复制配置</button>
+                        </div>
+                        <pre><code>metric: ci_test_failure_rate # 监控指标：CI 测试套件失败率
+baseline: rolling_30d        # 基准线：近 30 天滑动平均
+rules: western_electric      # 判定规则：西屋电气统计质量控制规则
+
+tiers:
+  1sigma:
+    action: log              # 1σ 波动：轻微噪声，仅记录审计日志
+  2sigma:
+    action: diagnose         # 2σ 异常：触发只读 Claude 进行故障归因推演
+    tools: "Read,Grep,Bash(gh run view *)"
+  3sigma:
+    action: propose          # 3σ 严重越界：生成 intent.md 或触发预审批回滚
+    routes:
+      - pull_request         # 开设修复 PR 等待审查
+      - runbook:rollback-deploy # 调用经过演练的预审批回滚流水线</code></pre>
+                    </div>
+
+                    <h4>典型实战响应范例：</h4>
+                    <ul>
+                        <li>当 CI 单测失败率突破 3σ 时，智能体自动将不稳定的 Flaky 测试隔离，或者提交回滚 PR，交由评审闸门裁决；</li>
+                        <li>当发布后的生产 5xx 错误率突破 3σ 且窗口内存在上线变更时，智能体直接调用预先充分演练过的标准回滚流水线执行即时回滚；</li>
+                        <li>当 PR 周期耗时触发慢性漂移时，智能体自动整理并生成工程效能分析报告提交给工程管理层。</li>
+                    </ul>
+
+                    <h3 id="stage-6-claude-tag">即时应急响应：Claude on Call 与 Claude Tag (Figure 4)</h3>
+                    <p>
+                        除确定性监控触发外，生产事故往往也会通过企业即时通讯协同工具（如 Slack 或 Teams）的突发报警涌现——例如深夜 10 点运维群中突发的一条加急求助消息。
+                    </p>
+                    <p>
+                        借助 <strong>Claude Tag</strong>（在 Slack 等平台中以独立员工身份进驻频道），Claude 能够充当<strong>事故排障的第一响应者（First Responder）</strong>：
+                    </p>
+
+                    <!-- Figure 4 -->
+                    <div class="figure-card">
+                        <img src="images_playbook/figure_4_incident_channel.png" alt="Figure 4: A first responder in the incident channel">
+                        <div class="figure-caption">
+                            <strong>图 4：事故排障频道中的第一响应者 (FIGURE 4: A first responder in the incident channel)</strong><br>
+                            还原实战现场：工程师在 <code>#inc-checkout</code> 事故排障群中 @claude 接入调查。Claude 在 3 分钟内对比发布 Diff 与错误堆栈，精准定位是缓存 Key 丢失租户 ID 所致；随后主动汇报预案并请求执行回滚授权；工程师回复确认后，Claude 自动调用回滚、校验指标恢复正常、并将事后复盘沉淀至版本库 <code>lessons/2026-06-checkout-cache.md</code>。<strong>整个沟通频道即是法定不可篡改的审计追踪！</strong>
+                        </div>
+                    </div>
+
+                    <div class="callout-box info">
+                        <div class="callout-title">🔄 循环往复：事后复盘再次转化为持续评测与意图起点</div>
+                        <p>
+                            被 Claude 自动写入 <code>lessons/</code> 目录的事后分析报告，未来会成为智能体排查类似故障的永久机构记忆；同时，按照阶段 4 的规范，团队必须为该事故补写一道专属的 Eval 评测用例并提交新的 <code>intent.md</code>。<strong>至此，维护阶段的输出无缝完成了向规划阶段的交接，现代工程闭环彻底成型！</strong>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Closing -->
+                <section id="sec-closing">
+                    <h2>09 结语与官方参考 (Closing Thoughts & Reference)</h2>
+
+                    <h3 id="sec-closing-thoughts">总结思考：循环永不停歇，人类智慧高悬于回路之上</h3>
+                    <p>
+                        基础大模型能力与其配套工程底座（Harnesses）正在以日新月异的速度极速演进。这一变革所重塑的，<strong>绝不仅仅是代码被敲击出来的具体方式，而是整套现代软件工程从意图萌发到生产闭环的完整生命周期</strong>。
+                    </p>
+                    <p>
+                        在这一波澜壮阔的工程范式大迁移中，领军企业绝不是盲目追求“完全无人化”，而是<strong>始终将人类专家的价值判断力与战略定力置于核心枢纽，同时充分满足大型金融机构与受强监管实体对于确定性、权限隔离与法定可审计性的苛刻要求</strong>。
+                    </p>
+
+                    <div class="quote-banner">
+                        “The loop keeps running. Human judgement stays above it.”<br>
+                        闭环自愈回路在底层永不停歇地高速流转；人类工程师的智慧与洞察力，高悬于回路之上进行战略统领。
+                    </div>
+
+                    <h3 id="sec-resources">官方权威资源矩阵与工程致谢 (Resources & Acknowledgments)</h3>
+                    <p>平台工程架构团队在构建上述企业级控制体系时，推荐参考以下 Anthropic 官方核心文档链路：</p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 35%;">官方核心模块指南</th>
+                                    <th style="width: 65%;">官方权威文档资源与架构职责</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>企业管理员启动设置 (Admin Setup)</strong></td>
+                                    <td><code>code.claude.com/docs/en/admin-setup</code><br>管理员决策全景地图，全局落地首选起点。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>受管配置全参数指南 (Settings Reference)</strong></td>
+                                    <td><code>code.claude.com/docs/en/settings</code><br>包含企业专属管理配置项（Managed-only Keys）的优先级与参数全解。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>权限与安全沙箱 (Permissions & Sandboxing)</strong></td>
+                                    <td><code>code.claude.com/docs/en/permissions</code> & <code>code.claude.com/docs/en/sandboxing</code><br>基于操作系统命名空间的文件系统与网络物理隔离架构。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>生命周期钩子规范 (Hooks Guide & Reference)</strong></td>
+                                    <td><code>code.claude.com/docs/en/hooks-guide</code> & <code>code.claude.com/docs/en/hooks</code><br>PreToolUse 拦截、审批中断与安全门禁实战。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>企业技能与受管 MCP (Skills & Managed MCP)</strong></td>
+                                    <td><code>code.claude.com/docs/en/skills</code> & <code>code.claude.com/docs/en/managed-mcp</code><br>组织制度沉淀为 Skills，中心化白名单纳管智能体工具暴露面。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>私有插件市场 (Private Marketplaces)</strong></td>
+                                    <td><code>code.claude.com/docs/en/plugin-marketplaces</code><br>跨团队安全分发技能、智能体、Hooks 与工具链。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>第三方云厂商集成 (Third-Party Cloud)</strong></td>
+                                    <td><code>code.claude.com/docs/en/third-party-integrations</code><br>企业流量私有化对接：AWS Bedrock、Google Vertex、Microsoft Foundry。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>企业合规审计 API (Compliance API)</strong></td>
+                                    <td><code>platform.claude.com/docs/en/manage-claude/compliance-api</code><br>企业级活动轨迹审计数据流、会话提取与合规检索。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>可观测性与监控 (OpenTelemetry & Analytics)</strong></td>
+                                    <td><code>code.claude.com/docs/en/monitoring-usage</code> & <code>code.claude.com/docs/en/analytics</code><br>通过 OpenTelemetry 全面打通企业监控分析平台。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout-box info" style="margin-top:32px;">
+                        <div class="callout-title">🤝 原著致谢名单 (Acknowledgments)</div>
+                        <p>
+                            衷心感谢 <strong>Jim Blackhurst、Will Steuk 与 Jamal Arif</strong> 为本实战手册做出的杰出贡献。本手册是在 Anthropic Applied AI 团队与全球顶尖客户日常深度打磨的最佳工程实践基础上提炼凝聚而成。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="footer">
+                    <p>《AI 原生软件开发生命周期实战手册 (The AI-Native SDLC Playbook)》· Anthropic 官方旗舰白皮书权威精译本</p>
+                    <p style="font-size:12px; margin-top:6px; color:#9ca3af;">
+                        原著作者：Louis Claxton (Anthropic) · 官方版权归原作者与 Anthropic 所有 · 中文典藏精译
+                    </p>
+                </footer>
+            </article>
+        </main>
+    </div>
+
+    <!-- Back to top button -->
+    <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="返回顶部">↑</button>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Copy Code Function
+        function copyCode(btn) {
+            const container = btn.closest('.code-container');
+            const code = container.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = '已复制!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Table of Contents Scrollspy
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.toc-link');
+            const sections = [];
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    const el = document.querySelector(href);
+                    if (el) sections.push({ el, link });
+                }
+            });
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                const scrollPos = window.scrollY + 120;
+                sections.forEach(({ el, link }) => {
+                    if (el.offsetTop <= scrollPos) current = link;
+                });
+                if (current) {
+                    links.forEach(l => l.classList.remove('active'));
+                    current.classList.add('active');
+                }
+            });
+        });
+
+        // Collapsible Sidebar Controller with Persistence & Keyboard Shortcut
+        function toggleSidebar() {
+            const wrapper = document.querySelector('.page-wrapper');
+            if (!wrapper) return;
+            const isCollapsed = wrapper.classList.toggle('sidebar-collapsed');
+            try {
+                localStorage.setItem('doc_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+            } catch(e) {}
+        }
+
+        // Keyboard shortcut: Press 'M' to toggle sidebar
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'm' || e.key === 'M') && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                toggleSidebar();
+            }
+        });
+
+        // Auto-restore state on load
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                if (localStorage.getItem('doc_sidebar_collapsed') === 'true') {
+                    const wrapper = document.querySelector('.page-wrapper');
+                    if (wrapper) wrapper.classList.add('sidebar-collapsed');
+                }
+            } catch(e) {}
+        });
+    </script>
+</body>
+</html>

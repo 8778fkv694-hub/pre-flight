@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 官方提示词工程完全指南 (Prompt Engineering for Generative AI) - 2025 全景权威典藏精译</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mermaid.js for interactive diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' });</script>
+    <style>
+        :root {
+            --primary: #1a73e8; /* Google Classic Blue */
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --text-main: #202124;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --bg-body: #f8f9fa;
+            --bg-card: #ffffff;
+            --border-color: #dadce0;
+            --accent-green: #0f9d58;
+            --accent-yellow: #f4b400;
+            --accent-red: #d93025;
+            --accent-purple: #7c3aed;
+            --accent-cyan: #0284c7;
+            --sidebar-width: 310px;
+            --max-content-width: 980px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, Menlo, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.8;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation Bar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .google-badge {
+            background: linear-gradient(135deg, #4285f4, #34a853, #fbbc05, #ea4335);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .series-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid #c2e7ff;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .header-toc-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-toc-toggle-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        /* Page Layout */
+        .page-wrapper {
+            display: flex;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px 20px;
+            gap: 32px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Floating Expand Button for Collapsed TOC */
+        .toc-expand-floating-btn {
+            position: fixed;
+            top: 85px;
+            left: 20px;
+            z-index: 999;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #ffffff;
+            border: 1px solid var(--primary-dark);
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-expand-floating-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(26, 115, 232, 0.45);
+        }
+
+        /* Sticky Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 96px);
+            overflow-y: auto;
+            padding-right: 12px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .toc-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .toc-title {
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-collapse-btn {
+            background: #f1f3f4;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .toc-collapse-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .toc-item a {
+            display: block;
+            padding: 6px 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13.5px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+
+        .toc-item a:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .toc-subitem a {
+            padding-left: 24px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        /* Main Content Container */
+        .content-area {
+            flex: 1;
+            min-width: 0;
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+        }
+
+        /* Hero Document Banner */
+        .doc-hero {
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            border: 1.5px solid #c2e7ff;
+            border-radius: 16px;
+            padding: 36px 40px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 20px rgba(26, 115, 232, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doc-hero::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 240px;
+            height: 100%;
+            background: radial-gradient(circle, rgba(66, 133, 244, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .doc-pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .doc-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .doc-pill-primary {
+            background: #e8f0fe;
+            border-color: #aecbfa;
+            color: #1a73e8;
+        }
+
+        .doc-pill-green {
+            background: #e6f4ea;
+            border-color: #a8dab5;
+            color: #137333;
+        }
+
+        .doc-hero h1 {
+            font-size: 30px;
+            font-weight: 800;
+            color: #1a0dab;
+            line-height: 1.3;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .doc-hero .lead {
+            font-size: 17px;
+            color: #3c4043;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .doc-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            background: #ffffff;
+            border: 1px solid #dadce0;
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 13.5px;
+        }
+
+        .meta-item strong {
+            display: block;
+            color: var(--text-main);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .meta-item span {
+            color: var(--text-muted);
+        }
+
+        /* Section Typography */
+        section {
+            margin-bottom: 44px;
+            scroll-margin-top: 85px;
+        }
+
+        h2.sec-heading {
+            font-size: 24px;
+            font-weight: 800;
+            color: #202124;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8eaed;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2.sec-heading i {
+            color: var(--primary);
+        }
+
+        h3.sub-heading {
+            font-size: 19px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3.sub-heading::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        h4.inner-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: #374151;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        /* Cards & Clean Borders */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        /* Callout Boxes */
+        .callout {
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-left: 5px solid;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .callout-blue {
+            border-color: #1a73e8;
+            border: 1px solid #c2e7ff;
+            border-left: 5px solid #1a73e8;
+        }
+        .callout-blue .callout-title { color: #1557b0; }
+
+        .callout-green {
+            border: 1px solid #ceead6;
+            border-left: 5px solid #0f9d58;
+        }
+        .callout-green .callout-title { color: #137333; }
+
+        .callout-yellow {
+            border: 1px solid #feefc3;
+            border-left: 5px solid #f9ab00;
+        }
+        .callout-yellow .callout-title { color: #b06000; }
+
+        .callout-red {
+            border: 1px solid #fad2cf;
+            border-left: 5px solid #d93025;
+        }
+        .callout-red .callout-title { color: #c5221f; }
+
+        .callout-title {
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Prompt Documentation Table (Standardized from Google Whitepaper Table 1~21) */
+        .prompt-table-card {
+            background: #ffffff;
+            border: 1.5px solid #c2e7ff;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 24px 0;
+            box-shadow: 0 4px 14px rgba(26, 115, 232, 0.06);
+        }
+
+        .prompt-table-header {
+            background: #f1f8ff;
+            padding: 12px 20px;
+            border-bottom: 1px solid #c2e7ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .prompt-table-title {
+            font-weight: 800;
+            color: #1a73e8;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prompt-table-params {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .param-badge {
+            background: #ffffff;
+            border: 1px solid #c2e7ff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .param-badge strong {
+            color: #0f172a;
+        }
+
+        .prompt-table-body {
+            padding: 18px 20px;
+        }
+
+        .prompt-section-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .prompt-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: var(--font-sans);
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: #1e293b;
+            white-space: pre-wrap;
+            margin-bottom: 14px;
+        }
+
+        .output-box {
+            background: #ffffff;
+            border: 1.5px solid #a7f3d0;
+            border-left: 4px solid #059669;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: var(--font-sans);
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: #064e3b;
+            white-space: pre-wrap;
+        }
+
+        /* Code Block */
+        .code-container {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            margin: 18px 0;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-header {
+            background: #1e293b;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .code-lang-tag {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #38bdf8;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        pre code {
+            display: block;
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 13.5px;
+            color: #f8fafc;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        /* Inline Code */
+        code:not(pre code) {
+            background: #f1f5f9;
+            color: #0284c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* Mermaid Box */
+        .mermaid-card {
+            background: #ffffff;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 22px 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .mermaid-title {
+            font-weight: 700;
+            color: #334155;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Comparison Table */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #ffffff;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 14.5px;
+        }
+
+        .comp-table th, .comp-table td {
+            padding: 12px 16px;
+            border: 1px solid #e8eaed;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .comp-table th {
+            background: #f8f9fa;
+            color: #202124;
+            font-weight: 700;
+        }
+
+        .comp-table tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Footer */
+        footer.doc-footer {
+            margin-top: 60px;
+            padding: 32px 0;
+            border-top: 1px solid #dadce0;
+            text-align: center;
+            font-size: 13.5px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 992px) {
+            .page-wrapper {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+            }
+            .toc-collapse-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <a href="index.html" class="brand-logo">
+            <span class="google-badge"><i class="fa-brands fa-google"></i> Google Cloud</span>
+            <span>AI 官方白皮书典藏精译</span>
+            <span class="series-tag">2025 旗舰手册</span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html"><i class="fa-solid fa-house"></i> 全景总目录</a>
+            <a href="google_complete_manual_2026_zh.html"><i class="fa-solid fa-book"></i> Google 2026 实战手册</a>
+            <a href="制造企业用户AI智能体实战大课_120分钟_听众优化版.html"><i class="fa-solid fa-chalkboard-user"></i> 100页实战大课 PPT</a>
+            <button class="header-toc-toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i> 目录</button>
+        </div>
+    </header>
+
+    <!-- Floating Expand Button for Collapsed TOC -->
+    <button class="toc-expand-floating-btn" id="tocFloatingBtn" onclick="toggleSidebar()">
+        <i class="fa-solid fa-list-check"></i> 打开白皮书目录 (TOC)
+    </button>
+
+    <div class="page-wrapper" id="pageWrapper">
+        
+        <!-- Sticky Sidebar Navigation -->
+        <aside class="sidebar" id="sidebarNav">
+            <div class="toc-header-bar">
+                <div class="toc-title"><i class="fa-solid fa-compass"></i> 白皮书全景目录</div>
+                <button class="toc-collapse-btn" onclick="toggleSidebar()"><i class="fa-solid fa-angles-left"></i> 收起</button>
+            </div>
+            <ul class="toc-list">
+                <li class="toc-item"><a href="#sec-intro"><i class="fa-solid fa-bolt"></i> 01. 导论与生成哲学</a></li>
+                <li class="toc-item"><a href="#sec-output-config"><i class="fa-solid fa-sliders"></i> 02. 输出配置与采样控制</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-output-len">· 输出长度限制 (Token Limit)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-sampling">· 采样控制原理 (Sampling Controls)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-temperature">· 温度参数深度解剖 (Temperature)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-topk-topp">· Top-K 与 Top-P (核采样)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-together">· 多参数联动矩阵与极端设置效应</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-repetition-loop">· 重复死锁 Bug 根因与破解</a></li>
+                
+                <li class="toc-item"><a href="#sec-core-techniques"><i class="fa-solid fa-wand-magic-sparkles"></i> 03. 核心提示词技术</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-zero-shot">· 零样本提示 (Zero-Shot) 与台账规范</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-few-shot">· 单样本与少样本提示 (Few-Shot)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-mix-classes">· 核心军规：分类样本标签混排</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-three-prompt-types">· 系统、角色与上下文三位一体</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-system-prompt">· 系统提示词 (System Prompting)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-role-prompt">· 角色提示词与 9 大语气风格</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-contextual-prompt">· 上下文提示与分隔符工装</a></li>
+
+                <li class="toc-item"><a href="#sec-advanced-reasoning"><i class="fa-solid fa-brain"></i> 04. 高级推理与思维跃迁</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-step-back">· 退后一步提示法 (Step-Back Prompting)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-cot">· 思维链推理 (Chain of Thought, CoT)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-cot-rules">· CoT 两大铁律 (先推后答 & 温度归零)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-self-consistency">· 自洽性多数票表决 (Self-Consistency)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-tot">· 思维树拓扑探索 (Tree of Thoughts)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-react">· ReAct 智能体架构心跳回路</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-ape">· 自动提示词工程 (APE)</a></li>
+
+                <li class="toc-item"><a href="#sec-code-prompting"><i class="fa-solid fa-code"></i> 05. 代码提示词工程全流程</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-code-write">· 代码生成：批量重命名脚本实战</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-code-explain">· 代码解释与架构拆解</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-code-translate">· 跨语言转译 (Bash ➔ Python)</a></li>
+                <li class="toc-item toc-subitem"><a href="#sec-code-debug">· 代码调试与安全审计</a></li>
+
+                <li class="toc-item"><a href="#sec-multimodal"><i class="fa-solid fa-photo-film"></i> 06. 多模态提示词工程</a></li>
+
+                <li class="toc-item"><a href="#sec-best-practices"><i class="fa-solid fa-award"></i> 07. Google 落地九条黄金军规</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-instructions">· 军规 1：以正向指示代替负向约束</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-simplicity">· 军规 2：极简主义设计</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-examples">· 军规 3：提供具象化样件</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-schemas">· 军规 4：JSON 模式确定性锁定</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-json-repair">· 军规 5：截断异常防护与 json-repair</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-token-control">· 军规 6：控制最大 Token 与计费防护</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-variables">· 军规 7：变量插值与动态模板化</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-drift">· 军规 8：模型版本升级漂移管理</a></li>
+                <li class="toc-item toc-subitem"><a href="#rule-table">· 军规 9：工程级提示词实验台账标准</a></li>
+
+                <li class="toc-item"><a href="#sec-glossary"><i class="fa-solid fa-book-bookmark"></i> 08. 中英双语术语表</a></li>
+                <li class="toc-item"><a href="#sec-endnotes"><i class="fa-solid fa-quote-right"></i> 09. 参考文献与注释</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+
+            <!-- Hero Banner -->
+            <div class="doc-hero">
+                <div class="doc-pill-row">
+                    <span class="doc-pill doc-pill-primary"><i class="fa-brands fa-google"></i> Google Cloud / DeepMind 官方白皮书</span>
+                    <span class="doc-pill doc-pill-green"><i class="fa-solid fa-calendar-check"></i> 2025 年 2 月权威发布</span>
+                    <span class="doc-pill"><i class="fa-solid fa-file-pdf"></i> 原版 68 页完整全译</span>
+                    <span class="doc-pill"><i class="fa-solid fa-table-cells"></i> 包含全部 21 张参数实验表</span>
+                </div>
+                <h1>Google 官方提示词工程完全指南<br><span style="font-size:22px; font-weight:700; color:#4b5563;">Prompt Engineering for Generative AI</span></h1>
+                <p class="lead">从大模型底层 Softmax 概率采样机理、输出长度控制，到 Step-Back/CoT/ToT 高级推理跃迁，再到代码工程与 ReAct 智能体闭环——Google 官方为企业级 GenAI 开发者量身打造的工业级实战完全手册。</p>
+                <div class="doc-meta-grid">
+                    <div class="meta-item">
+                        <strong>原著作者团队</strong>
+                        <span>Lee Boonstra (Google Cloud 开发者布道师 / 架构师) 领衔，Antonio Gulli、Anant Nawalgaria、Grace Mollison、Simone Cammel、Michael Sherman 等合著</span>
+                    </div>
+                    <div class="meta-item">
+                        <strong>白皮书核心定位</strong>
+                        <span>大模型底层控制论 · 超参数采样级联 · 提示词工程生命周期 · 智能体工具循环</span>
+                    </div>
+                    <div class="meta-item">
+                        <strong>推荐阅读时长</strong>
+                        <span>约 45~60 分钟深度研读 · 附全部工程级代码与提示词版本实验台账</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 01: INTRODUCTION -->
+            <section id="sec-intro">
+                <h2 class="sec-heading"><i class="fa-solid fa-bolt"></i> 01. 导论与生成哲学 (Introduction & Core Philosophy)</h2>
+                <div class="card">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #1a73e8; margin-bottom: 12px; font-style: italic;">
+                        “You don’t need to be a data scientist or a machine learning engineer – everyone can write a prompt.”<br>
+                        <span style="font-size: 0.95rem; color: #64748b; font-style: normal; font-weight: 500;">——你不需要成为数据科学家或机器学习工程师，任何人都可以写出一句提示词。然而，编写最有效的工业级提示词，却是一门复杂的系统控制工程。</span>
+                    </div>
+                    <p>当思考大语言模型（LLM）的输入与输出时，文本提示词（Prompt，有时伴随图像、音频或视频等多模态输入）是大模型用于预测特定输出的唯一切入点。虽然每个人都能在 ChatGPT 或 Gemini 网页聊天框中键入一句话，但<strong>构建企业级、高确定性、可重复执行的生产级提示词</strong>，却极具挑战性。</p>
+                    <p>在 Google 看来，提示词的实际效能受控于六大关键维度的交织影响：</p>
+                    <ol style="margin-left: 24px; margin-bottom: 16px; color: #334155;">
+                        <li><strong>使用的底座模型（The model you use）：</strong>不同参数规模（如 Gemini 1.5 Flash vs Pro）、不同对齐方式的模型对相同提示词的响应特性存在显著漂移。</li>
+                        <li><strong>模型的训练语料（The model’s training data）：</strong>语料库中特定领域术语的密度直接决定了模型对行话概念的理解能力。</li>
+                        <li><strong>模型配置参数（The model configurations）：</strong>温度（Temperature）、Top-K、Top-P、最大 Token 限制等超参数对输出分布具有决定性支配力。</li>
+                        <li><strong>用词选择与语气风格（Word-choice, style and tone）：</strong>严谨、对抗性、启发式、幽默等不同风格框架会激活完全不同的自注意力注意力头。</li>
+                        <li><strong>结构与排版规范（Structure & Delimiters）：</strong>Markdown 标题、XML 标签、JSON Schema 等工装结构能大幅压缩模型的理解熵增。</li>
+                        <li><strong>业务上下文与背景（Context）：</strong>外部知识库挂载、任务边界说明与输入先验知识的饱满度。</li>
+                    </ol>
+                    <div class="callout callout-blue">
+                        <div class="callout-title"><i class="fa-solid fa-circle-info"></i> Google 核心论断：提示词工程是一个持续迭代的闭环过程</div>
+                        <p style="margin:0;">不充分、模糊或松散的提示词会导致模型生成模棱两可、偏离事实甚至幻觉丛生的回复。提示词绝非一次性写就的文本，而必须像生产代码一样，经历“编写 ➔ 采样配置 ➔ 运行测试 ➔ 评测打分 ➔ 调优版本台账”的标准化工程闭环。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 02: OUTPUT CONFIGURATION -->
+            <section id="sec-output-config">
+                <h2 class="sec-heading"><i class="fa-solid fa-sliders"></i> 02. 大模型输出配置与采样控制深度解剖</h2>
+                <p>许多开发者在网页聊天框中使用大模型时，无法触及底层参数；但当在 <strong>Google Cloud Vertex AI</strong> 中通过 API 调用 Gemini 时，我们获得了直接调控大模型生成行为的“旋钮”。这一章将系统解剖大模型采样的数学本质。</p>
+
+                <h3 class="sub-heading" id="sec-output-len">2.1 输出长度限制 (Output Length / Token Limit)</h3>
+                <div class="card">
+                    <div class="callout callout-red">
+                        <div class="callout-title"><i class="fa-solid fa-triangle-exclamation"></i> 工业界致命误区：截断 Token 并不会让模型在文字上表达得更精炼！</div>
+                        <p style="margin:0;"><strong>Google 官方重点强调：</strong>减少大模型的输出长度限制（Token Limit），<strong>并不会促使大语言模型在文风或文字结构上变得更精炼（stylistically or textually succinct）！</strong>它唯一的作用，只是让大模型在生成达到最大 Token 额度的那一瞬间<strong>硬切断（stop predicting more tokens）</strong>，导致句子被腰斩！如果你的业务需要短小精悍的回复，你必须在提示词本体中工程化地约束字数与摘要要求！</p>
+                    </div>
+                    <p>输出长度限制在特定智能体提示技术中（例如后文详述的 <strong>ReAct 智能体循环</strong>）具有生死攸关的战略价值。在没有硬性停止限制的情况下，大模型在完成正确的 Action 调用后，往往会不受控制地继续吐出冗余的无用 Token。设置严密的 Token Limit 能够物理截断后续无用输出，直接为企业节省算力账单并降低端到端延迟。</p>
+                </div>
+
+                <h3 class="sub-heading" id="sec-sampling">2.2 采样控制原理 (Sampling Controls)</h3>
+                <div class="card">
+                    <p>在形式化数学意义上，<strong>大语言模型从来不会直接预测单个 Token！</strong>相反，LLM 的输出层是一个覆盖其全量词表（Vocabulary，通常达数万至数十万词）的 Softmax 概率分布。词表中的每一个候选 Token 都会获得一个对应的预测概率。随后，大模型的运行时引擎通过<strong>采样控制机制（Sampling Controls）</strong>从这个概率分布中抽取出最终呈现给用户的下一个 Token。</p>
+                    <p>在 Google Vertex AI 与现代大模型体系中，控制该过程的核心三大旋钮为：<strong>Temperature（温度）、Top-K 与 Top-P</strong>。</p>
+                </div>
+
+                <h3 class="sub-heading" id="sec-temperature">2.3 温度参数深度解剖 (Temperature)</h3>
+                <div class="card">
+                    <p><strong>温度（Temperature）</strong>控制 Token 选择过程中的随机性与熵增程度：</p>
+                    <ul style="margin-left:24px; margin-bottom:14px; color:#334155;">
+                        <li><strong>Temperature = 0（贪婪解码，Greedy Decoding）：</strong>模型变得绝对确定。每一次生成，具有最高预测概率的 Token 必定会被 100% 选中（若两个 Token 概率相同，则依底层平局裁决逻辑决定）。对于数学计算、代码生成、SQL 编写、事实抽取等只有唯一定解的任务，<strong>必须始终将温度设置为 0！</strong></li>
+                        <li><strong>低温度（0.1 ~ 0.3）：</strong>Softmax 分布被急剧拉伸陡峭化，高概率词的统治力极强，输出高度聚焦、严谨、事实一致性极高。</li>
+                        <li><strong>高温度（0.7 ~ 1.0+）：</strong>Softmax 分布被急剧压平平坦化，原本低概率的长尾候选词被抽中的概率大幅上升，输出展现出更强的词汇丰富度与发散创意。</li>
+                    </ul>
+                    <div class="callout callout-yellow">
+                        <div class="callout-title"><i class="fa-solid fa-lightbulb"></i> Google 理论视角：Gemini 温度控制与机器学习 Softmax 的本质映射</div>
+                        <p style="margin:0;">Gemini 的温度参数在底层完全等同于机器学习分类器中的 Softmax 温度 \( T \)。公式中 Logits 会被除以 \( T \)：当 \( T 	o 0 \) 时分布收敛于 One-hot 独热脉冲；当 \( T \) 极大时，分布趋近于完全均匀随机分布。</p>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-topk-topp">2.4 Top-K 与 Top-P 核采样 (Nucleus Sampling)</h3>
+                <div class="card">
+                    <div class="comp-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:20%;">采样参数</th>
+                                    <th style="width:35%;">工作原理与数学定义</th>
+                                    <th style="width:25%;">极端设置效应</th>
+                                    <th style="width:20%;">推荐应用场景</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Top-K</strong></td>
+                                    <td>严格截取概率最高的前 <strong>K</strong> 个候选 Token。仅在这 K 个词中进行后续抽样，其余低概率词被一刀切剔除。</td>
+                                    <td>Top-K = 1 等价于贪婪解码；Top-K 设为词表大小时等于完全不限制。</td>
+                                    <td>控制词汇发散范围，防止冷僻生造词。通常取 20 ~ 40。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Top-P<br>(核采样)</strong></td>
+                                    <td>按概率从大到小累加候选词，直到<strong>累积概率总和首次达到阈值 P</strong> 为止，仅在这个动态核集合中抽样。</td>
+                                    <td>Top-P = 0（或极小值）退化为贪婪解码；Top-P = 1 包含词表全量非零概率词。</td>
+                                    <td>动态适应模型信心：模型困惑度高时长尾词多，模型确定时候选池极小。通常取 0.8 ~ 0.95。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-together">2.5 多参数联动矩阵与极端设置效应 (Putting It All Together)</h3>
+                <div class="card">
+                    <p>在实际生产环境中，大模型如何协同处理这三大参数？以 Google Vertex AI Studio 为例，底层的级联处理管线如下所示：</p>
+                    
+                    <div class="mermaid-card">
+                        <div class="mermaid-title"><i class="fa-solid fa-diagram-project"></i> 图 1：Google Vertex AI 底层采样级联决策管道</div>
+                        <div class="mermaid">
+flowchart TD
+    A["大模型前向传播输出全词表未归一化 Logits"] --> B["Top-K 过滤器：截取前 K 个最高概率候选 Token"]
+    A --> C["Top-P 过滤器：截取累积概率总和达 P 的动态候选核"]
+    B --> D["求交集：候选 Token 必须同时满足 Top-K 与 Top-P 准则"]
+    C --> D
+    D --> E["应用 Temperature (温度) 对交集内候选词重塑 Softmax 概率分布"]
+    E --> F["按重塑后的概率分布抽取下一个生成的最终 Token"]
+    style A fill:#eff6ff,stroke:#1a73e8,stroke-width:2px;
+    style D fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    style E fill:#ecfdf5,stroke:#059669,stroke-width:2px;
+    style F fill:#fdf2f8,stroke:#be185d,stroke-width:2px;
+                        </div>
+                    </div>
+
+                    <h4 class="inner-heading">极端参数设置下的“相互抵消法则”：</h4>
+                    <ul style="margin-left:24px; margin-bottom:16px; color:#334155;">
+                        <li><strong>若将 Temperature 设为 0：</strong>Top-K 与 Top-P 瞬间<strong>完全失去意义</strong>！无论 Top-K 设多大、Top-P 设多高，系统都会直接强行选择概率最大的那个词。</li>
+                        <li><strong>若将 Top-K 设为 1：</strong>Temperature 与 Top-P 瞬间<strong>完全失效</strong>！因为通过过滤的候选词只有 1 个，根本不存在概率抽样的空间。</li>
+                        <li><strong>若将 Top-P 设为 0（或极小值）：</strong>退化为贪婪解码，Top-K 与 Temperature 同样失效。</li>
+                        <li><strong>若将 Temperature 调至极高（如 10+）：</strong>温度彻底失真，通过 Top-K/Top-P 的候选词变成了等概率的纯粹抓阄抽签。</li>
+                    </ul>
+
+                    <div class="callout callout-green">
+                        <div class="callout-title"><i class="fa-solid fa-check-double"></i> Google 官方推荐三档生产基线预设参数组合</div>
+                        <ul style="margin: 0; padding-left: 20px; line-height: 1.7;">
+                            <li><strong>严谨事实 / 结构化任务（事实问答、数据提取、表格生成）：</strong><code>Temperature: 0.1, Top-P: 0.90, Top-K: 20</code>（数学逻辑与纯代码直接 <code>Temperature: 0</code>）。</li>
+                            <li><strong>标准通用平衡型（常规工单、业务起草、知识库问答）：</strong><code>Temperature: 0.2, Top-P: 0.95, Top-K: 30</code>。</li>
+                            <li><strong>高发散创意型（广告文案、头脑风暴、故事情节编写）：</strong><code>Temperature: 0.9, Top-P: 0.99, Top-K: 40</code>。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-repetition-loop">2.6 重复死锁循环 Bug 根因与破解 (Repetition Loop Bug)</h3>
+                <div class="card">
+                    <p>在大模型工程实践中，开发者常会遇到模型在句尾疯狂重复同一句话或填料词（Filler words），直到彻底耗尽 Token 额度。这就是著名的 <strong>Repetition Loop Bug（重复死锁循环）</strong>。</p>
+                    <p>Google 白皮书首次揭示了它在<strong>两种截然相反的极端温度下</strong>均可能发生的对偶根因：</p>
+                    <ul style="margin-left:24px; margin-bottom:14px; color:#334155;">
+                        <li><strong>极低温度下的死锁：</strong>模型过于确定，死板地沿着局部最大概率路径行进；一旦该路径中的某个词碰巧与上一状态重合，贪婪采样就会陷入封闭的概率环路，永远无法跳出。</li>
+                        <li><strong>极高温度下的死锁：</strong>模型输出过于随机；在极其庞大的可能组合空间中随机游走时，某个随机选择词由于巧合触发了前置语义锚点，导致注意力机制在过高熵增中发生震荡，陷入环状自旋。</li>
+                    </ul>
+                    <p><strong>工程破解对策：</strong>严禁使用过冷或过热的非标参数；引入频次惩罚（Frequency Penalty）与存在惩罚（Presence Penalty）；在出现死锁倾向时微调 Top-K 截断宽度。</p>
+                </div>
+            </section>
+
+            <!-- SECTION 03: CORE TECHNIQUES -->
+            <section id="sec-core-techniques">
+                <h2 class="sec-heading"><i class="fa-solid fa-wand-magic-sparkles"></i> 03. 核心提示工程技术 (Core Prompting Techniques)</h2>
+                
+                <h3 class="sub-heading" id="sec-zero-shot">3.1 零样本提示 (Zero-Shot) 与提示词实验台账标准</h3>
+                <div class="card">
+                    <p><strong>零样本提示（Zero-Shot）</strong>是最基础的提示类型：只给出任务描述和必要的输入文本，不向大模型提供任何示例样本。其核心原理是直接激活模型在预训练阶段已经沉淀的通用能力。</p>
+                    <p>Google 在本章正式确立了<strong>企业级提示词版本管理实验台账标准格式</strong>。提示词绝不能写成无格式的一团乱麻，必须包含目标、模型版本、全量采样配置、提示词本体与生成结果校验：</p>
+
+                    <div class="prompt-table-card">
+                        <div class="prompt-table-header">
+                            <span class="prompt-table-title"><i class="fa-solid fa-flask"></i> Google 白皮书表 1：零样本提示实验台账 (Table 1 - Zero-Shot Example)</span>
+                            <div class="prompt-table-params">
+                                <span class="param-badge">Name: <strong>1_1_movie_classification</strong></span>
+                                <span class="param-badge">Model: <strong>gemini-pro</strong></span>
+                                <span class="param-badge">Temp: <strong>0.1</strong></span>
+                                <span class="param-badge">Token Limit: <strong>5</strong></span>
+                                <span class="param-badge">Top-P: <strong>1.0</strong></span>
+                            </div>
+                        </div>
+                        <div class="prompt-table-body">
+                            <div class="prompt-section-label"><i class="fa-solid fa-terminal"></i> 目标 (Goal)</div>
+                            <p style="font-size:14px; margin-bottom:10px; color:#475569;">将输入的电影评论严格归类为正向 (POSITIVE)、中性 (NEUTRAL) 或负向 (NEGATIVE)。</p>
+                            <div class="prompt-section-label"><i class="fa-solid fa-keyboard"></i> 提示词本体 (Prompt)</div>
+                            <div class="prompt-box">Classify movie reviews as POSITIVE, NEUTRAL or NEGATIVE.
+Review: "Her" is a disturbing study revealing the direction humanity is headed if AI is allowed to keep evolving, unchecked. I wish there were more movies like this masterpiece.
+Sentiment:</div>
+                            <div class="prompt-section-label"><i class="fa-solid fa-circle-check"></i> 模型实际输出 (Output)</div>
+                            <div class="output-box">POSITIVE</div>
+                        </div>
+                    </div>
+                    <p style="font-size:14px; color:#64748b;"><strong>实验要点评注：</strong>此条影评中同时包含了负向词“disturbing（令人不安）”与正向极值词“masterpiece（杰作）”。零样本提示在低温度（0.1）下成功把握了句子的真实深层主旨，做出了正确的正向判断。</p>
+                </div>
+
+                <h3 class="sub-heading" id="sec-few-shot">3.2 单样本与少样本提示 (One-Shot & Few-Shot Prompting)</h3>
+                <div class="card">
+                    <p>当零样本提示无法满足精准格式约束或任务较为复杂时，向模型提供具象化的<strong>输入-输出成对范例</strong>，即构成单样本（One-Shot）与少样本（Few-Shot）提示。其本质是通过上下文让模型迅速拟合特定的模式（Pattern Matching）。</p>
+
+                    <div class="prompt-table-card">
+                        <div class="prompt-table-header">
+                            <span class="prompt-table-title"><i class="fa-solid fa-flask"></i> Google 白皮书表 2：少样本提示标准台账 (Table 2 - Few-Shot Prompting)</span>
+                            <div class="prompt-table-params">
+                                <span class="param-badge">Name: <strong>1_2_movie_classification</strong></span>
+                                <span class="param-badge">Model: <strong>gemini-pro</strong></span>
+                                <span class="param-badge">Temp: <strong>0.1</strong></span>
+                                <span class="param-badge">Token Limit: <strong>5</strong></span>
+                            </div>
+                        </div>
+                        <div class="prompt-table-body">
+                            <div class="prompt-section-label"><i class="fa-solid fa-keyboard"></i> 提示词本体 (Prompt)</div>
+                            <div class="prompt-box">Classify movie reviews as positive, neutral or negative.
+
+Review: "Her" is a disturbing study revealing the direction humanity is headed if AI is allowed to keep evolving, unchecked. I wish there were more movies like this masterpiece.
+Sentiment: positive
+
+Review: "I watched this movie because of my partner. It wasn't really my kind of movie."
+Sentiment: neutral
+
+Review: "The acting was terrible."
+Sentiment: negative
+
+Review: "I loved the cinematography, it was simply breathtaking!"
+Sentiment:</div>
+                            <div class="prompt-section-label"><i class="fa-solid fa-circle-check"></i> 模型实际输出 (Output)</div>
+                            <div class="output-box">positive</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-mix-classes">3.3 核心军规：分类任务样本标签必须混排 (Mix Up the Classes)</h3>
+                <div class="card">
+                    <div class="callout callout-red">
+                        <div class="callout-title"><i class="fa-solid fa-shield-halved"></i> Google 核心工程军规：严禁按固定顺序单调排列少样本范例！</div>
+                        <p style="margin:0;">在设计分类少样本提示词时，<strong>切忌把所有正向样本写在一起，再把所有负向样本写在一起！更切忌连续提供 3 个正向样本而只有 1 个负向样本！</strong><br>
+                        大语言模型对样本在上下文中的<strong>出现顺序（Position Bias）</strong>与<strong>样本频次（Frequency Bias）</strong>极度敏感。如果最后一个样本是负向，模型会产生强烈的近因偏见（Recency Bias），导致后续预测向负向剧烈漂移。必须交替打乱分类标签（如：正 ➔ 负 ➔ 中 ➔ 负 ➔ 正），确保各类别数量严格对等！</p>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-three-prompt-types">3.4 系统、角色与上下文提示词的三位一体 (System, Role, Contextual)</h3>
+                <div class="card">
+                    <p>在复杂的生产级应用中，Google 白皮书将提示词拆解为相互协同的<strong>三维坐标体系</strong>：</p>
+                    <div class="comp-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:20%;">提示词维度</th>
+                                    <th style="width:40%;">核心职责与定义</th>
+                                    <th style="width:40%;">典型工业场景应用</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>系统提示词<br>(System Prompt)</strong></td>
+                                    <td>定义大模型的全局最高意志、根本任务目标、安全护栏边界、输出格式硬锁（如 JSON 结构）。在多轮对话中跨会话持久存在。</td>
+                                    <td>“你只能返回符合 RFC 8259 规范的纯净 JSON，严禁输出任何 Markdown 代码块标记或打招呼闲聊废话。”</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>角色提示词<br>(Role Prompt)</strong></td>
+                                    <td>为大模型赋予特定的专业身份画像、语气、风格与心智视角（Persona）。激活特定领域的自注意力权重。</td>
+                                    <td>“扮演拥有 20 年经验的高级工业架构师”、“以幽默风趣且极富启发性的口吻撰写旅行指南”。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>上下文提示词<br>(Contextual Prompt)</strong></td>
+                                    <td>为当前单次任务提供即时、动态的业务背景信息、技术规范、API 文档、用户个人档案或企业规章。</td>
+                                    <td>“依据以下车间设备点检规程 <code>[SOP_BOM_2025.txt]</code>，对异常报警代码 E-404 进行诊断。”</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="inner-heading" id="sec-system-prompt">系统提示词锁定纯净 JSON 格式（表 3 & 表 4）</h4>
+                    <p>通过系统提示词强行约束模型仅输出结构化 JSON，是抑制大模型幻觉（Hallucinations）和打通下游业务代码管道的最强武器：</p>
+
+                    <div class="prompt-table-card">
+                        <div class="prompt-table-header">
+                            <span class="prompt-table-title"><i class="fa-solid fa-flask"></i> Google 白皮书表 4：系统提示词锁定结构化 JSON 输出 (Table 4)</span>
+                            <div class="prompt-table-params">
+                                <span class="param-badge">Model: <strong>gemini-pro</strong></span>
+                                <span class="param-badge">Temp: <strong>0.2</strong></span>
+                            </div>
+                        </div>
+                        <div class="prompt-table-body">
+                            <div class="prompt-section-label"><i class="fa-solid fa-keyboard"></i> 系统提示词与输入 (Prompt)</div>
+                            <div class="prompt-box">Extract the character, actor and movie from the review into a JSON object.
+
+Review: "Her" is a disturbing study revealing the direction humanity is headed if AI is allowed to keep evolving, unchecked. Joaquin Phoenix gave a great performance as Theodore.
+Output:</div>
+                            <div class="prompt-section-label"><i class="fa-solid fa-circle-check"></i> 模型实际输出 (Output)</div>
+                            <div class="output-box">{
+  "character": "Theodore",
+  "actor": "Joaquin Phoenix",
+  "movie": "Her"
+}</div>
+                        </div>
+                    </div>
+
+                    <h4 class="inner-heading" id="sec-role-prompt">角色提示词与 Google 推荐的 9 大语气风格 (Table 5 & 6)</h4>
+                    <p>Google 开发者布道师 Lee Boonstra 在白皮书中总结了在实战中经过大规模验证的 <strong>9 种高效语气风格指令词</strong>：</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin: 12px 0 16px;">
+                        <span class="param-badge" style="background:#e8f0fe; color:#1a73e8; border-color:#aecbfa;">Confrontational (对抗批判式)</span>
+                        <span class="param-badge" style="background:#f1f5f9; color:#334155;">Descriptive (详尽描述式)</span>
+                        <span class="param-badge" style="background:#f1f5f9; color:#334155;">Direct (直接了当式)</span>
+                        <span class="param-badge" style="background:#f1f5f9; color:#334155;">Formal (庄重正规式)</span>
+                        <span class="param-badge" style="background:#fef3c7; color:#b45309; border-color:#fde68a;">Humorous (幽默风趣式)</span>
+                        <span class="param-badge" style="background:#f1f5f9; color:#334155;">Influential (具影响力式)</span>
+                        <span class="param-badge" style="background:#f1f5f9; color:#334155;">Informal (通俗口语式)</span>
+                        <span class="param-badge" style="background:#ecfdf5; color:#047857; border-color:#a7f3d0;">Inspirational (鼓舞人心式)</span>
+                        <span class="param-badge" style="background:#f1f5f9; color:#334155;">Persuasive (强说服力式)</span>
+                    </div>
+
+                    <h4 class="inner-heading" id="sec-contextual-prompt">上下文提示词与定界符工装 (Table 7)</h4>
+                    <p>在提供上下文信息时，务必使用清晰的<strong>分隔定界符（Delimiters）</strong>，例如三反引号 <code>```</code>、XML 标签 <code>&lt;context&gt;...&lt;/context&gt;</code> 或 Markdown 标题，明确划分指令与背景资料的物理边界，阻断用户输入的恶意越狱与上下文混淆。</p>
+                </div>
+            </section>
+
+            <!-- SECTION 04: ADVANCED REASONING -->
+            <section id="sec-advanced-reasoning">
+                <h2 class="sec-heading"><i class="fa-solid fa-brain"></i> 04. 高级推理与思维跃迁范式 (Advanced Reasoning & Deliberation)</h2>
+                <p>当任务超越简单的文本转换，涉及到严密的逻辑推导、数学证明、架构设计或多步任务求解时，必须引入高级认知范式。</p>
+
+                <h3 class="sub-heading" id="sec-step-back">4.1 退后一步提示法 (Step-Back Prompting)</h3>
+                <div class="card">
+                    <p><strong>退后一步提示法（Step-Back Prompting）</strong>源自 Google 团队发表于 NeurIPS 的里程碑式论文。它的核心思想极富哲学与工程智慧：<strong>在面对具体的细节难题时，先向后退一步，提示模型思考并抽象出该任务背后的底层通识原理或第一性物理规律；然后再将这个更高维度的原理作为先验上下文，喂给模型去解答具体问题。</strong></p>
+                    
+                    <div class="mermaid-card">
+                        <div class="mermaid-title"><i class="fa-solid fa-route"></i> 图 2：Google Step-Back Prompting 两步推演流</div>
+                        <div class="mermaid">
+flowchart LR
+    A["复杂业务具体任务输入"] --> B["【Step 1: 退后一步】
+抽象问题背后的通识原理/高阶概念"]
+    B --> C["大模型提取底层核心规律台账"]
+    C --> D["【Step 2: 降维打击】
+将高阶规律注入上下文求解具体任务"]
+    D --> E["生成深度兼具针对性与体系性的高质解"]
+    style A fill:#f1f5f9,stroke:#64748b;
+    style B fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+    style D fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px;
+    style E fill:#ecfdf5,stroke:#059669,stroke-width:2px;
+                        </div>
+                    </div>
+
+                    <div class="prompt-table-card">
+                        <div class="prompt-table-header">
+                            <span class="prompt-table-title"><i class="fa-solid fa-flask"></i> Google 表 8 vs 表 9/10：普通提示 vs 退后一步实战对比 (FPS 游戏设计)</span>
+                        </div>
+                        <div class="prompt-table-body">
+                            <div class="prompt-section-label"><i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> 普通提示 (Table 8)</div>
+                            <div class="prompt-box">Write a one paragraph storyline for a new level of a first-person shooter video game that is challenging and engaging.</div>
+                            <p style="font-size:13.5px; color:#64748b; margin-bottom:14px;"><strong>结果缺陷：</strong>输出千篇一律的小队中伏、后巷突围、废墟拆弹等好莱坞爆米花套话，毫无深度。</p>
+                            
+                            <div class="prompt-section-label"><i class="fa-solid fa-backward-step" style="color:#d97706;"></i> Step 1：退后一步，追问底层环境要素 (Table 9)</div>
+                            <div class="prompt-box">Based on popular first-person shooter action games, what are 5 fictional key settings that contribute to a challenging and engaging level storyline in a first-person shooter video game?</div>
+                            <p style="font-size:13.5px; color:#059669; margin-bottom:14px;"><strong>模型抽象出的五大高维母题：</strong>废弃军事基地（突变士兵）、赛博朋克立体都市（黑客骇入）、深空坠毁飞船（零重力战斗）、丧尸封锁小镇（近距资源压迫）、<strong>水下深海科研站（深海潜行与泄压危机）</strong>。</p>
+
+                            <div class="prompt-section-label"><i class="fa-solid fa-circle-check" style="color:#059669;"></i> Step 2：注入抽象母题，指导具体设计 (Table 10)</div>
+                            <div class="output-box">Context: 5 engaging themes... [注入水下深海科研站设定]
+Take one of the themes and write a one paragraph storyline for a new level of a first-person shooter video game that is challenging and engaging.
+➔ 模型生成了令人惊艳的深渊压迫感叙事：破损的深海实验舱、水流压迫机制、水下机械哀鸣与深海突变体的立体潜入战斗，质感产生质的跃迁！</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-cot">4.2 思维链推理 (Chain of Thought, CoT) 与两大生产军规</h3>
+                <div class="card">
+                    <p><strong>思维链（Chain of Thought, CoT）</strong>通过引导大模型在输出最终答案之前，先一步步生成中间推理步骤，显著击破大语言模型在多跳推理与算术计算中的固有短板。</p>
+                    
+                    <div class="prompt-table-card">
+                        <div class="prompt-table-header">
+                            <span class="prompt-table-title"><i class="fa-solid fa-flask"></i> Google 白皮书表 11 vs 12：经典年龄谜题翻车与 CoT 救场</span>
+                        </div>
+                        <div class="prompt-table-body">
+                            <div class="prompt-section-label"><i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i> 无思维链直接提问（模型瞬间翻车）</div>
+                            <div class="prompt-box">When I was 3 years old, my partner was 3 times my age. Now, I am 20 years old. How old is my partner?</div>
+                            <div class="output-box" style="border-left-color:#dc2626; color:#991b1b;">63 years old (大模型直接计算了 3*20+3，荒唐答出 63 岁！)</div>
+
+                            <div class="prompt-section-label" style="margin-top:14px;"><i class="fa-solid fa-circle-check" style="color:#059669;"></i> 零样本思维链介入（"Let's think step by step"）</div>
+                            <div class="prompt-box">When I was 3 years old, my partner was 3 times my age. Now, I am 20 years old. How old is my partner? Let's think step by step.</div>
+                            <div class="output-box">1. Let’s assume my current age is "x" years (x = 20).
+2. When I was 3 years old, my partner's age was 3 * 3 = 9 years old.
+3. The age difference between us is 9 - 3 = 6 years.
+4. The age difference remains constant throughout life.
+5. Therefore, my partner's current age is 20 + 6 = 26 years old.
+Final Answer: 26 years old.</div>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-green" id="sec-cot-rules">
+                        <div class="callout-title"><i class="fa-solid fa-gavel"></i> Google 官方 CoT 两大不可逾越的生产军规</div>
+                        <ol style="margin:0; padding-left:20px; line-height:1.7;">
+                            <li><strong>推理过程必须严格置于最终答案之前（Reasoning Before Answer）：</strong>大模型是基于自回归机制（Autoregressive）从左向右生成 Token 的。只有让模型先吐出中间推理步骤，这些步骤对应的 Token 才会进入模型的注意力上下文（KV Cache），从而指导并纠正最后一个答案 Token 的概率预测！如果让模型先报答案再写理由，CoT 的纠错效能将瞬间降为零！</li>
+                            <li><strong>CoT 推理任务中 Temperature 必须坚决设为 0：</strong>在逻辑与数学推理中，往往存在唯一的客观正确解。任何大于 0 的温度都会引入非必要的随机采样方差，导致推理链在某一环节发生微小的概率漂移而全盘皆输！</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-self-consistency">4.3 自洽性采样多数票表决 (Self-Consistency)</h3>
+                <div class="card">
+                    <p>对于容错率极低的高风险复杂任务，单个思维链仍有可能因偶然的计算误差而走偏。<strong>自洽性提示（Self-Consistency）</strong>的解决方案是：<strong>设置适度温度（如 0.7），促使大模型独立并行采样 5~10 条不同的思维推导链，最终在所有候选答案中统计多数票（Majority Vote）</strong>，选取重合度最高的结论作为最终结果（白皮书表 14 钓鱼邮件多维度判定）。</p>
+                </div>
+
+                <h3 class="sub-heading" id="sec-tot">4.4 思维树拓扑探索 (Tree of Thoughts, ToT)</h3>
+                <div class="card">
+                    <p>CoT 依然属于线性的推演链路；而真实的复杂决策（如国际象棋博弈、供应链多目标排产、算法代码全局重构）往往需要<strong>前瞻探索、试错评估与及时回溯</strong>。Google 白皮书收录了 <strong>Tree of Thoughts (ToT)</strong> 拓扑范式：</p>
+                    <p>ToT 将思考过程形式化为一棵树状结构，每一个节点代表一个局部的思维状态。大模型通过搜索算法（广度优先 BFS 或深度优先 DFS）对多个分支进行探索，并由自身或独立的评测器对中间状态进行启发式打分（Heuristic Evaluation），一旦发现死胡同立刻剪枝并回溯（Backtracking）。</p>
+                    <div style="text-align:center; margin: 16px 0;">
+                        <img src="images_prompt_eng/tree_of_thoughts_page_36.png" alt="Tree of Thoughts vs CoT" style="max-width:100%; border-radius:10px; border:1px solid #dadce0; box-shadow:0 4px 14px rgba(0,0,0,0.08);">
+                        <p style="font-size:13px; color:#64748b; margin-top:6px;">图源：Google 白皮书第 36 页原版拓扑对比（左侧为线性 CoT，右侧为支持分支与回溯的 ToT）</p>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-react">4.5 ReAct 智能体架构基石 (Reason & Act: 思考-行动-观测)</h3>
+                <div class="card">
+                    <p><strong>ReAct（Reason + Act，推理与行动交织）</strong>是现代 AI 智能体（AI Agents）最核心的心跳闭环。它让大模型彻底告别了“纯文字自嗨”，拥有了使用外部工具（搜索引擎、Python 沙箱、数据库驱动、ERP API）感知和操作物理世界的能力。</p>
+
+                    <div class="mermaid-card">
+                        <div class="mermaid-title"><i class="fa-solid fa-rotate"></i> 图 3：ReAct 智能体 Thought-Action-Observation 闭环</div>
+                        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 用户输入
+    participant LLM as 大语言模型 (大脑)
+    participant Tool as 外部工具/API (双手)
+    User->>LLM: 复杂跨库查询任务
+    Note over LLM: Thought 1: 拆解第一阶段子任务
+    LLM->>Tool: Action 1: 调用搜索或 SQL 工具
+    Tool-->>LLM: Observation 1: 返回真实环境查询结果
+    Note over LLM: Thought 2: 结合新观测信息推理下一步
+    LLM->>Tool: Action 2: 执行第二步深层关联
+    Tool-->>LLM: Observation 2: 获取最终数据基底
+    Note over LLM: Thought 3: 完成全部逻辑拼图
+    LLM->>User: Final Answer: 给出真实可溯源的确定性结论
+                        </div>
+                    </div>
+
+                    <h4 class="inner-heading">白皮书代码实战：LangChain + Google Vertex AI 构建 ReAct Agent (Snippet 1 & 2)</h4>
+                    <p>白皮书通过一个趣味而典型的多跳真实查询——“查询重金属乐队 Metallica 的所有在任乐手总共有多少个孩子”，完整展示了 ReAct 如何自主发起 5 次链式搜索并精确累加答案（最终输出 10）：</p>
+
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-lang-tag">Python (Snippet 1 & 2 - ReAct Implementation)</span>
+                        </div>
+                        <pre><code>from langchain.agents import load_tools, initialize_agent, AgentType
+from langchain.llms import VertexAI
+
+# 1. 实例化 Google Vertex AI 底座模型 (必须设为低温 0.1 抑制幻觉)
+llm = VertexAI(temperature=0.1)
+
+# 2. 挂载外部工具 (Google 实时搜索引擎)
+tools = load_tools(["serpapi"], llm=llm)
+
+# 3. 初始化零样本 ReAct 智能体
+agent = initialize_agent(
+    tools, 
+    llm, 
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, 
+    verbose=True
+)
+
+# 4. 执行多跳长任务推理
+prompt = "How many kids do the band members of Metallica have?"
+agent.run(prompt)
+
+# ====== 终端标准输出的 ReAct 心跳轨迹 (Snippet 2) ======
+# > Entering new AgentExecutor chain...
+# Thought: Metallica has 4 members. I need to search kids for each member.
+# Action: Search | Action Input: How many kids does James Hetfield have?
+# Observation: three children
+# Thought: 1/4 Metallica band members have 3 children
+# Action: Search | Action Input: How many kids does Lars Ulrich have?
+# Observation: 3
+# Thought: 2/4 Metallica band members have 6 children
+# Action: Search | Action Input: How many kids does Kirk Hammett have?
+# Observation: Hammett has two sons...
+# Thought: 3/4 Metallica band members have 8 children
+# Action: Search | Action Input: How many kids does Robert Trujillo have?
+# Observation: 2
+# Thought: 4/4 Metallica band members have 10 children
+# Final Answer: 10</code></pre>
+                    </div>
+                </div>
+
+                <h3 class="sub-heading" id="sec-ape">4.6 自动提示词工程 (Automatic Prompt Engineering, APE)</h3>
+                <div class="card">
+                    <p>编写高质量提示词需要人类反复测试，极其消耗精力和时间。<strong>自动提示词工程（APE）</strong>提出了前沿思想：<strong>用大模型来编写和优化提示词（Prompting an LLM to write prompts）</strong>。通过让大模型基于业务目标自动生成 10~20 个候选变体，再配合验证集自动打分与变异进化，实现提示词的高维自适应演化（白皮书表 15 电商潮牌 T 恤智能客服意图泛化实战）。</p>
+                </div>
+            </section>
+
+            <!-- SECTION 05: CODE PROMPTING -->
+            <section id="sec-code-prompting">
+                <h2 class="sec-heading"><i class="fa-solid fa-code"></i> 05. 代码提示词工程全流程 (Code Prompting)</h2>
+                <div class="card">
+                    <p>代码提示词工程覆盖了现代软件工程全生命周期（SDLC）的四大关键场景：</p>
+                    <ol style="margin-left:24px; margin-bottom:16px; color:#334155;">
+                        <li id="sec-code-write"><strong>代码生成（Writing Code，表 16）：</strong>提供明确输入参数、目标操作系统、错误容限要求，生成无 BUG 的生产级自动化脚本（如批量重命名脚本 <code>rename_files.sh</code>）。在 Vertex AI Studio 中生成 Python 代码时，<strong>必须勾选“Markdown”按钮</strong>，否则返回的纯文本会丢失对 Python 语法至关重要的缩进空格！</li>
+                        <li id="sec-code-explain"><strong>代码解释（Explaining Code，表 17）：</strong>让大模型作为架构导师，剖析复杂遗留代码的控制流、数据流与边界条件。</li>
+                        <li id="sec-code-translate"><strong>跨语言转译（Translating Code，表 18）：</strong>将运维级脚本平滑迁移为微服务模块（如将单机 Bash 脚本无缝转译为工程级 <code>file_renamer.py</code>）。</li>
+                        <li id="sec-code-debug"><strong>代码调试与安全审计（Debugging & Reviewing Code，Snippet 3, 4 & 表 19）：</strong>将报错的完整堆栈 Traceback 与缺陷代码一并塞入提示词，让大模型充当资深安全架构师，不仅指出 <code>NameError</code>，更能主动重构异常捕获逻辑并提出架构防脆加固方案。</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- SECTION 06: MULTIMODAL PROMPTING -->
+            <section id="sec-multimodal">
+                <h2 class="sec-heading"><i class="fa-solid fa-photo-film"></i> 06. 多模态提示词工程 (Multimodal Prompting)</h2>
+                <div class="card">
+                    <p>Gemini 原生具备多模态能力。在多模态提示词工程中，图像、音频或视频不仅是附件，更是<strong>第一公民级别的上下文载体</strong>：</p>
+                    <ul style="margin-left:24px; margin-bottom:14px; color:#334155;">
+                        <li><strong>空间坐标定位（Spatial Grounding）：</strong>在提示词中要求模型以 <code>[ymin, xmin, ymax, xmax]</code> 归一化边界框标出图像中感兴趣的目标（如生产线缺陷裂纹）。</li>
+                        <li><strong>视频时间戳索引（Temporal Grounding）：</strong>通过在提示词中锚定时间戳区间（如 <code>02:15 - 04:30</code>），要求模型对长达数小时的车间监控视频进行关键工序质检抽查。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SECTION 07: BEST PRACTICES -->
+            <section id="sec-best-practices">
+                <h2 class="sec-heading"><i class="fa-solid fa-award"></i> 07. Google 官方提示工程落地九条黄金军规</h2>
+                <p>白皮书在最后章节系统沉淀了由 Google 首席架构师团队共同签署的<strong>九条工业落地军规</strong>：</p>
+
+                <div class="card" id="rule-instructions">
+                    <h3 class="sub-heading">军规 1：以正向指示代替负向约束 (Use Instructions over Constraints)</h3>
+                    <div class="callout callout-yellow">
+                        <div class="callout-title"><i class="fa-solid fa-bullhorn"></i> 永远告诉模型“该做什么”，远胜于仅列出“不要做什么”！</div>
+                        <p style="margin:0;">在提示词中堆砌大量的否定词（如“不要包含引言”、“不要输出代码解释”、“不要客套”），往往会适得其反！因为大模型的自注意力机制在读取到这些词时，否定词后面的概念反而被强制激活成了注意力焦点！<br>
+                        <strong>正面重构范式：</strong>将“不要输出任何解释”重构为<strong>“仅且仅以纯文本输出最终计算结果数值”</strong>；将“不要使用非技术词汇”重构为<strong>“严格使用 ASME 工业标准技术术语”</strong>。</p>
+                    </div>
+                </div>
+
+                <div class="card" id="rule-simplicity">
+                    <h3 class="sub-heading">军规 2：极简主义设计 (Design with Simplicity)</h3>
+                    <p>绝不要一开始就试图写出一个长达上千字的“无所不包超级提示词”。最稳健的工程法则永远是：<strong>从最干净利落的 2~3 句核心指令起步，运行测试用例；只有当模型在特定边缘 Case 发生偏离时，再针对性追加规则与边界防御。</strong>过度复杂的提示词本身会稀释模型的注意力权重。</p>
+                </div>
+
+                <div class="card" id="rule-examples">
+                    <h3 class="sub-heading">军规 3：提供具象化样件 (Provide Examples)</h3>
+                    <p>对于工业级任务，<strong>“一个真实的金标样件输入输出（Few-Shot）胜过一万句抽象规则解释”</strong>。在提示词中配备 2~3 个完美的正反例题，是卡死生成确定性的终极捷径。</p>
+                </div>
+
+                <div class="card" id="rule-schemas">
+                    <h3 class="sub-heading">军规 4：输出确定性锁定与 JSON 模式 (Working with Schemas)</h3>
+                    <p>对于数据提取、API 对接与微服务通信，必须在提示词中提供严格的 <strong>JSON Schema 蓝图规范</strong>（声明字段名、数据类型、是否必填）。强类型架构能将幻觉发生率直接压降 80% 以上，并天然具备时间感知（Time-aware）与数据级联能力。</p>
+                </div>
+
+                <div class="card" id="rule-json-repair">
+                    <h3 class="sub-heading">军规 5：截断异常防护与 JSON Repair 工具库实战</h3>
+                    <p>JSON 格式固然规范，但其冗长的语法括号极其消耗 Token 额度。一旦生成过程中撞上 Token Limit 阈值，模型就会在尾部被硬切断，留下半截缺失闭合大括号 <code>}</code> 或方括号 <code>]</code> 的非法残次 JSON，直接导致下游解析代码崩溃！</p>
+                    <div class="callout callout-blue">
+                        <div class="callout-title"><i class="fa-brands fa-python"></i> Google 推荐解法：生产流水线必须接入 json-repair 库</div>
+                        <p style="margin:0;">在 Python 管道中安装 <code>pip install json-repair</code>。当标准 <code>json.loads()</code> 报错时，调用 <code>json_repair.loads(output_str)</code> 自动智能补全缺失的引号、逗号与闭合括号，打造坚不可摧的数据自愈防线！</p>
+                    </div>
+                </div>
+
+                <div class="card" id="rule-token-control">
+                    <h3 class="sub-heading">军规 6：控制最大 Token 长度与计费防护</h3>
+                    <p>为每个 API 请求设置审慎的 Token Limit。不仅防止长文本消耗过高算力成本与带来延迟，更是斩断智能体废话死循环的物理防火墙。</p>
+                </div>
+
+                <div class="card" id="rule-variables">
+                    <h3 class="sub-heading">军规 7：变量插值与动态模板化 (Table 20)</h3>
+                    <p>生产环境中的提示词必须完全模板化。使用明确的变量占位符（如 <code>{customer_name}</code>、<code>{order_id}</code>、<code>{sop_text}</code>），在运行时动态渲染注入，杜绝硬编码与字符串拼接漏洞。</p>
+                </div>
+
+                <div class="card" id="rule-drift">
+                    <h3 class="sub-heading">军规 8：模型版本升级漂移管理 (Model Drift)</h3>
+                    <p>从 Gemini 1.0 升级到 1.5 或 2.0 时，模型的词表权重、注意力衰减曲线均会发生漂移。团队必须建立<strong>测试回归集</strong>，每次模型升级均需重新跑批验证提示词输出稳定性。</p>
+                </div>
+
+                <div class="card" id="rule-table">
+                    <h3 class="sub-heading">军规 9：工程级提示词实验台账标准表 (Table 21)</h3>
+                    <p>Google 白皮书收录的终极工作台模板——企业技术与业务团队必须人手一份的<strong>标准化提示词工程记录卡</strong>：</p>
+
+                    <div class="prompt-table-card">
+                        <div class="prompt-table-header">
+                            <span class="prompt-table-title"><i class="fa-solid fa-clipboard-list"></i> Google 白皮书表 21：标准提示词工程记录台账模板 (Table 21 - Template)</span>
+                        </div>
+                        <div class="prompt-table-body">
+                            <div class="comp-table" style="margin:0;">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:25%; font-weight:700; background:#f8fafc;">Name (提示词名称与版本号)</td>
+                                            <td><code>[例如：v2.1_supplier_rfq_evaluator]</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; background:#f8fafc;">Goal (本次实验单一核心目标)</td>
+                                            <td>用一句话阐明本次尝试期望解决的具体业务问题或精度指标。</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; background:#f8fafc;">Model (选用模型全称与版本)</td>
+                                            <td><code>[例如：gemini-1.5-pro-002]</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; background:#f8fafc;">Sampling Controls (核心采样超参)</td>
+                                            <td><code>Temperature: 0.1 | Token Limit: 1024 | Top-K: 20 | Top-P: 0.95</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; background:#f8fafc;">Prompt (完整提示词本体)</td>
+                                            <td>包含系统角色、输入变量定义、业务上下文与具体任务指令。</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; background:#f8fafc;">Output / Evaluation (实际结果与评测)</td>
+                                            <td>记录实际输出样例，以及在测试集上的准确率、格式合规率与延迟指标。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 08: GLOSSARY -->
+            <section id="sec-glossary">
+                <h2 class="sec-heading"><i class="fa-solid fa-book-bookmark"></i> 08. 中英双语核心术语表 (Glossary)</h2>
+                <div class="card">
+                    <div class="comp-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:25%;">英文专业术语</th>
+                                    <th style="width:25%;">权威中文全译</th>
+                                    <th style="width:50%;">工业级工程本质与核心作用</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Greedy Decoding</strong></td>
+                                    <td>贪婪解码</td>
+                                    <td>Temperature=0 时的极端采样行为，每一步无条件选出 Softmax 概率最高的单一 Token，具有完全确定性。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nucleus Sampling (Top-P)</strong></td>
+                                    <td>核采样</td>
+                                    <td>按累积概率阈值 P 动态圈定候选 Token 集合，确定时核集极小，困惑时长尾核集变大。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Step-Back Prompting</strong></td>
+                                    <td>退后一步提示法</td>
+                                    <td>Google 核心论文成果：先退后一步向模型提问抽象通识母题与原理，再以此作为先验上下文指导具体解题。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Chain of Thought (CoT)</strong></td>
+                                    <td>思维链推理</td>
+                                    <td>促使模型先显式输出中间推导 Token，再由自回归自注意力机制推导出客观答案，推理必须置于答案之前。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Self-Consistency</strong></td>
+                                    <td>自洽性采样</td>
+                                    <td>生成多条并行独立思维链，在结果集上执行多数票表决（Majority Voting），消除单次随机误差。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tree of Thoughts (ToT)</strong></td>
+                                    <td>思维树拓扑</td>
+                                    <td>将推理过程形式化为带分支、评估与回溯机制的树状搜索空间，适用于高阶博弈与全局规划。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ReAct (Reason & Act)</strong></td>
+                                    <td>推理与行动交织</td>
+                                    <td>现代 AI Agent 最核心的心跳循环：Thought ➔ Action (API调用) ➔ Observation (环境反馈)。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>APE (Automatic Prompt Eng)</strong></td>
+                                    <td>自动提示工程</td>
+                                    <td>利用大模型自身生成候选提示词、打分测试并演化变异的 Meta-Prompting 技术。</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Repetition Loop Bug</strong></td>
+                                    <td>重复死锁循环</td>
+                                    <td>极端低温度（确定性死锁）或极端高温度（随机游走重合）下模型陷入无限打印同类 Token 的失控现象。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 09: ENDNOTES -->
+            <section id="sec-endnotes">
+                <h2 class="sec-heading"><i class="fa-solid fa-quote-right"></i> 09. 参考文献与学术注释 (References & Endnotes)</h2>
+                <div class="card">
+                    <ol style="margin-left: 24px; font-size: 14px; color: #475569; line-height: 1.7;">
+                        <li><strong>Gemini Chatbot:</strong> Google DeepMind flagship consumer conversational AI, accessible via gemini.google.com.</li>
+                        <li><strong>Google Cloud Vertex AI Prompting Guide:</strong> 官方提示工程与参数配置开发文档 (cloud.google.com/vertex-ai/docs)。</li>
+                        <li><strong>Gemini Prompt Gallery:</strong> Google 官方企业级提示词实战案例库。</li>
+                        <li><strong>Holtzman et al. (2019):</strong> "The Curious Case of Neural Text Degeneration", 核采样 (Nucleus Sampling / Top-P) 奠基性学术论文。</li>
+                        <li><strong>Kojima et al. (2022):</strong> "Large Language Models are Zero-Shot Reasoners", 发现 "Let's think step by step" 零样本思维链机制。</li>
+                        <li><strong>Vertex AI Studio for Language:</strong> Google Cloud 官方企业级大模型提示词设计与测试平台。</li>
+                        <li><strong>Brown et al. (2020):</strong> "Language Models are Few-Shot Learners" (GPT-3 奠基性论文), 少样本在上下文学习 (In-Context Learning) 理论基石。</li>
+                        <li><strong>Zheng et al. (Google Research, 2023):</strong> "Take a Step Back: Evoking Reasoning via Abstraction in Large Language Models", Google 退后一步提示法核心原著。</li>
+                        <li><strong>Wei et al. (Google Research, 2022):</strong> "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models", Google 团队思维链 CoT 奠基性论文。</li>
+                        <li><strong>Wang et al. (2022):</strong> "Self-Consistency Improves Chain of Thought Reasoning in Language Models", 自洽性多数票表决学术原典。</li>
+                        <li><strong>Yao et al. (2023) / Long et al. (2023):</strong> "Tree of Thoughts: Deliberate Problem Solving with Large Language Models", 思维树拓扑探索学术原典。</li>
+                        <li><strong>Yao et al. (Google Research & Princeton, 2022):</strong> "ReAct: Synergizing Reasoning and Acting in Language Models", 智能体 ReAct 范式奠基论文。</li>
+                        <li><strong>Zhou et al. (2022):</strong> "Large Language Models Are Human-Level Prompt Engineers (APE)", 自动提示工程学术原典。</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Document Footer -->
+            <footer class="doc-footer">
+                <p>Google 官方白皮书全景精译 ·《Google Prompt Engineering (February 2025 Edition)》· 原著作者：Lee Boonstra et al. (Google Cloud)</p>
+                <p style="margin-top:6px;">AI 智能体官方白皮书全景精译工程 · 工业级权威中文版 · 配套导航总目录请访问 <a href="index.html" style="color:var(--primary); font-weight:700;">index.html</a></p>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- JavaScript for Sidebar Toggle & Interactivity -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarNav');
+            const floatBtn = document.getElementById('tocFloatingBtn');
+            const wrapper = document.getElementById('pageWrapper');
+            
+            if (sidebar.style.display === 'none') {
+                sidebar.style.display = 'block';
+                floatBtn.style.display = 'none';
+            } else {
+                sidebar.style.display = 'none';
+                floatBtn.style.display = 'inline-flex';
+            }
+        }
+
+        // Active link tracking on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.toc-list a');
+            
+            let currentSec = '';
+            sections.forEach(sec => {
+                const secTop = sec.offsetTop - 120;
+                if (window.scrollY >= secTop) {
+                    currentSec = sec.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.fontWeight = 'normal';
+                link.style.color = '';
+                if (link.getAttribute('href') === '#' + currentSec) {
+                    link.style.fontWeight = '700';
+                    link.style.color = '#1a73e8';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
