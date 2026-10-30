@@ -1,0 +1,27 @@
+name: Pre-flight V2 Batch C validation
+on:
+  push:
+    branches: [feat/v2-batch-c-adoption-ci-benchmark]
+  pull_request:
+    paths:
+      - 'pre-flight/**'
+      - '.github/workflows/batch-c-validation.yml'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: All batch regression tests
+        run: python3 -m unittest discover -s pre-flight/tests -v
+      - name: Compile scripts
+        run: python3 -m compileall -q pre-flight/scripts pre-flight/tests
+      - name: Read-only adoption audit
+        run: python3 pre-flight/scripts/check_adoption.py --project . --mode observe --contract-check
+      - name: Enforce explicit opt-in on canonical fixture
+        run: |
+          tmp=$(mktemp -d)
+          python3 pre-flight/scripts/init_project.py --target "$tmp/project" --project-name "Batch C" --apply
+          python3 pre-flight/scripts/check_adoption.py --project "$tmp/project" --mode enforce --approved-enforce --contract-check
