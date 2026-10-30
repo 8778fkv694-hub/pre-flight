@@ -23,6 +23,8 @@ class BatchBTests(unittest.TestCase):
     def test_unknown_impact(self):
         self.data["routing"]["unknown_impact"] = True
         self.assertTrue(module.validate(self.data))
+        self.data["routing"]["tier"] = "Strict"
+        self.assertEqual([], module.validate(self.data))
 
     def test_missing_scope(self):
         del self.data["handoff"]["scope"]
