@@ -34,3 +34,16 @@
 - 参考文档有按需索引，不将所有材料常驻上下文。
 - 基准集区分可执行的工具级测试与尚待真实 Agent 执行的行为测试。
 - 批次 C 单独 PR、独立 CI；不修改已冻结基本法。
+
+## 已实现的命令及验收范围
+
+- `python3 pre-flight/scripts/check_adoption.py --project /path/to/project --mode observe`：只读报告，缺失的可选模板仅提示。
+- `--mode warn --contract-check`：在标准四工件齐全时调用既有确定性契约检查，但不阻断；其他布局报告不适用，不自动初始化。
+- `--mode enforce --approved-enforce --contract-check`：需要显式批准开关，且仅对能确定的契约错误阻断。CLI 的批准开关**不是身份认证**，CI 仓库管理者必须自行配置受保护的工作流和分支规则。
+- `pre-flight/benchmarks/v2-batch-c-scenarios.json`：六个行为基准均为 `NOT_RUN`；这不是模型评测结果。
+
+### 验证记录
+
+- GitHub Actions [批次 C 验证运行 40998879842](https://github.com/8778fkv694-hub/pre-flight/actions/runs/40998879842)：全量 unittest、Python 编译、只读项目审计、显式 Enforce 初始化样例检查均已在任务步骤中通过。
+- 当前测试覆盖 Observe 不写文件、Warn 不阻断、Enforce 显式批准、标准四工件的错误阻断、缺失项目、基准未运行状态。
+- **未验证**：真实多 Agent 宿主的行为遵循率、跨模型基准结果、不同操作系统、团队实际 CI 授权策略；均不得标 PASS。
