@@ -34,7 +34,7 @@
 1. **平台无关检查脚本** [assets/ci/ci-check.sh](../assets/ci/ci-check.sh)
    - 复制为项目 `scripts/ci-check.sh`；同时把技能包 [scripts/check_basic_law.py](../scripts/check_basic_law.py) 复制为项目 `scripts/check_basic_law.py`（需要检查受保护条款时）。
    - 本地运行或任何 CI 执行：`sh scripts/ci-check.sh`；非零退出即失败。
-   - 检查内容：受保护条款哈希（有基线时）、未替换的 `{{...}}` 占位符、明显密钥模式、可选的 `scripts/project-check.sh`。密钥模式检查是最小防线，误报/漏报都可能，不能替代凭据管理工具。
+   - 检查内容：受保护条款哈希（有基线时）、基本法锁/检查脚本自身变更提示（`AMENDMENT_TOUCHED`，设 `CI_REQUIRE_AMEND_ACK=1` 时须人显式给 `CI_AMEND_APPROVED=1` 才放行，防 Agent 自写修正记录并自跑 `--force --amend`）、未替换的 `{{...}}` 占位符、明显密钥模式、可选的 `scripts/project-check.sh`。密钥模式检查是最小防线，误报/漏报都可能，不能替代凭据管理工具。
 2. **本地 git hook** [assets/hooks/pre-commit.sh](../assets/hooks/pre-commit.sh)
    - `cp` 到 `.git/hooks/pre-commit` 并 `chmod +x`；它调用 `scripts/ci-check.sh`，缺失时提示并跳过。
    - 本地 hook 可被 `git commit --no-verify` 绕过，不能当强制门禁。

@@ -34,6 +34,32 @@ else
     warn "未找到 AGENT.md；跳过基本法检查"
 fi
 
+# 1b) Detect basic-law lock/checker modifications (prevent silent agent self-amendment).
+if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    touched_guard=""
+    status_guard=$(git status --porcelain -- \
+        docs/sdlc/maintain/basic-law.lock.json \
+        scripts/check_basic_law.py \
+        scripts/ci-check.sh 2>/dev/null || true)
+    if [ -n "$status_guard" ]; then
+        touched_guard="$status_guard"
+    elif [ -n "${CI_BASE_REF:-}" ]; then
+        diff_guard=$(git diff --name-status "${CI_BASE_REF}...HEAD" -- \
+            docs/sdlc/maintain/basic-law.lock.json \
+            scripts/check_basic_law.py \
+            scripts/ci-check.sh 2>/dev/null || true)
+        if [ -n "$diff_guard" ]; then
+            touched_guard="$diff_guard"
+        fi
+    fi
+    if [ -n "$touched_guard" ]; then
+        warn "AMENDMENT_TOUCHED: 检测到基本法哈希锁或检查脚本变更，须由人逐条核对修正案记录（防 Agent 自写日志并自跑 --force --amend）"
+        if [ "${CI_REQUIRE_AMEND_ACK:-0}" = "1" ] && [ "${CI_AMEND_APPROVED:-0}" != "1" ]; then
+            bad "AMENDMENT_TOUCHED: CI_REQUIRE_AMEND_ACK=1 已启用但未设置 CI_AMEND_APPROVED=1；基本法锁或门禁脚本变更须经人显式放行"
+        fi
+    fi
+fi
+
 # 2) Unresolved template placeholders in Markdown.
 if find . -path ./.git -prune -o -type f -name '*.md' -exec \
     grep -l '{{[A-Za-z_][A-Za-z0-9_]*}}' {} + 2>/dev/null | grep -q .; then

@@ -66,3 +66,10 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 - PASS: all 28 image references inside the included HTML files resolve; package Markdown links resolve (54 links / 23 files); whitespace clean.
 - Not verified: whether each translation is authorized for redistribution by the original rights holders. The translations are included as unofficial study references, are not covered by the MIT license, and will be removed if a rights holder requests it.
 - Size: `background/whitepapers-zh/` is about 9.9 MB.
+
+## 2026-10-30 anti-self-amendment guard and cross-seam perception check
+
+- Confirmed: originator confirmed the candidate Intent restatement covering both anti-self-amendment detection in `ci-check.sh` and the cross-seam user-perceived closed-loop criterion (`写→通→刷→见`) in `workflow.md` before file changes.
+- PASS: `ci-check.sh` end-to-end in a temporary Git repository — clean tree passes without `AMENDMENT_TOUCHED`; modifying `AGENT.md` + `basic-law-log.md` + re-freezing `basic-law.lock.json` triggers `WARN: AMENDMENT_TOUCHED` locally (exit 0); setting `CI_REQUIRE_AMEND_ACK=1` without `CI_AMEND_APPROVED=1` blocks unapproved self-amendment (`FAIL: AMENDMENT_TOUCHED`, exit 1); setting `CI_REQUIRE_AMEND_ACK=1 CI_AMEND_APPROVED=1` passes (exit 0); committed self-amendment compared via `CI_BASE_REF=HEAD~1 CI_REQUIRE_AMEND_ACK=1` also fails as expected (exit 1).
+- PASS: package Markdown relative links resolve (54 links across 23 files); initializer dry-run and `--apply` pass in a temporary directory.
+- Not verified: server-side CI secret/variable protection (`CI_AMEND_APPROVED` must be restricted to human approvers on the CI host to prevent pipeline scripts from self-setting it).
