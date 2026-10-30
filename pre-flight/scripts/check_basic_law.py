@@ -17,6 +17,7 @@ LOCK = Path("docs/sdlc/maintain/basic-law.lock.json")
 AMENDMENTS = Path("docs/sdlc/maintain/basic-law-amendments.json")
 CLAUSE = re.compile(r"^- \[(BL-\d{3})\] (\S.*)$")
 TOP_LEVEL = re.compile(r"^(?:#{1,6} |[-*+] |\d+\. |\S)")
+LEGACY_CLAUSE = re.compile(r"^-\\s+\\[(BL-\\d{3})\\]\\s*(.+?)\\s*$")
 SHA = re.compile(r"^[0-9a-f]{64}$")
 
 
