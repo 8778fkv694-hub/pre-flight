@@ -56,6 +56,79 @@ If you already want continuous implementation, replace the last sentence with: �
 
 You do not need to memorize these filenames. The agent should first explain purpose, success criteria, progress, and decisions in plain language, with technical detail available when needed. Initialization creates drafts; discussion and verification establish the actual foundation.
 
+## Workflow and expectations
+
+The method is a revisit-friendly loop: implementation starts only after the intent restatement is confirmed, and every stage leaves checkable evidence; changes return as the next candidate intent.
+
+```mermaid
+flowchart LR
+  A["Human input<br/>words / materials"] --> B["AI restatement<br/>intent.md"]
+  B --> C{"Human confirms<br/>version / scope"}
+  C -->|"Unconfirmed: investigate only"| B
+  C --> D["spec.md<br/>clauses / acceptance / boundaries"]
+  D --> E["plan.md<br/>work packages / budget / recovery"]
+  E --> F["Build<br/>candidate implementation + reviewable diff"]
+  F --> G["Test<br/>commands / exit codes / samples"]
+  G -->|"Failures and untested work recorded"| F
+  G --> H["Deploy<br/>authorization / read-back"]
+  H --> I["Maintain<br/>improvements / regression samples"]
+  I --> B
+```
+
+<details><summary>Plain-text version (for hosts without Mermaid)</summary>
+
+```text
+human input ──▶ AI restatement (intent.md) ──▶ ★human confirms (version/scope) ──▶ formal Intent
+                                                │ if unconfirmed: investigate / draft only
+                                                ▼
+intent ──▶ spec (clauses/acceptance/boundaries) ──▶ plan (packages/budget/recovery) ──▶ Build (candidate + reviewable diff)
+   ▲                                                                                        │
+   │                                                                                        ▼
+Maintain (improvements/regression) ◀── Deploy (authorization/read-back) ◀── Test (commands/exit codes/samples)
+```
+</details>
+
+**Implementation steps: six stages × artifacts × human decisions × evidence**
+
+| Stage | Artifacts | Human decides / confirms | Evidence (none alone is enough) |
+|---|---|---|---|
+| Plan: intent | intent.md: words, AI restatement, assumptions, open items | Confirm the restated intent and success criteria | Confirmation record: version, time, scope |
+| Design | spec.md: clause IDs, boundaries, acceptance | Scope tradeoffs, acceptance basis, non-goals | Each requirement independently verifiable; frozen version |
+| Build | plan.md: work packages, budget, stop conditions; candidate implementation | Key tradeoffs, necessary authorization | Reviewable diff; targeted verification results |
+| Test | verification records: commands, environment, samples, exit codes | Accept the implementation against the frozen Spec | Failures, skips and untested areas listed honestly |
+| Deploy | Delivery receipt: artifact identity, applicable authorization, read-back | Actual authorization for release and production writes | Report activation only after reading back the live environment |
+| Maintain | Improvements, new intent candidates, regression samples | Next goals and priorities | Issues close into a work item or an intent revision |
+
+Stages are a loop, not a waterfall: a small fix can put restatement, change, verification and recovery in one work item; six documents are not mandatory.
+
+**Token and cost basis (for estimation, not a promise)**
+
+| Cost source | What it maps to here | How to reduce it | What to record |
+|---|---|---|---|
+| Resident context | AGENT.md, STATUS, skill guidance kept in the prompt | Keep the body lean: identity, rules, real commands, navigation | Before/after size; check on handover |
+| Dynamic material | Spec, source, data and logs loaded per work package | Provide only what the current decision needs; cite versions instead of dumping everything | What was cited and loaded |
+| Tool output and retries | Long logs, failed reruns, unknown effects | Prefer targeted verification; reconcile read-only before replaying unknown effects | Commands, exit codes, retry reasons |
+| Model routing | Triage/search/drafting vs design/root cause/review | Cheaper models for low-risk work; stronger models for key decisions | Actual use and quality sampling |
+| Prefix caching | Stable rules, templates, checklists | Put fixed content first and the changing question last | Cache hits and response changes, if measurable |
+| Evals and samples | Evals, regression samples, failure reproductions | Freeze samples with independent criteria; reuse instead of rebuilding | Sample versions, pass lines, variance |
+
+Return ratio: return ratio = (hours saved + value of rework and defects avoided) ÷ (token + tools + maintenance cost). Fill it in from one completed work package; untested gains stay candidate assumptions, not performance commitments, and other people's ratios are not adopted as ours.
+
+**Expected maintenance cost profile (directional, not a numeric promise)**
+
+| Cost item | One-off prototype / intuition-led coding | Engineered with this package | Evidence to review |
+|---|---|---|---|
+| Upfront | Almost no rules, acceptance or plan | Higher upfront: basic law, Spec, Plan, tests and checks | Upfront artifact list and effort |
+| Requirement change | Verbal changes patched in code; heavy rework | Candidate Intent → restatement and confirmation → new Spec version | Change record and affected scope |
+| Defects and regression | No tests, or tests drift with the implementation; repeated firefighting | Failures become regression samples; old tests are marked with their identity | Failure samples and regression results |
+| Knowledge handover | Scattered in chat; the next person asks again | AGENT.md, STATUS, artifacts and amendment records support handover | Handover checklist result |
+| Permissions and safety | Fixed afterwards | Safety red lines and check entry points come first | Check records and authorization boundaries |
+| Long-term trend | More scale, more cost | More reuse, lower cost per delivery (directional; measure it) | Cost and reuse data over time |
+
+Conclusion: upfront engineering is amortized during maintenance through reuse and regression; whether it pays off depends on project scale, maintenance lifetime and risk. Do not buy long-term maintenance for a one-off prototype that has no acceptance criteria or rules.
+
+> The diagram and three tables are redrawn for this project's six stages and artifacts; the framing draws on common industry training material about roadmaps, TCO curves and token economics. Its experience numbers are illustrative, not measured by this package and not performance commitments; fill them from your own measurements.
+
 ## My perspective on AI
 
 These principles summarize the originator's requirements in the design discussion, with AI-assisted writing.

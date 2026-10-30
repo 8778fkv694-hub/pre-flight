@@ -51,3 +51,9 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 - PASS: pre-commit.sh — a normal commit passes; a commit that changes a protected clause is blocked (nonzero exit); `git commit --no-verify` succeeds (bypass documented, not a gate); a missing scripts/ci-check.sh skips with a warning (exit 0).
 - PASS: package and generated relative Markdown links resolve (48 links / 22 files and 14 / 12 files; 62 / 34 combined); frontmatter valid; whitespace clean.
 - Reviewed: safety-baseline.md and host-wiring.md describe platform-neutral wiring (local hook, one entry script, a platform matrix for GitHub/Gitee/GitLab/Gitea/Jenkins/self-hosted) and state the limits. Platform-specific CI behavior, server-side branch protection, Windows shells and real model behavior were not run or verified here.
+
+## 2026-10-30 README workflow and expectations
+
+- Added: a workflow diagram (Mermaid, with a plain-text fallback inside `<details>`) for intent confirmation → Spec → Plan → Build → Test → Deploy → Maintain, plus three tables redrawn for this project: six stages × artifacts × human decisions × evidence; token and cost basis; expected maintenance cost profile.
+- Reviewed: the tables are redrawn in this project's terms rather than copied from the supplied course deck; the deck is cited only as framing, and its experience numbers are labelled illustrative, not measured or promised.
+- PASS: package Markdown links resolve; code fences and tables are balanced; whitespace clean. Mermaid rendering was not verified on any specific host.
