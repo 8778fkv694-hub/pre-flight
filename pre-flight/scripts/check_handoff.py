@@ -33,7 +33,7 @@ def validate(data):
         if complexity not in TIERS or impact not in TIERS:
             issues.append("routing complexity/impact must be Lite/Standard/Strict")
         else:
-            expected = TIERS[max(TIERS.index(complexity), TIERS.index(impact))]
+            expected = "Strict" if routing.get("unknown_impact") is True else TIERS[max(TIERS.index(complexity), TIERS.index(impact))]
             if routing.get("tier") != expected:
                 issues.append("routing tier must equal stricter axis: " + expected)
         if routing.get("unknown_impact") is True and routing.get("tier") != "Strict":
