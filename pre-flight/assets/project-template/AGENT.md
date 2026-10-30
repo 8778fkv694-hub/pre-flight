@@ -10,7 +10,7 @@
 - 交付：[delivery.md](docs/sdlc/deploy/delivery.md)
 - 维护：[maintenance.md](docs/sdlc/maintain/maintenance.md)
 
-## 项目基础宪法
+## 项目基本法
 
 状态：草稿，需从人的表达与可回查决定完善；初始化不代表已确认。
 

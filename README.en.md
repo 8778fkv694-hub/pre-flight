@@ -4,7 +4,7 @@
 
 **Start with human intent. Establish the project foundation. Let AI carry the work toward verifiable delivery.**
 
-Pre-flight is a portable skill for coding agents. Describe what you want in your own words; the agent helps establish a project constitution, define success, and then plan, build, verify, and hand over the work. It supports new projects and incremental adoption in existing ones.
+Pre-flight is a portable skill for coding agents. Describe what you want in your own words; the agent helps establish the project's basic law, define success, and then plan, build, verify, and hand over the work. It supports new projects and incremental adoption in existing ones.
 
 ## Start your first project
 
@@ -29,7 +29,7 @@ For example, store the skill at `/your-path/skills/pre-flight` and the project a
 Read /your-path/skills/pre-flight/SKILL.md first.
 Create a new project at /your-path/projects/my-new-project.
 My idea is: [describe whose problem you want to solve, in your own words].
-Help me clarify my intent and establish a plain-language project constitution.
+Help me clarify my intent and establish the project's basic law in plain language.
 Restate a candidate intent and wait for my confirmation of that restatement
 before accepting it as a formal Intent. Write shared rules in AGENT.md,
 then create a readable Spec and actionable Plan.
@@ -45,7 +45,7 @@ If you already want continuous implementation, replace the last sentence with: �
 
 | What you need to know | Where it lives |
 |---|---|
-| Project constitution: purpose, principles, boundaries, agent rules, and rule changes | `AGENT.md` |
+| Project basic law: purpose, principles, boundaries, agent rules, and rule changes | `AGENT.md` |
 | What I want and why | `docs/sdlc/plan/intent.md` |
 | How the product should behave and what success means | `docs/sdlc/design/spec.md` |
 | Work packages, verification, and recovery | `docs/sdlc/build/plan.md` |
@@ -70,7 +70,7 @@ This project combines Louis Claxton / Anthropic's *The AI-Native SDLC Playbook* 
 
 - The Playbook supplies the **Plan → Design → Build → Test → Deploy → Maintain** lifecycle, artifacts, and feedback loops.
 - *The New SDLC* adds **context engineering, the harness surrounding the model, tests and evals, prototype-to-production rigor, and total cost of ownership**.
-- Pre-flight adapts these into a host-independent method. The project constitution, human-facing presentation, and version/activation semantics are package adaptations. Reference authors' views are not attributed to the originator.
+- Pre-flight adapts these into a host-independent method. The project's basic law, human-facing presentation, and version/activation semantics are package adaptations. Reference authors' views are not attributed to the originator.
 
 See the [method notes](pre-flight/references/method-basis.md) for page references and explicit adaptations.
 

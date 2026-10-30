@@ -24,7 +24,7 @@
 | 围绕模型建立执行机制 | 两份资料的 hooks/反馈；New SDLC 第24–30页 | 环境/工具/权限/检查/日志实测记录 |
 | 确定性测试和模型行为评估 | Playbook 第35页；New SDLC 第14–15、44页 | verification 模板及独立判据 |
 | 分级与长期成本 | New SDLC 第39–45页 | Intent 的用途级别、Plan预算、维护成本 |
-| 人友好、宪法、AI复述后由人确认Intent、跨宿主入口与恢复语义 | 发起人要求及本包工程适配 | README、AGENT模板、change-control.md |
+| 人友好、基本法、AI复述后由人确认Intent、跨宿主入口与恢复语义 | 发起人要求及本包工程适配 | README、AGENT模板、change-control.md |
 
 ## 有意识的取舍
 
