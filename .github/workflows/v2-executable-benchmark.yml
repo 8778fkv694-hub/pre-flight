@@ -1,0 +1,30 @@
+name: V2 executable benchmark
+on:
+  push:
+    branches: [test/v2-real-behavior-benchmark]
+  pull_request:
+    paths:
+      - 'pre-flight/benchmarks/**'
+      - 'pre-flight/scripts/**'
+      - '.github/workflows/v2-executable-benchmark.yml'
+jobs:
+  deterministic-cases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Execute all six tool-level scenarios and store full observations
+        run: |
+          python3 pre-flight/benchmarks/run_tool_benchmark.py > tool-benchmark-result.json
+          python3 -m json.tool tool-benchmark-result.json
+      - name: Upload raw benchmark result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preflight-v2-tool-benchmark
+          path: tool-benchmark-result.json
+          if-no-files-found: error
+      - name: Existing regression suite
+        run: python3 -m unittest discover -s pre-flight/tests -v
