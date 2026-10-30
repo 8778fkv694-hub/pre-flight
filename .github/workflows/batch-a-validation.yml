@@ -1,0 +1,25 @@
+name: Pre-flight Batch A validation
+on:
+  push:
+    branches: [feat/v2-batch-a-contracts]
+  pull_request:
+    paths:
+      - 'pre-flight/**'
+      - '.github/workflows/batch-a-validation.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Batch A unit tests
+        run: python3 -m unittest discover -s pre-flight/tests -v
+      - name: Check skill Python syntax
+        run: python3 -m compileall -q pre-flight/scripts pre-flight/tests
+      - name: Initialize example project and audit drafts
+        run: |
+          tmp=$(mktemp -d)
+          python3 pre-flight/scripts/init_project.py --target "$tmp/project" --project-name "示例项目" --apply
+          python3 pre-flight/scripts/check_project_contract.py --project "$tmp/project" --mode check
