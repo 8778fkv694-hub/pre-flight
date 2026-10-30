@@ -104,17 +104,18 @@ class BatchATests(unittest.TestCase):
 
 
     def test_template_markdown_has_real_section_breaks(self):
+        nl = chr(10)
         for rel, section in (
             ("assets/project-template/docs/sdlc/design/spec.md", "## 版本与引用约束"),
             ("assets/project-template/docs/sdlc/build/plan.md", "## 最小追溯契约"),
         ):
-            text = (ROOT / rel).read_text(encoding="utf-8")
-            self.assertIn("\\n" + section + "\\n", text)
-            self.assertNotIn(section + r"\\n", text)
+            content = (ROOT / rel).read_text(encoding="utf-8")
+            self.assertIn(nl + section + nl, content)
+            self.assertNotIn(section + chr(92) + "n", content)
         verification = (ROOT / "assets/project-template/docs/sdlc/test/verification.md").read_text(encoding="utf-8")
-        self.assertIn("\\n\\n每次收据记录", verification)
+        self.assertIn(nl + nl + "每次收据记录", verification)
         reference = (ROOT / "references/basic-law-change.md").read_text(encoding="utf-8")
-        self.assertIn("\\n\\n```json\\n", reference)
+        self.assertIn(nl + nl + "```json" + nl, reference)
 
     def test_cli_new_lock_amend_and_check(self):
         with tempfile.TemporaryDirectory() as tmp:
