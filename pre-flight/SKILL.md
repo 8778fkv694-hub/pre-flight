@@ -15,7 +15,7 @@ description: 以 AI Native SDLC 方法启动全新软件项目或接续其迭代
 - 已有项目/接续：读现有 AGENT.md、原生入口、STATUS、相关意图与规格，核对代码和未提交改动；复用既有结构，不覆盖式初始化。
 - 小修复：在一个工作项里记录意图、修改、验证与恢复即可，不强制六份文档。
 
-只有初始化时读[初始化与客户端适配](references/bootstrap.md)；进入具体阶段时读[六阶段契约](references/workflow.md)对应章节；变更版本/中断/发布时读[变更与恢复](references/change-control.md)。模板位于 assets/project-template/，按需实例化，不把占位符当项目事实。
+只有初始化时读[初始化与客户端适配](references/bootstrap.md)；进入具体阶段时读[六阶段契约](references/workflow.md)对应章节；变更版本/中断/发布时读[变更与恢复](references/change-control.md)；修正基本法条款时读[基本法修正](references/basic-law-change.md)。模板位于 assets/project-template/，按需实例化，不把占位符当项目事实。
 
 建立项目基础、调整上下文/工具或从原型转生产时，读[上下文与执行机制](references/context-and-harness.md)。先用人能懂的话协助确立项目目的、原则、边界、自主范围与规则变更方式，再写入 AGENT.md；用户无需先懂工程术语。
 
@@ -23,7 +23,7 @@ description: 以 AI Native SDLC 方法启动全新软件项目或接续其迭代
 
 **人的表达 → AI引导梳理并复述 → 人确认这份复述 → 正式Intent。** 确认前只是原始材料或候选草稿；不能据此施工、冻结Spec或宣称目标已确定。完整过程与示例见[引导式意图确认](references/intent-confirmation.md)，设定或修订Intent时必读。沿用旧确认需有可回查的AI复述及人对该版本的确认；泛化的“继续做”和操作授权不能替代它。
 
-运行中被打断或收到临时补充，不视为对已确认Intent、Spec、Plan、授权或AGENT.md的自动覆盖：先判断属于澄清纠正、操作指令、功能/范围变更还是规则变更；功能相关先转候选Intent，复述变更与影响、人确认后再改依据；触及规则本身按变更程序处理。分级与示例见[引导式意图确认](references/intent-confirmation.md)，冲突时保持基线的处理见[变更与恢复](references/change-control.md)。
+运行中被打断或收到临时补充，不视为对已确认Intent、Spec、Plan或基本法的自动覆盖。先判断类型：澄清 / 操作类指令 / 功能·范围·验收标准变更 / 规则·授权边界变更；混合或判断不清时按更高等级处理，先暂停与补充冲突的动作并保留现场。功能·范围·验收标准变更先转候选Intent，复述变更与影响、人确认后再改依据；规则变更按AGENT.md的“修正程序”处理（细则见[基本法修正](references/basic-law-change.md)）；授权收紧/暂停/撤回立即生效，授权扩大/新增须明确授权并记录。分级与示例见[引导式意图确认](references/intent-confirmation.md)，与在途工作冲突时的处理见[变更与恢复](references/change-control.md)。
 
 ## 从人的话到可执行依据
 
@@ -36,7 +36,7 @@ description: 以 AI Native SDLC 方法启动全新软件项目或接续其迭代
 
 ## 项目资料的真源
 
-- AGENT.md：精简的项目身份、架构入口、真实命令、约束与协作规则；不堆历史日志。
+- AGENT.md：精简的项目身份、架构入口、真实命令、约束与协作规则；L1条款带[BL-xxx]稳定ID，修正按[基本法修正](references/basic-law-change.md)程序；不堆历史日志。
 - STATUS.md：唯一当前进度、已验证身份、施工位置、下一步及阻碍；能指向具体证据。
 - intent/spec/plan：分别记录人的目的、决定的要求、落实方法；阶段Plan不等于plan.md文件，文件名按产物含义。
 - 验证与交付收据：对应实际源码/包/配置、命令与退出码、样本和未验边界。

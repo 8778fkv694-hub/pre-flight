@@ -25,6 +25,7 @@
 | 确定性测试和模型行为评估 | Playbook 第35页；New SDLC 第14–15、44页 | verification 模板及独立判据 |
 | 分级与长期成本 | New SDLC 第39–45页 | Intent 的用途级别、Plan预算、维护成本 |
 | 人友好、基本法、AI复述后由人确认Intent、跨宿主入口与恢复语义 | 发起人要求及本包工程适配 | README、AGENT模板、change-control.md |
+| 基本法分层、修正门槛与检查 | 发起人要求及本包工程适配 | basic-law-change.md、AGENT模板、basic-law-log、check_basic_law.py |
 
 ## 有意识的取舍
 

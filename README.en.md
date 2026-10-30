@@ -46,6 +46,7 @@ If you already want continuous implementation, replace the last sentence with: â
 | What you need to know | Where it lives |
 |---|---|
 | Project basic law: purpose, principles, boundaries, agent rules, and rule changes | `AGENT.md` |
+| Basic-law amendment records and evidence | `docs/sdlc/maintain/basic-law-log.md` |
 | What I want and why | `docs/sdlc/plan/intent.md` |
 | How the product should behave and what success means | `docs/sdlc/design/spec.md` |
 | Work packages, verification, and recovery | `docs/sdlc/build/plan.md` |
@@ -58,10 +59,10 @@ You do not need to memorize these filenames. The agent should first explain purp
 
 These principles summarize the originator's requirements in the design discussion, with AI-assisted writing.
 
-1. **Intent must be established together.** A person's initial words are input. AI must guide clarification and restate a candidate; only after the person confirms that restatement does it become a formal Intent. Material changes require a new restatement and confirmation. Reuse an existing confirmed version without asking at every step. AI should understand what I want, why it matters, and what success means. My words, the agent's interpretation, and unresolved assumptions should remain distinguishable. Specs should be readable and actionable. Mid-run interruptions and supplementary requests get the same treatment: judge the type first; if the request affects function or scope, restate a candidate Intent change and confirm it before acting, rather than overriding what was already confirmed.
+1. **Intent must be established together.** A person's initial words are input. AI must guide clarification and restate a candidate; only after the person confirms that restatement does it become a formal Intent. Material changes require a new restatement and confirmation. Reuse an existing confirmed version without asking at every step. AI should understand what I want, why it matters, and what success means. My words, the agent's interpretation, and unresolved assumptions should remain distinguishable. Specs should be readable and actionable. Mid-run interruptions and supplementary requests get the same treatment: judge the type first â€” clarification, operational instruction, functional/scope/acceptance change, or rule/authorization-boundary change. Mixed or ambiguous requests take the higher category; for functional, scope, or acceptance changes, restate a candidate Intent change and confirm it before changing the baseline or building it, rather than overriding what was already confirmed.
 2. **AI should carry work forward.** I expect planning, execution, verification, and continuity. Another agent should understand completed and remaining work from shared records, reducing repeated explanations and rework.
 3. **Completion needs evidence.** A plan, generated code, or a successful save does not prove success. Agreed requirements, implementation acceptance, and activation need separate records. Failures, unknowns, and untested areas should remain visible.
-4. **The method should travel across agents.** Shared rules live in `AGENT.md`, with thin tool-specific entry files where needed. Durable project records support handovers.
+4. **The method should travel across agents.** Shared rules live in `AGENT.md`, with thin tool-specific entry files where needed. Durable project records support handovers. Core clauses carry stable IDs; amendments need an amendment record and explicit human confirmation, with the previous version kept.
 5. **Engineering discipline should be human-friendly.** People should first see intent, success criteria, progress, and decisions needing attention. Scale the process to the work and respect existing authorization. People direct goals, key tradeoffs, and necessary permissions.
 
 ## Combining the two references

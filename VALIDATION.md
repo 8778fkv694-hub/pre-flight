@@ -27,9 +27,18 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 ## 2026-10-30 mid-run supplement rule
 
 - Confirmed: originator confirmed the AI restatement of the mid-run supplement rule (four-type triage) and chose formal inclusion in the skill before any file change. Confirmation came from the originator's reply in session, not from an agent or generated file.
-- PASS: dry-run creates no files; applied initializer creates 8 templates and 3 adapters in a temporary directory; placeholders resolved.
-- PASS: package and generated-project relative Markdown links resolve (31 and 13 links); skill frontmatter valid; whitespace check clean.
-- Reviewed: the four types (clarification, in-scope operation, functional/scope change, rule/basic-law change) are expressed consistently in SKILL.md, intent-confirmation.md, change-control.md, template AGENT.md, and both README viewpoints. The rule preserves the existing AI-restatement → human-confirmation requirement, keeps intent confirmation separate from operation authorization, and does not add runtime enforcement.
+- Corrected after an independent read-only review: the first version had inconsistent labels across summaries, an ambiguous "keep baseline" wording for mixed stop+scope requests, delayed authorization tightening/revocation, and a "no confirmation needed" exemption that weakened AI-restatement → human-confirmation. These were fixed; the four labels are now clarification / operational instruction / functional·scope·acceptance change / rule·authorization-boundary change, with a mixed-or-ambiguous higher-category fallback.
+- PASS: dry-run creates no files; applied initializer creates the template set and 3 adapters in a temporary directory; placeholders resolved.
+- PASS: package and generated-project relative Markdown links resolve; skill frontmatter valid; whitespace check clean.
 - Renamed: the package now says "project basic law" instead of "project constitution" across README (zh/en), method-basis, context-and-harness, template AGENT.md, and this log. Terminology only; no behavioral change.
 
-未进行真实模型对“运行中临时补充、补充后改道、紧急打断”等场景的行为评测；文档指导不能保证宿主执行，也未新增运行时强制机制。
+## 2026-10-30 basic-law amendment mechanism
+
+- Confirmed: originator chose the full option (documentation plus a checker script) and the standard amendment threshold (amendment + explicit per-clause human confirmation + proposal/decision separation + version and records + post-change re-verification).
+- PASS: initializer dry-run creates no files; applied run creates 9 templates and 3 adapters (12 files) in a temporary directory; placeholders resolved; generated project contains the [BL-xxx] clauses and the amendment log.
+- PASS: package and generated relative Markdown links resolve (53 across 32 files); frontmatter valid; whitespace clean; no legacy wording remains in SKILL, references, templates, or README pages.
+- PASS: check_basic_law.py end-to-end in a temporary project — first freeze (version 1) then check PASS; tampering BL-004 → VIOLATION, exit 1; re-freeze without --force → exit 2; --force with unrecorded amendment → exit 2; recording the amendment then re-freeze → version 2, check PASS; new BL-007 → VIOLATION; removed heading → VIOLATION; duplicate ID → VIOLATION; restored file → PASS.
+- Reviewed: basic-law-change.md defines L1/L2/L3, the standard procedure, discussion/proposal/decision states, anti-bypass checks and limits; template AGENT.md carries stable [BL-xxx] IDs and a 受保护条款 statement; change-control, intent-confirmation, SKILL and both READMEs point to the same procedure; the intent and STATUS templates gained a minimal mid-run supplement record field.
+- Not verified: real model behavior in these scenarios; Git/CI protection, PR review and hook enforcement are host-side and not configured here. The checker only helps when actually run; Markdown is not an enforcement mechanism.
+
+未进行真实模型对“运行中临时补充、补充后改道、紧急打断”等场景的行为评测；文档指导不能保证宿主执行，也未新增运行时强制机制。检查脚本需由人或CI实际运行才生效。
