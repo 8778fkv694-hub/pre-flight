@@ -47,6 +47,7 @@ If you already want continuous implementation, replace the last sentence with: â
 |---|---|
 | Project basic law: purpose, principles, boundaries, agent rules, and rule changes | `AGENT.md` |
 | Basic-law amendment records and evidence | `docs/sdlc/maintain/basic-law-log.md` |
+| Safety red lines and local/CI checks | AGENT.md "Safety red lines" section; optional `scripts/ci-check.sh` |
 | What I want and why | `docs/sdlc/plan/intent.md` |
 | How the product should behave and what success means | `docs/sdlc/design/spec.md` |
 | Work packages, verification, and recovery | `docs/sdlc/build/plan.md` |
@@ -79,7 +80,7 @@ See the [method notes](pre-flight/references/method-basis.md) for page reference
 
 `AGENT.md` is this method's shared guide. The default `AGENTS.md` and optional `CLAUDE.md` and `GEMINI.md` entry files point to it. Automatic loading depends on the tool; verify that the agent actually reads the guide.
 
-A skill provides guidance. Enforced checks and permissions need actual scripts, CI, and host settings. Scale verification to prototype or production risk. Add model-behavior evals when the product contains such behavior or when evaluating the development agent. Small changes can use lightweight records.
+A skill provides guidance. Enforced checks and permissions need actual scripts, CI, and host settings. Scale verification to prototype or production risk. Add model-behavior evals when the product contains such behavior or when evaluating the development agent. Small changes can use lightweight records. The package includes an optional safety baseline and host-neutral check scripts (a local git hook and a CI entry point; not tied to GitHub or any single platform). Hooks and CI can be bypassed; real gates still require server-side branch protection, review, and permissions.
 
 ## Manual initialization (optional)
 

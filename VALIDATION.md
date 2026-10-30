@@ -42,3 +42,12 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 - Not verified: real model behavior in these scenarios; Git/CI protection, PR review and hook enforcement are host-side and not configured here. The checker only helps when actually run; Markdown is not an enforcement mechanism.
 
 未进行真实模型对“运行中临时补充、补充后改道、紧急打断”等场景的行为评测；文档指导不能保证宿主执行，也未新增运行时强制机制。检查脚本需由人或CI实际运行才生效。
+
+## 2026-10-30 safety baseline and host wiring
+
+- Confirmed: originator chose the full option (safety red lines + reference doc + host-neutral hook/CI examples) and noted that developers may not use GitHub; the wiring is therefore platform-neutral, with local git hooks as the primary path and any CI or job runner executing the same entry script.
+- PASS: template AGENT.md adds [BL-101]–[BL-106] safety red lines and points [BL-004] at them; generated projects contain 12 protected clauses; the initializer creates 10 files with the default adapter (12 with three adapters).
+- PASS: ci-check.sh in a temporary project — before the baseline: WARN + PASS (exit 0); after freeze: PASS; tampered BL-004: FAIL (exit 1); unresolved placeholder: FAIL (exit 1); fake AWS key pattern: FAIL (exit 1). The script resolves its own project root, so it also works when invoked from outside the project.
+- PASS: pre-commit.sh — a normal commit passes; a commit that changes a protected clause is blocked (nonzero exit); `git commit --no-verify` succeeds (bypass documented, not a gate); a missing scripts/ci-check.sh skips with a warning (exit 0).
+- PASS: package and generated relative Markdown links resolve (48 links / 22 files and 14 / 12 files; 62 / 34 combined); frontmatter valid; whitespace clean.
+- Reviewed: safety-baseline.md and host-wiring.md describe platform-neutral wiring (local hook, one entry script, a platform matrix for GitHub/Gitee/GitLab/Gitea/Jenkins/self-hosted) and state the limits. Platform-specific CI behavior, server-side branch protection, Windows shells and real model behavior were not run or verified here.

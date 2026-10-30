@@ -15,7 +15,7 @@ description: 以 AI Native SDLC 方法启动全新软件项目或接续其迭代
 - 已有项目/接续：读现有 AGENT.md、原生入口、STATUS、相关意图与规格，核对代码和未提交改动；复用既有结构，不覆盖式初始化。
 - 小修复：在一个工作项里记录意图、修改、验证与恢复即可，不强制六份文档。
 
-只有初始化时读[初始化与客户端适配](references/bootstrap.md)；进入具体阶段时读[六阶段契约](references/workflow.md)对应章节；变更版本/中断/发布时读[变更与恢复](references/change-control.md)；修正基本法条款时读[基本法修正](references/basic-law-change.md)。模板位于 assets/project-template/，按需实例化，不把占位符当项目事实。
+只有初始化时读[初始化与客户端适配](references/bootstrap.md)；进入具体阶段时读[六阶段契约](references/workflow.md)对应章节；变更版本/中断/发布时读[变更与恢复](references/change-control.md)；修正基本法条款时读[基本法修正](references/basic-law-change.md)；涉及安全红线、hook或CI检查时读[安全基线与宿主检查](references/safety-baseline.md)，接线到具体平台时读[引导式接线](references/host-wiring.md)。模板位于 assets/project-template/，按需实例化，不把占位符当项目事实。
 
 建立项目基础、调整上下文/工具或从原型转生产时，读[上下文与执行机制](references/context-and-harness.md)。先用人能懂的话协助确立项目目的、原则、边界、自主范围与规则变更方式，再写入 AGENT.md；用户无需先懂工程术语。
 

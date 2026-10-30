@@ -44,6 +44,7 @@
 |---|---|
 | 项目的基本法：目的、原则、边界、AI 工作规则、如何修改规则 | `AGENT.md` |
 | 基本法修正记录与依据 | `docs/sdlc/maintain/basic-law-log.md` |
+| 安全红线与本机/CI 检查 | `AGENT.md`「安全红线」；可选 `scripts/ci-check.sh` |
 | 我到底想做什么，为什么做 | `docs/sdlc/plan/intent.md` |
 | 产品应当怎样工作，怎样算做好 | `docs/sdlc/design/spec.md` |
 | 分几步做，每步怎么验证和恢复 | `docs/sdlc/build/plan.md` |
@@ -76,7 +77,7 @@
 
 `AGENT.md` 是本方案的共同正文。默认生成的 `AGENTS.md` 以及可选的 `CLAUDE.md`、`GEMINI.md` 引用正文；自动读取仍取决于工具，首次使用需核对 Agent 确实读取。
 
-Skill 提供指导，真正的检查与权限限制需要实际脚本、CI 和宿主设置。原型与生产项目按风险采用不同验证强度；只在产品含模型行为或要评估开发 Agent 时建立相应 eval。小修复可轻量记录。
+Skill 提供指导，真正的检查与权限限制需要实际脚本、CI 和宿主设置。原型与生产项目按风险采用不同验证强度；只在产品含模型行为或要评估开发 Agent 时建立相应 eval。小修复可轻量记录。本包提供可选的安全基线与平台无关的检查脚本示例（本地 git hook、CI 入口，不绑定 GitHub 等平台）；hook 与 CI 都可被绕过，强门禁仍需服务端保护分支、审查与权限。
 
 ## 手动初始化（可选）
 
