@@ -50,3 +50,37 @@ class BatchBTests(unittest.TestCase):
         self.assertTrue(module.validate(self.data))
         self.data["routing"]["downgrade_reason"] = "reviewed"
         self.assertEqual([], module.validate(self.data))
+
+
+intent_spec = importlib.util.spec_from_file_location("intent_delta", ROOT / "scripts/check_intent_delta.py")
+intent = importlib.util.module_from_spec(intent_spec)
+intent_spec.loader.exec_module(intent)
+
+
+class IntentDeltaTests(unittest.TestCase):
+    def setUp(self):
+        self.record = {"changed_fields": ["bugfix"], "intent_confirmed": True,
+                       "confirmation_ref": "review/1", "within_accepted_spec": True}
+
+    def test_reuse_confirmed(self):
+        self.assertEqual("reuse-confirmed-intent", intent.classify(self.record)[0])
+
+    def test_material_delta(self):
+        self.record["changed_fields"] = ["success_criteria"]
+        self.assertEqual("await-intent-confirmation", intent.classify(self.record)[0])
+
+    def test_unconfirmed(self):
+        self.record["intent_confirmed"] = False
+        self.assertEqual("await-intent-confirmation", intent.classify(self.record)[0])
+
+    def test_outside_spec(self):
+        self.record["within_accepted_spec"] = False
+        self.assertEqual("needs-clarification", intent.classify(self.record)[0])
+
+    def test_permission_change(self):
+        self.record["changes_authorization"] = True
+        self.assertEqual("separate-authorization", intent.classify(self.record)[0])
+
+    def test_l1_change(self):
+        self.record["changes_basic_law"] = True
+        self.assertEqual("basic-law-amendment", intent.classify(self.record)[0])
