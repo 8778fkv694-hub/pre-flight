@@ -3,6 +3,8 @@
 import importlib.util
 import json
 import tempfile
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -93,6 +95,72 @@ class BatchATests(unittest.TestCase):
                 file.parent.mkdir(parents=True, exist_ok=True)
                 file.write_text(content, encoding="utf-8")
             self.assertEqual([], contract.inspect(root))
+
+
+    def test_cli_new_lock_amend_and_check(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            agent = root / "AGENT.md"
+            agent.write_text("## 项目基本法\\n受保护条款\\n- [BL-001] initial\\n  detail A\\n", encoding="utf-8")
+            runner = ROOT / "scripts" / "check_basic_law.py"
+
+            def call(*args):
+                return subprocess.run([sys.executable, str(runner), "--project", str(root), *args],
+                                      capture_output=True, text=True)
+
+            self.assertEqual(0, call("--freeze", "--note", "approved initial").returncode)
+            self.assertEqual(0, call("--check").returncode)
+            old = law.parse(agent.read_text(encoding="utf-8"), 2)
+            agent.write_text(agent.read_text(encoding="utf-8").replace("detail A", "detail B"), encoding="utf-8")
+            self.assertEqual(1, call("--check").returncode)
+            new = law.parse(agent.read_text(encoding="utf-8"), 2)
+            record = root / law.AMENDMENTS
+            record.parent.mkdir(parents=True, exist_ok=True)
+            record.write_text(json.dumps({"amendments": [{
+                "id": "BA-T01", "state": "accepted", "base_version": 1,
+                "confirmed_by": "fixture-user", "confirmation_source": "fixture/ack",
+                "confirmed_at": "2026-10-30T12:00:00+08:00", "scope": "BL-001",
+                "changes": {"BL-001": {"old": old["BL-001"], "new": new["BL-001"]}}
+            }]}), encoding="utf-8")
+            self.assertEqual(2, call("--freeze", "--note", "amend").returncode)
+            self.assertEqual(0, call("--freeze", "--force", "--amend", "BA-T01",
+                                     "--note", "approved change").returncode)
+            self.assertEqual(0, call("--check").returncode)
+            self.assertEqual(2, law.lock_read(root / law.LOCK)["version"])
+
+    def test_cli_legacy_to_schema2_migration(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            agent = root / "AGENT.md"
+            agent.write_text("## 项目基本法\\n受保护条款\\n- [BL-001] initial\\n  legacy unprotected detail\\n",
+                             encoding="utf-8")
+            previous = law.parse(agent.read_text(encoding="utf-8"), 1)
+            current = law.parse(agent.read_text(encoding="utf-8"), 2)
+            lock = root / law.LOCK
+            lock.parent.mkdir(parents=True, exist_ok=True)
+            lock.write_text(json.dumps({"schema": 1, "version": 1, "clauses": previous}), encoding="utf-8")
+            amendments = root / law.AMENDMENTS
+            amendments.write_text(json.dumps({"amendments": [{
+                "id": "BA-M01", "state": "accepted", "base_version": 1,
+                "confirmed_by": "fixture-user", "confirmation_source": "fixture/ack",
+                "confirmed_at": "2026-10-30T12:00:00+08:00", "scope": "BL-001",
+                "changes": {"BL-001": {"old": previous["BL-001"], "new": current["BL-001"]}}
+            }]}), encoding="utf-8")
+            runner = ROOT / "scripts" / "check_basic_law.py"
+
+            def call(*args):
+                return subprocess.run([sys.executable, str(runner), "--project", str(root), *args],
+                                      capture_output=True, text=True)
+
+            self.assertEqual(0, call("--check").returncode)
+            self.assertEqual(0, call("--migrate", "--force", "--amend", "BA-M01",
+                                     "--note", "explicit migration").returncode)
+            self.assertEqual(0, call("--check").returncode)
+            self.assertEqual(2, law.lock_read(lock)["schema"])
+            self.assertEqual(2, law.lock_read(lock)["version"])
+            agent.write_text(agent.read_text(encoding="utf-8").replace("legacy unprotected detail",
+                                                                      "changed detail"), encoding="utf-8")
+            self.assertEqual(1, call("--check").returncode)
 
 
 if __name__ == "__main__":
