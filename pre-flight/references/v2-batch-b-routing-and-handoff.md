@@ -56,3 +56,12 @@
 - 交接覆盖恢复点、权限、共享资源、未知副作用与未验事项。
 - 证据等级不会让静态审查冒充运行测试。
 - 新增文档与可选检查不得强制迁移旧项目；不得修改基本法已冻结条款。
+
+## 可执行核对（批次 B）
+
+以下检查均为可选、只读，不读取实际授权系统，也不做语义推断：
+
+- `python3 pre-flight/scripts/check_handoff.py --file pre-flight/assets/examples/batch-b-handoff.example.json --mode check`：核对路由两轴、未知影响升级、交接字段与证据状态。
+- `python3 pre-flight/scripts/check_intent_delta.py --file path/to/intent-delta.json --mode audit`：仅对人/Agent 已明确填写的变更字段进行保守分类。输入例如 `{"changed_fields":["bugfix"],"intent_confirmed":true,"confirmation_ref":"review/123","within_accepted_spec":true}`。结果为 `reuse-confirmed-intent` 不等于获得执行权限；`--mode check` 仅在此分类时返回成功。
+
+**限制：** 交接记录的字段可以被填写错误；哈希、文件存在和 JSON 校验均不能证明授权主体真实确认。需要执行动作时仍须回查原始授权、实际环境和状态。验证状态须以相同提交的 CI 运行结果为准。
