@@ -103,6 +103,19 @@ class BatchATests(unittest.TestCase):
             self.assertEqual([], contract.inspect(root))
 
 
+    def test_template_markdown_has_real_section_breaks(self):
+        for rel, section in (
+            ("assets/project-template/docs/sdlc/design/spec.md", "## 版本与引用约束"),
+            ("assets/project-template/docs/sdlc/build/plan.md", "## 最小追溯契约"),
+        ):
+            text = (ROOT / rel).read_text(encoding="utf-8")
+            self.assertIn("\\n" + section + "\\n", text)
+            self.assertNotIn(section + r"\\n", text)
+        verification = (ROOT / "assets/project-template/docs/sdlc/test/verification.md").read_text(encoding="utf-8")
+        self.assertIn("\\n\\n每次收据记录", verification)
+        reference = (ROOT / "references/basic-law-change.md").read_text(encoding="utf-8")
+        self.assertIn("\\n\\n```json\\n", reference)
+
     def test_cli_new_lock_amend_and_check(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
