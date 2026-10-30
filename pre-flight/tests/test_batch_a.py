@@ -30,6 +30,12 @@ class BatchATests(unittest.TestCase):
         # Legacy format only hashes the first line: explicit migration closes that gap.
         self.assertEqual(law.parse(a, 1), law.parse(b, 1))
 
+    def test_paragraph_continuation_after_blank_protected(self):
+        text = "## 项目基本法\n受保护条款\n- [BL-001] 第一段\n\n  第二段受保护\n"
+        changed = text.replace("第二段受保护", "第二段被改写")
+        self.assertNotEqual(law.parse(text, 2), law.parse(changed, 2))
+        self.assertEqual(law.parse(text, 1), law.parse(changed, 1))
+
     def test_duplicate_clause_rejected(self):
         with self.assertRaises(SystemExit):
             law.parse("## 项目基本法\n受保护条款\n- [BL-001] one\n- [BL-001] two\n", 2)
