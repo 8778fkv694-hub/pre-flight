@@ -68,14 +68,31 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 - Size: `background/whitepapers-zh/` is about 9.9 MB.
 
 
-## 2026-10-30 V2 Batch A implementation (pending independent execution)
+## 2026-10-30 V2 Batch A — implemented and exercised in GitHub Actions
 
-Scope approved: PF-02/03/04/05 only. Work is isolated on `feat/v2-batch-a-contracts`, not merged to main.
+Approved scope: PF-02, PF-03, PF-04, PF-05 only. Isolated branch `feat/v2-batch-a-contracts`; unmerged draft PR [#1](https://github.com/8778fkv694-hub/pre-flight/pull/1).
 
-- PF-02: schema 2 hashes protected clauses including indented continuation lines; schema 1 stays readable and requires explicit migration.
-- PF-03: re-freeze requires a structured accepted amendment record whose complete old/new hash diff matches the actual changed clauses. Records cannot authenticate the confirmer.
-- PF-04: optional `check_project_contract.py` audits Intent/Spec/Plan references and optional receipt/status markers; default `audit` reports without blocking, `check` fails on deterministic errors.
-- PF-05: Plan/Spec/Verification templates document WP → Spec version/clause → test case → implementation/environment/evidence.
-- Regression cases added in `pre-flight/tests/test_batch_a.py`. Run `python3 -m unittest discover -s pre-flight/tests -v` and test an initialized project before approving merge.
+### Change inventory
 
-**Execution boundary:** GitHub file writes and subsequent remote file reads are verified. The regression suite and initializer have NOT been independently executed in this session; no PASS claim is made. A real CI or local Python runner must execute the suite and report results before this batch can be called fully validated. No existing project has been migrated; no main branch changes.
+- PF-02: New schema 2 hashes protected clauses and indented continuation paragraphs, including those after blank lines. Existing schema 1 baselines retain the original single-line hash behavior; upgrading to schema 2 requires explicit migration.
+- PF-03: Re-freezing schema 2 requires an accepted structured amendment record with complete old/new hash-diff matching; this **does not** authenticate an actual human or replace protected-branch review.
+- PF-04: New read-only `check_project_contract.py` checks current artifact metadata, references, optional structured receipts and STATUS markers. `--mode audit` is non-blocking, `--mode check` rejects deterministic errors. Historical pinned versions are warnings without available version history, not automatically invalid.
+- PF-05: Spec/Plan/Verification templates record minimum WP, Spec revision/clause, Case, implementation identity, execution environment and evidence associations.
+- GitHub Actions workflow `.github/workflows/batch-a-validation.yml` runs checks on the branch/PR.
+
+### Verification evidence
+
+- **PASS:** [GitHub Actions workflow run 40997741500](https://github.com/8778fkv694-hub/pre-flight/actions/runs/40997741500), commit `4912ce6e7ded62b7ae5ac3d5379e4a7e336598ac`, Python 3.11, Ubuntu runner.
+- **PASS:** 10 unittest cases including duplicate IDs, legacy hash compatibility, multiline continuation hashing (also across blank lines), rejected unauthorized diff, version-pinning and future-version handling, draft contract validation.
+- **PASS:** Actual CLI lifecycle in disposable temp projects: first freeze, check, detect tampering, reject an unapproved re-freeze, accept a matching structured amendment, re-freeze and check; separate legacy schema 1 → schema 2 migration and post-migration tamper detection.
+- **PASS:** Python syntax compilation of scripts/tests.
+- **PASS:** `init_project.py --apply` creates 10 draft files in a temporary project; `check_project_contract.py --mode check` reports **0 errors, 0 warnings** for that generated draft.
+- Earlier CI failures surfaced regex and fixture defects; those failures were corrected before the successful run. Successful run is the authoritative evidence, not earlier attempts.
+
+### Remaining limitations before production adoption
+
+- Only Python 3.11 on a Linux GitHub runner was exercised, not Windows/macOS or real coding-agent compliance.
+- A matching hash diff and metadata record do not authenticate a human approver; PR review and permissions remain external requirements.
+- The contract checker validates explicitly parseable single-current-artifact references; it does **not** prove semantic correctness, completeness of impact analysis, or past-version acceptance when version history is missing.
+- Existing projects are not migrated automatically. The new schema-2 amendment contract may require manual setup when upgrading project-local checker copies.
+- README artwork/other V2 batches are not part of this PR.
