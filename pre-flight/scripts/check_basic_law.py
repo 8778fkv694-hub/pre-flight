@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Freeze and verify the protected clauses of a project's basic law.
+"""Check protected basic-law clauses. No external dependencies.
 
-The basic law lives in AGENT.md. Protected clauses are single-line list items
-such as ``- [BL-001] intent: ...``. Freezing records a SHA-256 baseline; later
-checks detect silent deletion, addition, or rewriting of clauses.
+Schema 1 locks remain readable in legacy mode; schema 2 protects multiline
+clauses. Migration is explicit and must not silently rewrite the old lock.
+Records are consistency evidence, NOT proof of a human's identity or approval.
 """
 import argparse
 import hashlib
@@ -13,266 +13,165 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-AGENT_REL = Path("AGENT.md")
-BASELINE_REL = Path("docs/sdlc/maintain/basic-law.lock.json")
-LOG_REL = Path("docs/sdlc/maintain/basic-law-log.md")
-
-HEADING = "## 项目基本法"
-MARKER = "受保护条款"
-CLAUSE_RE = re.compile(r"^-\s+\[(BL-\d{3})\]\s*(.+?)\s*$")
+LOCK = Path("docs/sdlc/maintain/basic-law.lock.json")
+AMENDMENTS = Path("docs/sdlc/maintain/basic-law-amendments.json")
+CLAUSE = re.compile(r"^- \[(BL-\d{3})\] (\S.*)$")
+TOP_LEVEL = re.compile(r"^(?:#{1,6} |[-*+] |\d+\. |\S)")
+SHA = re.compile(r"^[0-9a-f]{64}$")
 
 
-def die(msg, code=2):
-    """Print a concise English failure line and exit."""
-    print("FAIL: " + msg)
-    sys.exit(code)
+def fail(message, code=1):
+    print("FAIL:", message)
+    raise SystemExit(code)
 
 
-class Parser(argparse.ArgumentParser):
-    """Argument parser that routes usage errors through die()."""
-
-    def error(self, message):
-        die(message, 2)
+def digest(value):
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def read_text(path, what):
+def read_json(path):
     try:
-        return path.read_text(encoding="utf-8")
-    except UnicodeDecodeError as exc:
-        die("cannot decode %s as UTF-8 (%s): %s" % (what, path, exc), 2)
-    except OSError as exc:
-        die("cannot read %s (%s): %s" % (what, path, exc), 2)
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError) as exc:
+        fail("cannot read JSON %s: %s" % (path, exc), 2)
 
 
-def extract_clauses(text):
-    """Return (clauses, duplicate_ids) from AGENT.md text."""
-    clauses = {}
-    seen = []
+def parse(text, schema):
+    if "## 项目基本法" not in text or "受保护条款" not in text:
+        fail("missing basic-law heading or protected-clause marker")
+    result = {}
+    active = None
     for line in text.splitlines():
-        match = CLAUSE_RE.match(line.strip())
-        if not match:
-            continue
-        clause_id = match.group(1)
-        clauses[clause_id] = match.group(2).strip()
-        seen.append(clause_id)
-    duplicates = sorted({cid for cid in seen if seen.count(cid) > 1})
-    return clauses, duplicates
+        match = CLAUSE.fullmatch(line)
+        if match:
+            key, value = match.groups()
+            if key in result:
+                fail("duplicate clause " + key)
+            result[key] = [value]
+            active = key
+        elif active is not None:
+            if line.startswith(("  ", "\t")) and line.strip():
+                if schema == 1:
+                    fail("legacy schema 1 does not protect continuation lines; migrate explicitly")
+                result[active].append(line.strip())
+            elif not line.strip():
+                active = None
+            elif TOP_LEVEL.match(line):
+                active = None
+            else:
+                fail("ambiguous continuation near " + active)
+    if not result:
+        fail("no protected clauses")
+    return {key: digest("\n".join(parts)) for key, parts in result.items()}
 
 
-def clause_hash(body):
-    return hashlib.sha256(body.encode("utf-8")).hexdigest()
-
-
-def content_problems(text, clauses, duplicates):
-    problems = []
-    if HEADING not in text:
-        problems.append("AGENT.md is missing required heading '%s'" % HEADING)
-    if MARKER not in text:
-        problems.append("AGENT.md is missing required marker '%s'" % MARKER)
-    if not clauses:
-        problems.append("no protected clauses (BL-xxx) found in AGENT.md")
-    if duplicates:
-        problems.append("duplicate clause ID(s): %s" % ", ".join(duplicates))
-    return problems
-
-
-def load_baseline(path):
-    """Read and validate the baseline JSON, or exit 2."""
-    try:
-        raw = path.read_text(encoding="utf-8")
-    except UnicodeDecodeError as exc:
-        die("cannot decode baseline as UTF-8 (%s): %s" % (path, exc), 2)
-    except OSError as exc:
-        die("cannot read baseline (%s): %s" % (path, exc), 2)
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        die("cannot parse baseline JSON (%s): %s" % (path, exc), 2)
-    if not isinstance(data, dict):
-        die("baseline structure invalid: top level must be an object (%s)" % path, 2)
+def lock_read(path):
+    data = read_json(path)
+    if not isinstance(data, dict) or data.get("schema", 1) not in (1, 2):
+        fail("unsupported lock schema", 2)
+    if type(data.get("version")) is not int or data["version"] < 1:
+        fail("invalid lock version", 2)
     clauses = data.get("clauses")
-    if not isinstance(clauses, dict) or not clauses:
-        die("baseline structure invalid: missing or empty 'clauses' (%s)" % path, 2)
-    for clause_id, digest in clauses.items():
-        if not isinstance(clause_id, str) or not isinstance(digest, str):
-            die("baseline structure invalid: clause entries must be strings (%s)" % path, 2)
-    version = data.get("version")
-    if not isinstance(version, int) or isinstance(version, bool):
-        die("baseline structure invalid: missing or non-integer 'version' (%s)" % path, 2)
-    if data.get("schema") is not None and data.get("schema") != 1:
-        die("unsupported baseline schema in %s" % path, 2)
+    if not isinstance(clauses, dict) or not clauses or any(
+        not isinstance(k, str) or not re.fullmatch(r"BL-\d{3}", k)
+        or not isinstance(v, str) or not SHA.fullmatch(v)
+        for k, v in clauses.items()
+    ):
+        fail("invalid lock clauses", 2)
     return data
 
 
-def write_baseline(path, payload):
-    """Atomically write the baseline JSON through <baseline>.tmp."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    text = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+def amendment(project, amend_id, old, new, version):
+    data = read_json(project / AMENDMENTS)
+    if not isinstance(data, dict) or not isinstance(data.get("amendments"), list):
+        fail("invalid amendment registry", 2)
+    records = [r for r in data["amendments"] if isinstance(r, dict) and r.get("id") == amend_id]
+    if len(records) != 1:
+        fail("amendment ID must occur exactly once")
+    record = records[0]
+    if record.get("state") != "accepted" or record.get("base_version") != version:
+        fail("amendment not accepted for current lock version")
+    for field in ("confirmed_by", "confirmation_source", "confirmed_at", "scope"):
+        if not isinstance(record.get(field), str) or not record[field].strip():
+            fail("amendment missing " + field)
+    changes = record.get("changes")
+    if not isinstance(changes, dict) or not changes:
+        fail("amendment changes missing")
+    actual = {}
+    for key in sorted(set(old) | set(new)):
+        if old.get(key) != new.get(key):
+            actual[key] = {"old": old.get(key), "new": new.get(key)}
+    if changes != actual:
+        fail("amendment approved change set differs from actual protected-clause diff")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--project", default=".")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--freeze", action="store_true")
+    mode.add_argument("--migrate", action="store_true")
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--amend")
+    ap.add_argument("--note")
+    args = ap.parse_args()
+    project = Path(args.project).resolve()
     try:
-        tmp.write_text(text, encoding="utf-8")
-        tmp.replace(path)
-    except OSError as exc:
-        die("cannot write baseline (%s): %s" % (path, exc), 2)
+        text = (project / "AGENT.md").read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        fail("cannot read AGENT.md: " + str(exc), 2)
+    path = project / LOCK
+    previous = lock_read(path) if path.exists() else None
+    schema = previous.get("schema", 1) if previous else 2
 
-
-def check(project):
-    agent_path = project / AGENT_REL
-    if not agent_path.is_file():
-        die("AGENT.md not found: %s" % agent_path, 2)
-    text = read_text(agent_path, "AGENT.md")
-
-    baseline_path = project / BASELINE_REL
-    if not baseline_path.is_file():
-        die("baseline not found (%s); run with --freeze first" % baseline_path, 2)
-    data = load_baseline(baseline_path)
-
-    clauses, duplicates = extract_clauses(text)
-    problems = content_problems(text, clauses, duplicates)
-    if problems:
-        for problem in problems:
-            print("VIOLATION: " + problem)
-        print("CHECK FAILED: %d protected-clause violation(s)" % len(problems))
-        sys.exit(1)
-
-    baseline_clauses = data["clauses"]
-    baseline_ids = set(baseline_clauses)
-    current_ids = set(clauses)
-    violations = []
-
-    for clause_id in sorted(baseline_ids - current_ids):
-        violations.append(
-            "clause %s is in the baseline but missing from AGENT.md" % clause_id
-        )
-    for clause_id in sorted(current_ids - baseline_ids):
-        violations.append(
-            "new clause %s is not in the baseline; confirm it and re-freeze"
-            % clause_id
-        )
-    for clause_id in sorted(baseline_ids & current_ids):
-        if clause_hash(clauses[clause_id]) != baseline_clauses[clause_id]:
-            violations.append(
-                "clause %s changed since baseline; use the amendment "
-                "procedure and re-freeze with --force --amend" % clause_id
-            )
-
-    if violations:
-        for violation in violations:
-            print("VIOLATION: " + violation)
-        print("CHECK FAILED: %d protected-clause violation(s)" % len(violations))
-        sys.exit(1)
-
-    print(
-        "PASS: %d protected clauses match baseline version %s (frozen %s)"
-        % (len(clauses), data["version"], data.get("frozen_at", "unknown"))
-    )
-
-
-def freeze(project, note, force, amend):
-    agent_path = project / AGENT_REL
-    if not agent_path.is_file():
-        die("AGENT.md not found: %s" % agent_path, 2)
-    text = read_text(agent_path, "AGENT.md")
-    clauses, duplicates = extract_clauses(text)
-    problems = content_problems(text, clauses, duplicates)
-    if problems:
-        for problem in problems:
-            print("VIOLATION: " + problem)
-        print("FREEZE FAILED: %d protected-clause violation(s)" % len(problems))
-        sys.exit(1)
-
-    baseline_path = project / BASELINE_REL
-    re_freeze = baseline_path.is_file()
-
-    if re_freeze:
-        amend = (amend or "").strip()
-        if not force or not amend:
-            die(
-                "re-freezing requires both --force and --amend <amendment-id>",
-                2,
-            )
-        log_path = project / LOG_REL
-        if not log_path.is_file():
-            die("amendment log not found: %s" % log_path, 2)
-        log_text = read_text(log_path, "amendment log")
-        if amend not in log_text:
-            die(
-                "amendment ID %r is not recorded in %s" % (amend, log_path),
-                2,
-            )
-        data = load_baseline(baseline_path)
-        version = data["version"] + 1
+    if args.migrate:
+        if previous is None or schema != 1:
+            fail("migration requires existing schema 1 lock", 2)
+        if not args.force or not args.amend or not args.note:
+            fail("migration requires --force --amend and --note", 2)
+        # Check the old clauses before changing the hashing semantics.
+        legacy = parse(text, 1)
+        if legacy != previous["clauses"]:
+            fail("legacy baseline mismatch; resolve before migration")
+        updated = parse(text, 2)
+        amendment(project, args.amend, previous["clauses"], updated, previous["version"])
+    elif args.freeze:
+        if not args.note:
+            fail("--freeze requires --note", 2)
+        if previous:
+            if not args.force or not args.amend:
+                fail("re-freeze requires --force --amend", 2)
+            updated = parse(text, schema)
+            amendment(project, args.amend, previous["clauses"], updated, previous["version"])
+        else:
+            if args.force or args.amend:
+                fail("initial freeze cannot use --force/--amend", 2)
+            updated = parse(text, 2)
     else:
-        if amend is not None:
-            die("the first freeze must not use --amend (amend is recorded as '')", 2)
-        version = 1
-        amend = ""
+        if args.force or args.amend or args.note:
+            fail("check mode does not accept freeze options", 2)
+        if previous is None:
+            fail("no lock: human must confirm basic law before first freeze", 2)
+        updated = parse(text, schema)
+        if updated != previous["clauses"]:
+            fail("protected clauses differ from frozen baseline")
+        print("PASS: basic law schema %s version %s (%s clauses)" %
+              (schema, previous["version"], len(updated)))
+        return
 
     payload = {
-        "schema": 1,
-        "version": version,
-        "frozen_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "note": note,
-        "amend": amend,
-        "clauses": {cid: clause_hash(body) for cid, body in clauses.items()},
+        "schema": 2 if args.migrate else (schema if previous else 2),
+        "version": previous["version"] + 1 if previous else 1,
+        "frozen_at": datetime.now(timezone.utc).isoformat(),
+        "note": args.note,
+        "amend": args.amend or "",
+        "clauses": updated,
     }
-    write_baseline(baseline_path, payload)
-    print(
-        "FROZEN: %d protected clauses, baseline version %d written to %s"
-        % (len(clauses), version, baseline_path)
-    )
-
-
-def main(argv=None):
-    parser = Parser(
-        description="Freeze or check the protected clauses in AGENT.md."
-    )
-    parser.add_argument(
-        "--project",
-        default=".",
-        help="project root directory (default: .)",
-    )
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="check clauses against the baseline (default action)",
-    )
-    parser.add_argument(
-        "--freeze",
-        action="store_true",
-        help="write a new baseline for the current clauses",
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="allow re-freezing an existing baseline (requires --amend)",
-    )
-    parser.add_argument(
-        "--amend",
-        metavar="ID",
-        help="amendment ID recorded in docs/sdlc/maintain/basic-law-log.md",
-    )
-    parser.add_argument(
-        "--note",
-        metavar="TEXT",
-        help="reason for freezing (required with --freeze)",
-    )
-    args = parser.parse_args(argv)
-
-    if args.freeze and args.check:
-        die("--freeze and --check are mutually exclusive", 2)
-
-    project = Path(args.project).expanduser().absolute()
-    if not project.is_dir():
-        die("project directory not found: %s" % project, 2)
-
-    if args.freeze:
-        note = (args.note or "").strip()
-        if not note:
-            die("--freeze requires a non-empty --note", 2)
-        freeze(project, note, args.force, args.amend)
-    else:
-        check(project)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(path.name + ".tmp")
+    temp.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    temp.replace(path)
+    print("FROZEN: basic law schema %s version %s" % (payload["schema"], payload["version"]))
 
 
 if __name__ == "__main__":
