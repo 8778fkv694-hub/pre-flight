@@ -67,7 +67,9 @@ def parse(text, schema):
             if line.startswith(("  ", "\t")) and line.strip():
                 result[active].append(line.strip())
             elif not line.strip():
-                active = None
+                # A blank line may separate paragraphs inside the same L1 clause.
+                # Keep the clause active until a non-indented boundary follows.
+                continue
             elif TOP_LEVEL.match(line):
                 active = None
             else:
