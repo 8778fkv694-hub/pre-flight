@@ -66,3 +66,16 @@ Initialization behavior was tested in temporary directories. No model calls, dep
 - PASS: all 28 image references inside the included HTML files resolve; package Markdown links resolve (54 links / 23 files); whitespace clean.
 - Not verified: whether each translation is authorized for redistribution by the original rights holders. The translations are included as unofficial study references, are not covered by the MIT license, and will be removed if a rights holder requests it.
 - Size: `background/whitepapers-zh/` is about 9.9 MB.
+
+
+## 2026-10-30 V2 Batch A implementation (pending independent execution)
+
+Scope approved: PF-02/03/04/05 only. Work is isolated on `feat/v2-batch-a-contracts`, not merged to main.
+
+- PF-02: schema 2 hashes protected clauses including indented continuation lines; schema 1 stays readable and requires explicit migration.
+- PF-03: re-freeze requires a structured accepted amendment record whose complete old/new hash diff matches the actual changed clauses. Records cannot authenticate the confirmer.
+- PF-04: optional `check_project_contract.py` audits Intent/Spec/Plan references and optional receipt/status markers; default `audit` reports without blocking, `check` fails on deterministic errors.
+- PF-05: Plan/Spec/Verification templates document WP → Spec version/clause → test case → implementation/environment/evidence.
+- Regression cases added in `pre-flight/tests/test_batch_a.py`. Run `python3 -m unittest discover -s pre-flight/tests -v` and test an initialized project before approving merge.
+
+**Execution boundary:** GitHub file writes and subsequent remote file reads are verified. The regression suite and initializer have NOT been independently executed in this session; no PASS claim is made. A real CI or local Python runner must execute the suite and report results before this batch can be called fully validated. No existing project has been migrated; no main branch changes.
