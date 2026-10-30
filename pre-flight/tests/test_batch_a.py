@@ -101,7 +101,7 @@ class BatchATests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             agent = root / "AGENT.md"
-            agent.write_text("## 项目基本法\\n受保护条款\\n- [BL-001] initial\\n  detail A\\n", encoding="utf-8")
+            agent.write_text("## 项目基本法\n受保护条款\n- [BL-001] initial\n  detail A\n", encoding="utf-8")
             runner = ROOT / "scripts" / "check_basic_law.py"
 
             def call(*args):
@@ -132,7 +132,7 @@ class BatchATests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             agent = root / "AGENT.md"
-            agent.write_text("## 项目基本法\\n受保护条款\\n- [BL-001] initial\\n  legacy unprotected detail\\n",
+            agent.write_text("## 项目基本法\n受保护条款\n- [BL-001] initial\n  legacy unprotected detail\n",
                              encoding="utf-8")
             previous = law.parse(agent.read_text(encoding="utf-8"), 1)
             current = law.parse(agent.read_text(encoding="utf-8"), 2)
