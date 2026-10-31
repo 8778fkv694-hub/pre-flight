@@ -6,13 +6,70 @@
 
 Pre-flight is a portable skill for coding agents. Describe what you want in your own words; the agent helps establish the project's basic law, define success, and then plan, build, verify, and hand over the work. It supports new projects and incremental adoption in existing ones.
 
+## Two skills: Core and Enhanced
+
+This repository offers **two independently selectable skills**. Enhanced does not replace Core, add an approval engine, or require both skills to execute for every task.
+
+| Choose | Entry point | Best for | Focus |
+|---|---|---|---|
+| **Pre-flight Core** | [`pre-flight/SKILL.md`](pre-flight/SKILL.md) | Project setup, intent confirmation, Spec/Plan, ordinary development and delivery | Six-stage SDLC, shared rules, verifiable evidence |
+| **Pre-flight Enhanced** | [`pre-flight-enhanced/SKILL.md`](pre-flight-enhanced/SKILL.md) | Ambiguous, complex, long-running, cross-agent tasks | Proactive gap detection, evidence-based decisions, correction, behavioral evaluation |
+
+**Shared foundation:** Humans decide goals, important trade-offs, and authorization. The agent works proactively within existing authorization, reuses already-confirmed Intent, and respects real tool and safety boundaries. Enhanced reuses Core's Intent/Spec/Plan, six-stage workflow, Lite/Standard/Strict risk routing, and protected basic-law clauses. It does **not** establish a second, competing set of project rules. Principles remain stable; investigation, decisions, and evaluation methods can evolve based on evidence.
+
+### What does Enhanced actually add?
+
+**Help accomplish the real objective—not merely demonstrate process compliance.** An agent should discover consequential omissions, check evidence, and choose the smallest effective next action:
+
+```text
+Confirmed human goal + existing authorization
+                    ↓
+Understand context; surface important gaps; verify evidence
+                    ↓
+Choose the next useful and permitted action
+  PROCEED     sufficient information and authorization → execute
+  INVESTIGATE critical facts missing → bounded investigation
+  ESCALATE    human trade-off or new authorization → ask the human
+  HOLD        hard risk, conflict, or unknown side effect → pause affected action
+  CORRECT     observed failure or mismatch → repair and verify
+                    ↓
+Verify real-world outcome, correct when needed, retain handoff evidence
+```
+
+These are **decision outcomes, not five mandatory approval steps**. Routine authorized fixes proceed without repeated approval. Investigate only when learning more could materially change the next action. Avoid both **false approvals** (unsafe or unauthorized action) and **false blocks** (unnecessary stops). Active help does not mean quietly expanding the user's scope.
+
+The [12 behavioral evaluation scenarios](pre-flight-enhanced/references/behavior-evaluation.md) cover proactive gap discovery, unnecessary approval requests, authorization, failure correction, cross-agent evidence, and safe resumption. These are **test designs, not reported passing agent runs**.
+
+### Install and invoke Enhanced
+
+When downloading the repository ZIP, keep **both entire sibling folders**: `pre-flight/` and `pre-flight-enhanced/`. Enhanced reads Core references on demand, so copying only its `SKILL.md` is not sufficient. Install them into the skills path supported by your tool or explicitly provide the file path. Automatic discovery and named invocation are tool-dependent.
+
+```text
+Read /your-path/skills/pre-flight-enhanced/SKILL.md first.
+Use the sibling pre-flight/ references as needed, and honor this project's
+AGENT.md, confirmed Intent/Spec/Plan, and existing authorization.
+
+My actual objective is: [describe the task].
+Inspect the current state and evidence, proactively detect consequential gaps,
+and investigate, execute, and verify what is already authorized.
+Ask me only about important trade-offs, new authorization, or genuinely
+unresolvable decisions, with evidence, options, and a recommendation.
+Do not expand the scope, keep researching irrelevant unknowns, or claim
+untested work is complete.
+```
+
+If supported by your client, you may invoke `$pre-flight-enhanced` using that client's skill syntax.
+
+**Which one?** Choose Core for new-project foundations and ordinary SDLC work; choose Enhanced when agent initiative, ambiguity, handoffs, and genuine task completion matter most. A skill is guidance, **not proof of model judgment or an enforced permission system**.
+
 ## Repository layout
 
-- `pre-flight/` — the action guide (Skill): the method is the main deliverable; entry point [SKILL.md](pre-flight/SKILL.md).
+- `pre-flight/` — Core skill, entry [SKILL.md](pre-flight/SKILL.md).
+- `pre-flight-enhanced/` — Enhanced skill, entry [SKILL.md](pre-flight-enhanced/SKILL.md), using Core references on demand.
 - `background/whitepapers-zh/` — background reading: Chinese translations of a few public whitepapers; **not the method text**, read only when needed.
 - `VALIDATION.md` — current validation scope and records.
 
-Day-to-day use needs only `pre-flight/`; the background material does not affect how the method is executed.
+For Core, only `pre-flight/` is needed; for Enhanced, keep both sibling skill directories. Background reading is optional.
 
 ## Start your first project
 
