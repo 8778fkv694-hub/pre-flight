@@ -1,9 +1,12 @@
-# Enhanced Skill — extended executed evaluation (2026-10-31)
+# B Skill（原 Enhanced）— extended executed evaluation (2026-10-31)
+
+> 命名沿革：本文件记录 2026-10-31 时名为 pre-flight-enhanced（Enhanced / 增强版）的工作。该方案经独立真实 A/B 评测后更名为 **pre-flight-b（B 版）**；正文保留当时的原始记录，其中的旧名称仅作历史指代。
+
 
 ## Scope and evidence
 
 Repository: 8778fkv694-hub/pre-flight
-Branch: feat/pre-flight-enhanced-skill
+Branch: feat/pre-flight-enhanced-skill（历史分支名；现版本目录为 pre-flight-b/）
 
 This evaluation **actually read six files from GitHub**, fixed a discovered deficiency in the enhanced entry, committed the fix, and executed 24 repository-contract assertions against the post-fix branch. It is **not an independent agent A/B run**. No claims of improved model intelligence, reliability, latency or token efficiency are supported.
 
@@ -12,7 +15,7 @@ This evaluation **actually read six files from GitHub**, fixed a discovered defi
 Initial static audit: 15/16 passed. Missing: explicit instruction at Enhanced entry that untrusted third-party data cannot confer authority. Core already provided BL-104.
 
 Fix commit: f043faf56dcf07dfd3231c494e7d3e3bb585b5ab
-File: pre-flight-enhanced/SKILL.md
+File: pre-flight-b/SKILL.md
 Action: added concise external-information isolation guidance referencing Core BL-104, without altering L1 or Core skill.
 
 ### Post-fix executed assertions

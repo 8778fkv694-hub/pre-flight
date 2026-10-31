@@ -1,6 +1,9 @@
-# Pre-flight Enhanced — 2026-10-31 evaluation
+# Pre-flight B（原 Enhanced）— 2026-10-31 evaluation
 
-Scope: GitHub branch feat/pre-flight-enhanced-skill, read-only inspection of Core and Enhanced skills, Chinese and English README, intent-confirmation and risk-routing references.
+> 命名沿革：本文件记录 2026-10-31 时名为 pre-flight-enhanced（Enhanced / 增强版）的工作。该方案经独立真实 A/B 评测后更名为 **pre-flight-b（B 版）**；正文保留当时的原始记录，其中的旧名称仅作历史指代。
+
+
+Scope: GitHub branch feat/pre-flight-enhanced-skill, read-only inspection of Core and B (then Enhanced) skills, Chinese and English README, intent-confirmation and risk-routing references.
 
 ## Actual executed check
 
