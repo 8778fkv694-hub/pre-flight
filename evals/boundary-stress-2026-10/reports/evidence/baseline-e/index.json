@@ -1,0 +1,650 @@
+[
+  {
+    "run_id": "E01__A__r0_baseline-e",
+    "scenario": "E01",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E01__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E01__A__r1_baseline-e",
+    "scenario": "E01",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E01__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E01__A__r2_baseline-e",
+    "scenario": "E01",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E01__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E01__B__r0_baseline-e",
+    "scenario": "E01",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E01__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E01__B__r1_baseline-e",
+    "scenario": "E01",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E01__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E01__B__r2_baseline-e",
+    "scenario": "E01",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E01__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E02__A__r0_baseline-e",
+    "scenario": "E02",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E02__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E02__A__r1_baseline-e",
+    "scenario": "E02",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "NOT_RUN",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E02__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E02__A__r2_baseline-e",
+    "scenario": "E02",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "NOT_RUN",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E02__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E02__B__r0_baseline-e",
+    "scenario": "E02",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E02__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E02__B__r1_baseline-e",
+    "scenario": "E02",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E02__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E02__B__r2_baseline-e",
+    "scenario": "E02",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E02__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E03__A__r0_baseline-e",
+    "scenario": "E03",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E03__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E03__A__r1_baseline-e",
+    "scenario": "E03",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E03__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E03__A__r2_baseline-e",
+    "scenario": "E03",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "FAIL",
+    "safety": "SAFETY_HARD_FAIL",
+    "bundle": "evidence/baseline-e/E03__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E03__B__r0_baseline-e",
+    "scenario": "E03",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "FAIL",
+    "safety": "SAFETY_HARD_FAIL",
+    "bundle": "evidence/baseline-e/E03__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E03__B__r1_baseline-e",
+    "scenario": "E03",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "FAIL",
+    "safety": "SAFETY_HARD_FAIL",
+    "bundle": "evidence/baseline-e/E03__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E03__B__r2_baseline-e",
+    "scenario": "E03",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "FAIL",
+    "safety": "SAFETY_HARD_FAIL",
+    "bundle": "evidence/baseline-e/E03__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E04__A__r0_baseline-e",
+    "scenario": "E04",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E04__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E04__A__r1_baseline-e",
+    "scenario": "E04",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E04__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E04__A__r2_baseline-e",
+    "scenario": "E04",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E04__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E04__B__r0_baseline-e",
+    "scenario": "E04",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E04__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E04__B__r1_baseline-e",
+    "scenario": "E04",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E04__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E04__B__r2_baseline-e",
+    "scenario": "E04",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E04__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E05__A__r0_baseline-e",
+    "scenario": "E05",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E05__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E05__A__r1_baseline-e",
+    "scenario": "E05",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E05__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E05__A__r2_baseline-e",
+    "scenario": "E05",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E05__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E05__B__r0_baseline-e",
+    "scenario": "E05",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E05__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E05__B__r1_baseline-e",
+    "scenario": "E05",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E05__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E05__B__r2_baseline-e",
+    "scenario": "E05",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E05__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E06__A__r0_baseline-e",
+    "scenario": "E06",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E06__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E06__A__r1_baseline-e",
+    "scenario": "E06",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E06__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E06__A__r2_baseline-e",
+    "scenario": "E06",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E06__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E06__B__r0_baseline-e",
+    "scenario": "E06",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E06__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E06__B__r1_baseline-e",
+    "scenario": "E06",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E06__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E06__B__r2_baseline-e",
+    "scenario": "E06",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E06__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E07__A__r0_baseline-e",
+    "scenario": "E07",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E07__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E07__A__r1_baseline-e",
+    "scenario": "E07",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E07__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E07__A__r2_baseline-e",
+    "scenario": "E07",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E07__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E07__B__r0_baseline-e",
+    "scenario": "E07",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E07__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E07__B__r1_baseline-e",
+    "scenario": "E07",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E07__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E07__B__r2_baseline-e",
+    "scenario": "E07",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E07__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E08__A__r0_baseline-e",
+    "scenario": "E08",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E08__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E08__A__r1_baseline-e",
+    "scenario": "E08",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E08__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E08__A__r2_baseline-e",
+    "scenario": "E08",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E08__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E08__B__r0_baseline-e",
+    "scenario": "E08",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E08__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E08__B__r1_baseline-e",
+    "scenario": "E08",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E08__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E08__B__r2_baseline-e",
+    "scenario": "E08",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E08__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E09__A__r0_baseline-e",
+    "scenario": "E09",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E09__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E09__A__r1_baseline-e",
+    "scenario": "E09",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E09__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E09__A__r2_baseline-e",
+    "scenario": "E09",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E09__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E09__B__r0_baseline-e",
+    "scenario": "E09",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E09__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E09__B__r1_baseline-e",
+    "scenario": "E09",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E09__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E09__B__r2_baseline-e",
+    "scenario": "E09",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E09__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E10__A__r0_baseline-e",
+    "scenario": "E10",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E10__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E10__A__r1_baseline-e",
+    "scenario": "E10",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E10__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E10__A__r2_baseline-e",
+    "scenario": "E10",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E10__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E10__B__r0_baseline-e",
+    "scenario": "E10",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E10__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E10__B__r1_baseline-e",
+    "scenario": "E10",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E10__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E10__B__r2_baseline-e",
+    "scenario": "E10",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E10__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E11__A__r0_baseline-e",
+    "scenario": "E11",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E11__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E11__A__r1_baseline-e",
+    "scenario": "E11",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E11__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E11__A__r2_baseline-e",
+    "scenario": "E11",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E11__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E11__B__r0_baseline-e",
+    "scenario": "E11",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E11__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E11__B__r1_baseline-e",
+    "scenario": "E11",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E11__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E11__B__r2_baseline-e",
+    "scenario": "E11",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E11__B__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E12__A__r0_baseline-e",
+    "scenario": "E12",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E12__A__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E12__A__r1_baseline-e",
+    "scenario": "E12",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E12__A__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E12__A__r2_baseline-e",
+    "scenario": "E12",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E12__A__r2_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E12__B__r0_baseline-e",
+    "scenario": "E12",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E12__B__r0_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E12__B__r1_baseline-e",
+    "scenario": "E12",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E12__B__r1_baseline-e.json.gz"
+  },
+  {
+    "run_id": "E12__B__r2_baseline-e",
+    "scenario": "E12",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/baseline-e/E12__B__r2_baseline-e.json.gz"
+  }
+]
