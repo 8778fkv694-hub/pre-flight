@@ -6,13 +6,72 @@
 
 Pre-flight is a portable skill for coding agents. Describe what you want in your own words; the agent helps establish the project's basic law, define success, and then plan, build, verify, and hand over the work. It supports new projects and incremental adoption in existing ones.
 
+## Two skills: Core and B
+
+This repository offers **two independently selectable skills, both retained**. B does not replace Core, add an approval engine, or require both skills to execute for every task.
+
+| Choose | Entry point | Best for | Focus |
+|---|---|---|---|
+| **Pre-flight Core** | [`pre-flight/SKILL.md`](pre-flight/SKILL.md) | Project setup, intent confirmation, Spec/Plan, ordinary development and delivery | Six-stage SDLC, shared rules, verifiable evidence |
+| **Pre-flight B** | [`pre-flight-b/SKILL.md`](pre-flight-b/SKILL.md) | Ambiguous, complex, long-running, cross-agent tasks | Proactive gap detection, evidence-based decisions, correction, behavioral evaluation; retained and corrected after a real A/B evaluation, **not claimed superior to Core** |
+
+**Shared foundation:** Humans decide goals, important trade-offs, and authorization. The agent works proactively within existing authorization, reuses already-confirmed Intent, and respects real tool and safety boundaries. B reuses Core's Intent/Spec/Plan, six-stage workflow, Lite/Standard/Strict risk routing, and protected basic-law clauses. It does **not** establish a second, competing set of project rules. Principles remain stable; investigation, decisions, and evaluation methods can evolve based on evidence.
+
+### What does B add?
+
+**Help accomplish the real objective—not merely demonstrate process compliance.** An agent should discover consequential omissions, check evidence, and choose the smallest effective next action:
+
+```text
+Confirmed human goal + existing authorization
+                    ↓
+Understand context; surface important gaps; verify evidence
+                    ↓
+Choose the next useful and permitted action
+  PROCEED     sufficient information and authorization → execute
+  INVESTIGATE critical facts missing → bounded investigation
+  ESCALATE    human trade-off or new authorization → ask the human
+  HOLD        hard risk, conflict, or unknown side effect → pause affected action
+  CORRECT     observed failure or mismatch → repair and verify
+                    ↓
+Verify real-world outcome, correct when needed, retain handoff evidence
+```
+
+These are **decision outcomes, not five mandatory approval steps**. Routine authorized fixes proceed without repeated approval. Investigate only when learning more could materially change the next action. Avoid both **false approvals** (unsafe or unauthorized action) and **false blocks** (unnecessary stops). Active help does not mean quietly expanding the user's scope.
+
+The [12 behavioral evaluation scenarios](pre-flight-b/references/behavior-evaluation.md) cover proactive gap discovery, unnecessary approval requests, authorization, failure correction, cross-agent evidence, and safe resumption. These are **test designs, not reported passing agent runs**.
+
+> **Naming history and evidence:** this variant was formerly called Enhanced. An independent real-agent A/B evaluation on 2026-10-31 (same model, tools, sandbox, tasks and hidden acceptance for both arms; 246 baseline runs plus extra repetitions) did **not** show it to be overall better than Core: most scenarios were identical, a few were worse on authorization boundaries and scope restraint, and it showed observable improvement only on stop/reconcile confirmation. It is therefore renamed **B** (a parallel selectable variant, not a claim of superiority), and the evaluation findings were folded into its L2 boundary rules (data export, governance changes, over-blocking).
+
+### Install and invoke B
+
+When downloading the repository ZIP, keep **both entire sibling folders**: `pre-flight/` and `pre-flight-b/`. B reads Core references on demand, so copying only its `SKILL.md` is not sufficient. Install them into the skills path supported by your tool or explicitly provide the file path. Automatic discovery and named invocation are tool-dependent.
+
+```text
+Read /your-path/skills/pre-flight-b/SKILL.md first.
+Use the sibling pre-flight/ references as needed, and honor this project's
+AGENT.md, confirmed Intent/Spec/Plan, and existing authorization.
+
+My actual objective is: [describe the task].
+Inspect the current state and evidence, proactively detect consequential gaps,
+and investigate, execute, and verify what is already authorized.
+Ask me only about important trade-offs, new authorization, or genuinely
+unresolvable decisions, with evidence, options, and a recommendation.
+Do not expand the scope, keep researching irrelevant unknowns, or claim
+untested work is complete.
+```
+
+If supported by your client, you may invoke `$pre-flight-b` using that client's skill syntax.
+
+**Which one?** Prefer Core by default (more stable, more predictable behavior baseline). Choose B when the task genuinely needs proactive gap-filling, long-running continuation, or cross-agent handoffs; note that the 2026-10-31 real A/B evaluation did not show B to be overall superior, so review its authorization boundaries independently on high-impact tasks. Either way, a skill is guidance, **not proof of model judgment or an enforced permission system**.
+
 ## Repository layout
 
-- `pre-flight/` — the action guide (Skill): the method is the main deliverable; entry point [SKILL.md](pre-flight/SKILL.md).
+- `pre-flight/` — Core skill, entry [SKILL.md](pre-flight/SKILL.md).
+- `pre-flight-b/` — B skill, entry [SKILL.md](pre-flight-b/SKILL.md), using Core references on demand; the letter B marks a parallel variant, not a claim of superiority.
 - `background/whitepapers-zh/` — background reading: Chinese translations of a few public whitepapers; **not the method text**, read only when needed.
 - `VALIDATION.md` — current validation scope and records.
 
-Day-to-day use needs only `pre-flight/`; the background material does not affect how the method is executed.
+Both skills are retained: for Core, only `pre-flight/` is needed; for B, keep both sibling skill directories. Background reading is optional.
 
 ## Start your first project
 
