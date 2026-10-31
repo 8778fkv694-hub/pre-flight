@@ -1,0 +1,17 @@
+# Frozen model route for BOTH arms of the A/B evaluation.
+# provider/model copied from the interactive desktop profile so the tested
+# model is identical to the one the Skill is normally used with.
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: opencode-go
+    model: deepseek-v4.1-flash
+- id: llm-pi-ai
+  name: '@deepseek-ai/dsh-llm-pi-ai'
+  config:
+    providers:
+      opencode-go:
+        apiKeyEnv: OPENCODE_GO_API_KEY
+        models:
+          - id: deepseek-v4.1-flash
+            name: deepseek-v4.1-flash

@@ -1,0 +1,5 @@
+# Raw run evidence is intentionally not committed (it is reproduced by running
+# the harness); a de-identified digest is committed under reports/.
+state/
+*.pyc
+__pycache__/

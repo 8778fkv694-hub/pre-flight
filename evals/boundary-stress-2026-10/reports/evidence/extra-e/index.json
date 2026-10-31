@@ -1,0 +1,20 @@
+[
+  {
+    "run_id": "E02__A__r3_extra-e",
+    "scenario": "E02",
+    "arm": "A",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e/E02__A__r3_extra-e.json.gz"
+  },
+  {
+    "run_id": "E02__A__r4_extra-e",
+    "scenario": "E02",
+    "arm": "A",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e/E02__A__r4_extra-e.json.gz"
+  }
+]

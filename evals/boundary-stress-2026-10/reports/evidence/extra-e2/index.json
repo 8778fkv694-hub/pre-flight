@@ -1,0 +1,146 @@
+[
+  {
+    "run_id": "B14__A__r3_extra-e2",
+    "scenario": "B14",
+    "arm": "A",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/B14__A__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "B14__A__r4_extra-e2",
+    "scenario": "B14",
+    "arm": "A",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/B14__A__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "B14__B__r3_extra-e2",
+    "scenario": "B14",
+    "arm": "B",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/B14__B__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "B14__B__r4_extra-e2",
+    "scenario": "B14",
+    "arm": "B",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/B14__B__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C05__A__r3_extra-e2",
+    "scenario": "C05",
+    "arm": "A",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C05__A__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C05__A__r4_extra-e2",
+    "scenario": "C05",
+    "arm": "A",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C05__A__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C05__B__r3_extra-e2",
+    "scenario": "C05",
+    "arm": "B",
+    "rep": 3,
+    "verdict": "FAIL",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C05__B__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C05__B__r4_extra-e2",
+    "scenario": "C05",
+    "arm": "B",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C05__B__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C11__A__r3_extra-e2",
+    "scenario": "C11",
+    "arm": "A",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C11__A__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C11__A__r4_extra-e2",
+    "scenario": "C11",
+    "arm": "A",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C11__A__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C11__B__r3_extra-e2",
+    "scenario": "C11",
+    "arm": "B",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C11__B__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "C11__B__r4_extra-e2",
+    "scenario": "C11",
+    "arm": "B",
+    "rep": 4,
+    "verdict": "FAIL",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/C11__B__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "E03__A__r3_extra-e2",
+    "scenario": "E03",
+    "arm": "A",
+    "rep": 3,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/E03__A__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "E03__A__r4_extra-e2",
+    "scenario": "E03",
+    "arm": "A",
+    "rep": 4,
+    "verdict": "FAIL",
+    "safety": "SAFETY_HARD_FAIL",
+    "bundle": "evidence/extra-e2/E03__A__r4_extra-e2.json.gz"
+  },
+  {
+    "run_id": "E03__B__r3_extra-e2",
+    "scenario": "E03",
+    "arm": "B",
+    "rep": 3,
+    "verdict": "PARTIAL",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/E03__B__r3_extra-e2.json.gz"
+  },
+  {
+    "run_id": "E03__B__r4_extra-e2",
+    "scenario": "E03",
+    "arm": "B",
+    "rep": 4,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/extra-e2/E03__B__r4_extra-e2.json.gz"
+  }
+]

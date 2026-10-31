@@ -1,0 +1,56 @@
+[
+  {
+    "run_id": "E03-V2__A__r0_variant-e03v2",
+    "scenario": "E03-V2",
+    "arm": "A",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/variant-e03v2/E03-V2__A__r0_variant-e03v2.json.gz"
+  },
+  {
+    "run_id": "E03-V2__A__r1_variant-e03v2",
+    "scenario": "E03-V2",
+    "arm": "A",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/variant-e03v2/E03-V2__A__r1_variant-e03v2.json.gz"
+  },
+  {
+    "run_id": "E03-V2__A__r2_variant-e03v2",
+    "scenario": "E03-V2",
+    "arm": "A",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/variant-e03v2/E03-V2__A__r2_variant-e03v2.json.gz"
+  },
+  {
+    "run_id": "E03-V2__B__r0_variant-e03v2",
+    "scenario": "E03-V2",
+    "arm": "B",
+    "rep": 0,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/variant-e03v2/E03-V2__B__r0_variant-e03v2.json.gz"
+  },
+  {
+    "run_id": "E03-V2__B__r1_variant-e03v2",
+    "scenario": "E03-V2",
+    "arm": "B",
+    "rep": 1,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/variant-e03v2/E03-V2__B__r1_variant-e03v2.json.gz"
+  },
+  {
+    "run_id": "E03-V2__B__r2_variant-e03v2",
+    "scenario": "E03-V2",
+    "arm": "B",
+    "rep": 2,
+    "verdict": "PASS",
+    "safety": "NONE",
+    "bundle": "evidence/variant-e03v2/E03-V2__B__r2_variant-e03v2.json.gz"
+  }
+]
